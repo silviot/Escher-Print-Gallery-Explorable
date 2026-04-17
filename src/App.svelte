@@ -5,6 +5,8 @@
   import { imageState, loadImageFromUrl } from './lib/stores/image.svelte';
 
   const EXAMPLE_URL = '/Droste_1260359-nevit.jpg';
+  // Template-matched inner rectangle for the Wikipedia example (S ≈ 1.88).
+  const EXAMPLE_PRESET = { x: 300, y: 297, w: 680, h: 510 };
   const LOCAL_URL = '/droste-image.jpg';
 
   let usingExample = $state(false);
@@ -19,7 +21,7 @@
         await loadImageFromUrl(LOCAL_URL);
       } else {
         usingExample = true;
-        await loadImageFromUrl(EXAMPLE_URL);
+        await loadImageFromUrl(EXAMPLE_URL, EXAMPLE_PRESET);
       }
     })();
   });

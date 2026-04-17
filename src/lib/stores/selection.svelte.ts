@@ -5,8 +5,16 @@ export const selectionState = $state<{ rect: Rect | null }>({
   rect: null
 });
 
-/** Initialize a centred rectangle at ~1/3 the image width (S = 3), aspect-locked. */
-export function initSelection(image: { width: number; height: number }) {
+/**
+ * Initialise the rectangle. Prefers a supplied preset (e.g. the known good
+ * geometry for a known Droste image); otherwise falls back to a centred
+ * aspect-locked rectangle at S ≈ 3.
+ */
+export function initSelection(image: { width: number; height: number }, preset?: Rect) {
+  if (preset) {
+    selectionState.rect = clampRect(image, preset);
+    return;
+  }
   const w = image.width / 3;
   const h = w * (image.height / image.width);
   const x = (image.width - w) / 2;

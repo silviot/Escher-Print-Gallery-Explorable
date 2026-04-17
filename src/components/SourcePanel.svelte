@@ -10,7 +10,7 @@
   // Re-init selection whenever a new image loads.
   $effect(() => {
     const src = imageState.source;
-    if (src) initSelection({ width: src.width, height: src.height });
+    if (src) initSelection({ width: src.width, height: src.height }, src.presetRect);
   });
 
   // Draw image onto the backing canvas once, in image-pixel space. CSS scales it.
