@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.DS_Store
+*.log
+
+# Personal default image — keep out of public repo
+droste-image.jpg
+public/droste-image.jpg
+.gstack/

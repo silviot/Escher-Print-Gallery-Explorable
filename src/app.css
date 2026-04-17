@@ -1,0 +1,55 @@
+:root {
+  --bg: #101820;
+  --fg: #ece6d1;
+  --teal: #58c4dd;
+  --warm: #ffb85c;
+  --green: #83c167;
+  --border: #4a5568;
+  --muted: #8a8f99;
+
+  --font-body: 'EB Garamond', Georgia, serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 18px;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+#app { min-height: 100vh; }
+
+h1, h2, h3 {
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  margin: 0 0 0.5em;
+}
+
+h1 { font-size: 2rem; }
+h2 { font-size: 1.25rem; color: var(--teal); }
+
+button {
+  font-family: inherit;
+  font-size: 0.95rem;
+  color: var(--fg);
+  background: transparent;
+  border: 1px solid var(--border);
+  padding: 0.4em 0.9em;
+  cursor: pointer;
+  transition: border-color 120ms var(--ease), color 120ms var(--ease);
+}
+button:hover { border-color: var(--teal); color: var(--teal); }
+
+.mono { font-family: var(--font-mono); }
+.muted { color: var(--muted); }

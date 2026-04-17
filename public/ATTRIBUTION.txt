@@ -1,0 +1,6 @@
+Default example image
+---------------------
+File:    Droste_1260359-nevit.jpg
+Author:  Nevit Dilmen
+Source:  https://commons.wikimedia.org/wiki/File:Droste_1260359-nevit.jpg
+License: CC BY-SA 3.0 — https://creativecommons.org/licenses/by-sa/3.0/

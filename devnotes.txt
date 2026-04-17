@@ -1,0 +1,328 @@
+**Core idea (build everything around this):**
+Use a **complex-power map**
+[
+h(w)=w^{\frac{2\pi i+\log s}{2\pi i}}
+]
+implemented as
+
+```glsl
+exp( c * log(w) )
+```
+
+to convert **radial zoom (Droste)** into **angular motion (loop)**.
+
+Everything else (grid, gallery, textures) is scaffolding.
+
+---
+
+# 1. Mental model for developers
+
+## Three equivalent viewpoints
+
+### A. Shader view (what you already have)
+
+* `escherDeformation(uv)` ≈ complex power map
+* `drosteTransformation(uv)` ≈ enforce periodic zoom (scale wrap)
+
+### B. Math view
+
+Pipeline:
+
+```
+w (image plane)
+→ log(w)          // unwrap circles → strip
+→ rotate+scale    // align zoom vector with vertical period
+→ exp(...)        // wrap back into spiral loop
+```
+
+### C. Escher view (artist workflow)
+
+* Start with Droste image (self-similar scaling)
+* Warp with conformal grid
+* Copy pixels along grid
+
+All three are the same mechanism described differently 
+
+---
+
+# 2. Minimal architecture for an explorable explanation
+
+Break your system into **independent shader stages** that can be toggled:
+
+## Stage 0 — Base image
+
+* Static texture OR procedural scene
+* Must be **Droste-compatible** (self-similar under scaling)
+
+## Stage 1 — Droste tiling
+
+```glsl
+vec2 droste(vec2 uv) {
+    float s = 256.0;
+    float k = floor(log(length(uv)) / log(s));
+    return uv / pow(s, k);
+}
+```
+
+## Stage 2 — Log space visualization
+
+```glsl
+vec2 logMap(vec2 uv) {
+    return vec2(log(length(uv)), atan(uv.y, uv.x));
+}
+```
+
+## Stage 3 — Linear transform in log space
+
+```glsl
+vec2 transform(vec2 z, float scale) {
+    float sn = -log(scale) / (2.0 * PI);
+    mat2 R = mat2(cos(sn), -sin(sn),
+                  sin(sn),  cos(sn));
+    return R * z;
+}
+```
+
+## Stage 4 — Back to plane
+
+```glsl
+vec2 expMap(vec2 z) {
+    return exp(z.x) * vec2(cos(z.y), sin(z.y));
+}
+```
+
+## Stage 5 — Combined
+
+```glsl
+vec2 escher(vec2 uv, float scale) {
+    vec2 z = logMap(uv);
+    z = transform(z, scale);
+    return expMap(z);
+}
+```
+
+---
+
+# 3. Mapping to the Shadertoy examples
+
+## First shader (Nijhoff)
+
+Key line:
+
+```glsl
+h(w) = w^((2πi + log scale)/(2πi))
+```
+
+Implementation:
+
+```glsl
+float sn = -log(deformationScale)/(2π);
+```
+
+This is:
+
+```
+c = 1 + (log(scale) / 2πi)
+```
+
+Then:
+
+```
+w^c = exp(c * log(w))
+```
+
+## Second shader (3b1b-inspired)
+
+More explicit:
+
+```glsl
+uv2 = ex(rotate(ln(uv2)/cos(arg(voi)), arg(voi)));
+```
+
+This literally:
+
+```
+log → rotate → exp
+```
+
+Cleaner for teaching.
+
+---
+
+# 4. What users should be able to explore
+
+Design UI controls that expose **independent invariants**:
+
+## Essential sliders
+
+### 1. Scale (Droste factor)
+
+* 16 → 256 → continuous
+* Controls spiral tightness
+
+### 2. Rotation constant (complex exponent)
+
+* Shows failure modes if wrong
+* Critical for intuition
+
+### 3. Log-space view toggle
+
+* Shows tiling grid
+* Reveals periodicity
+
+### 4. “Grid mode”
+
+* Apply transform to a checkerboard
+* Demonstrates conformality (squares stay squares)
+
+### 5. Iteration depth
+
+* Number of droste wraps
+* Shows infinite recursion illusion
+
+---
+
+# 5. Key invariants to explain
+
+## 1. Log turns scaling → translation
+
+* Zoom becomes linear shift 
+
+## 2. Exp turns translation → rotation
+
+* Vertical motion → circular motion 
+
+## 3. Combined:
+
+```
+zoom → shift → rotate → loop
+```
+
+## 4. Conformality
+
+* Local shapes preserved
+* Reason: complex differentiability 
+
+---
+
+# 6. Suggested explorable sequence
+
+## Step 1 — Plain Droste
+
+* Infinite zoom
+* No loop
+
+## Step 2 — Log view
+
+* Show tiling
+* Reveal periodic structure
+
+## Step 3 — Rotate in log space
+
+* Show diagonal alignment
+
+## Step 4 — Apply exp
+
+* Loop appears
+
+## Step 5 — Full Escher
+
+* Replace texture with scene
+
+---
+
+# 7. Non-obvious implementation details
+
+### 1. Branch cut issues
+
+* `atan` discontinuity → visible seam
+* Fix with wrapping or duplication
+
+### 2. Center singularity
+
+* `log(0)` undefined
+* Fade or mask center
+
+### 3. Precision
+
+* Use `highp` in WebGL
+* Log/exp amplify errors
+
+### 4. Aliasing
+
+* Mipmaps break under non-linear mapping
+* Prefer procedural or manual filtering
+
+---
+
+# 8. Why the constant is weird
+
+The exponent:
+
+```
+(2πi + log s) / (2πi)
+```
+
+encodes two constraints:
+
+1. After one full rotation (2π):
+   → scale by `s`
+
+2. After scaling by `s`:
+   → return to same angle
+
+This enforces **closure of the loop**.
+
+---
+
+# 9. Minimal teaching shader (recommended baseline)
+
+Start from this, not the full raymarcher:
+
+```glsl
+vec2 escher(vec2 uv, float scale) {
+    float r = length(uv);
+    float a = atan(uv.y, uv.x);
+
+    float log_r = log(r);
+    float sn = -log(scale)/(2.0*PI);
+
+    float new_r = exp(log_r - a*sn);
+    float new_a = sn*log_r + a;
+
+    return new_r * vec2(cos(new_a), sin(new_a));
+}
+```
+
+Then layer:
+
+* droste wrapping
+* texture sampling
+* scene
+
+---
+
+# 10. What not to do
+
+* Don’t start from the raymarcher (too much noise)
+* Don’t hide log/exp step (kills intuition)
+* Don’t treat it as “just a shader trick”
+
+This is fundamentally:
+
+```
+complex dynamics + periodicity + conformal mapping
+```
+
+---
+
+# 11. Final framing for your explanation
+
+Users should walk away with:
+
+* “Zooming can be turned into rotation”
+* “Log unwraps, exp rewraps”
+* “Escher solved a functional equation visually”
+* “The shader is just exp(log(w) * c)”
+
+Everything else is decoration.

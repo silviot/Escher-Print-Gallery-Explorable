@@ -1,0 +1,1018 @@
+# Escher *Print Gallery* explorable explanation
+
+## Purpose
+
+This document is for web developers building an explorable explanation inspired by M. C. Escher’s *Print Gallery*. The goal is not to clone a Shadertoy demo, but to build a structured, explainable, interactive system that uses multiple shader-based renderings to teach the underlying ideas:
+
+* Droste self-similarity
+* logarithmic unwrap / rewrap
+* conformal-looking local behavior
+* rotation-plus-scaling in log space
+* the relation between the “hole” and the infinite spiral limit
+
+The two referenced Shadertoy examples suggest two complementary implementation directions:
+
+1. **Scene-driven / procedural 3D route**: a shader raymarches a synthetic gallery scene and applies Escher/Droste deformation to the camera domain.
+2. **Image-driven / texture route**: a shader transforms a prebuilt Droste source image through `log -> affine transform in log-space -> exp`.
+
+For an explorable explanation, the second route should be the primary teaching tool. The first route is useful as an optional “showpiece” layer because it is harder to explain, harder to parameterize, and less reusable.
+
+---
+
+## Recommended product shape
+
+Build the explanation as a sequence of linked views instead of one monolithic shader.
+
+Recommended views:
+
+1. **Base image view**
+
+   * Show the straight Droste source image.
+   * Allow toggling overlays: frame, repeated self-copy, marked scale factor.
+
+2. **Log-space unwrap view**
+
+   * Show the source image after complex logarithm.
+   * Highlight:
+
+     * vertical periodicity from angle
+     * horizontal periodicity from scale self-similarity
+   * This is one of the most important pedagogical views.
+
+3. **Log-space transform view**
+
+   * Show the unwrapped tiling after multiplication by a complex constant.
+   * Expose the constant as:
+
+     * rotation angle
+     * scale factor
+     * optional draggable vector in a mini complex-plane widget
+
+4. **Exponential rewrap view**
+
+   * Show the transformed log-space image mapped back through the complex exponential.
+   * This becomes the “Escher-like loop”.
+
+5. **Final presentation view**
+
+   * Polished rendering with transitions, labels hidden by default, optional annotations.
+
+6. **Optional procedural gallery view**
+
+   * A separate tab demonstrating a synthetic 3D gallery inspired by the first Shadertoy.
+   * Treat this as a visual appendix, not the conceptual backbone.
+
+This decomposition matters because the explanation becomes inspectable. Users should be able to see the same point or feature tracked across all views.
+
+---
+
+## Core mathematical pipeline
+
+The most useful implementation model is this composition:
+
+```text
+source image in w-plane
+    -> log(w)
+    -> multiply by complex constant a
+    -> optional translation / centering
+    -> exp(...)
+    -> sample source
+```
+
+Equivalent compact form:
+
+```text
+f(w) = exp(a * log(w) + b)
+```
+
+In many cases this can be written as:
+
+```text
+f(w) = C * w^a
+```
+
+where `a` is complex and `C = exp(b)`.
+
+For the explorable explanation, do **not** lead with `w^a`. It is compact but hides the mechanics. Teach the composed pipeline first, then show the compressed formula later.
+
+---
+
+## Conceptual mapping from the examples
+
+### Example A: scene-driven shader (raymarched gallery)
+
+The first Shadertoy mixes several concerns in one fragment shader:
+
+* procedural signed-distance-field scene construction
+* camera motion
+* two-stage domain transforms (`escherDeformation`, `drosteTransformation`)
+* hit-testing a “picture” inside the 3D scene
+* recursive-ish visual illusion by repeated rescaling when rays hit the picture plane
+
+This is visually impressive, but not ideal as the explanatory base because:
+
+* the math is entangled with scene rendering
+* many constants are artistic hacks
+* the pedagogically central transform is hidden among raymarching details
+* changing content requires shader surgery
+
+Use this route only when you want:
+
+* a cinematic opening scene
+* a “walk into the gallery” effect
+* a procedural homage to Escher’s framing device
+
+### Example B: image-driven transform shader
+
+The second Shadertoy is much closer to what an explorable explanation needs. It is effectively doing:
+
+* map screen coordinates to complex plane coordinates
+* apply a log-space normalization / rotation / scaling
+* use scale periodicity to fold the image into a canonical annulus / square-like domain
+* sample one of several textures depending on depth band
+* black out the inner singular region
+
+This route is better because:
+
+* the transformation logic is explicit
+* the source content is replaceable
+* the explanation can expose each intermediate stage
+* the same engine can render multiple instructional panels
+
+---
+
+## Architecture recommendation
+
+Use a small rendering engine with one shared complex-transform library and multiple passes.
+
+### Suggested stack
+
+* **Framework**: SvelteKit, React, or vanilla TypeScript with Vite
+* **GPU API**:
+
+  * WebGL2 for widest compatibility
+  * WebGPU only if your team already uses it and wants compute-driven preprocess steps
+* **Shader language**:
+
+  * GLSL ES 3.00 for WebGL2
+  * WGSL if using WebGPU
+* **2D UI overlays**:
+
+  * SVG or Canvas2D for arrows, labels, draggable handles, grids
+
+### Suggested module boundaries
+
+```text
+/src
+  /math
+    complex.ts
+    escher.ts
+  /render
+    gl.ts
+    programs/
+      sourceImage.glsl
+      logView.glsl
+      logTransformView.glsl
+      expView.glsl
+      finalView.glsl
+      optionalRaymarchGallery.glsl
+  /ui
+    controls.ts
+    annotations.ts
+    linkedViews.ts
+  /content
+    presets.ts
+    captions.ts
+```
+
+### Shared CPU-side math helpers
+
+Implement complex helpers both on CPU and GPU so that:
+
+* the UI can show corresponding points without readback hacks
+* annotations can be computed in TypeScript
+* unit tests can validate transform behavior
+
+Recommended functions:
+
+* `complexMul`
+* `complexExp`
+* `complexLogPrincipal`
+* `complexPow`
+* `toPolar`
+* `fromPolar`
+* periodic folding helpers
+* annulus / tile normalization helpers
+
+---
+
+## Multiple renderings to include
+
+The user asked for multiple shader-based renderings. Treat these as distinct instructional scenes, each with a single thesis.
+
+### Rendering 1: Straight Droste source
+
+**Purpose**: establish the starting image and scale repetition.
+
+Features:
+
+* source image texture or procedurally assembled source
+* overlay showing self-similar inset region
+* slider for scale factor `S`
+* optional repeated outlines for nested copies
+
+Pedagogical point:
+
+* “This image already contains itself, scaled by `S`.”
+
+### Rendering 2: Annulus and scale bands
+
+**Purpose**: show how a single annulus contains all information needed to tile the Droste image by scale.
+
+Features:
+
+* highlight annulus `[r, rS]`
+* show replicas at scales `S^n`
+* color-code bands by integer `n`
+
+Pedagogical point:
+
+* “Scaling by `S` shifts information between equivalent bands.”
+
+### Rendering 3: Log unwrap
+
+**Purpose**: make scaling become horizontal translation and rotation become vertical translation.
+
+Features:
+
+* source image sampled by `log(w)`
+* show grid lines for radius and angle
+* optional wraparound animation
+* clear branch-cut visualization
+
+Pedagogical point:
+
+* “Multiplication in the original plane becomes addition in log space.”
+
+### Rendering 4: Periodic log tiling
+
+**Purpose**: show double periodicity explicitly.
+
+Features:
+
+* repeated tile domain in log space
+* vertical period `2π`
+* horizontal period `log(S)`
+* toggle showing one fundamental domain rectangle
+
+Pedagogical point:
+
+* “Ordinary images repeat vertically in log-space; Droste images repeat horizontally too.”
+
+### Rendering 5: Log-space affine transform
+
+**Purpose**: show the crucial rotation-and-scaling of the unwrapped tiling.
+
+Features:
+
+* transform a point `z` in log-space to `a(z-z0)+z0`
+* draggable `a` represented as a complex multiplier
+* optional preset buttons for known good values
+* show how a chosen segment becomes vertical of length `2π`
+
+Pedagogical point:
+
+* “Choose the transform so the scale jump matches one full angular turn after exponentiation.”
+
+### Rendering 6: Exponential rewrap
+
+**Purpose**: show how transformed stripes become spiral-like loops.
+
+Features:
+
+* map transformed log coordinates back through `exp`
+* show concentric/spiral structure
+* toggle the center mask on and off
+
+Pedagogical point:
+
+* “The black hole is optional presentation; the math naturally gives an infinite inward spiral.”
+
+### Rendering 7: Final Escher-like composition
+
+**Purpose**: present the complete effect.
+
+Features:
+
+* polished color grading
+* optional anti-aliased contour/grid overlay
+* annotations off by default
+* play/pause subtle animation only if it clarifies a parameter, not as decoration
+
+Pedagogical point:
+
+* “Walking around the loop corresponds to zooming through self-similar scale levels.”
+
+### Rendering 8: Optional procedural gallery scene
+
+**Purpose**: homage to the original lithograph and the raymarched Shadertoy.
+
+Features:
+
+* simplified 3D gallery room
+* picture plane inside the scene
+* when rays hit the picture plane, recurse via transformed UVs instead of brute-force scene recursion
+
+Pedagogical point:
+
+* “This is a framing device, not the core math.”
+
+---
+
+## Rendering strategy
+
+Prefer **screen-space inverse mapping** over forward warping.
+
+For each output pixel:
+
+1. map screen coordinate to complex plane coordinate `w_out`
+2. compute inverse transform to find source sample location `w_src`
+3. sample the source texture
+
+This is more stable than trying to forward-warp tiles or geometry.
+
+### Why inverse mapping matters
+
+* no holes in rasterization
+* easier antialiasing
+* easier to show intermediate domains
+* same source asset can feed all views
+
+---
+
+## Coordinate systems
+
+You will need at least four coordinate systems. Name them clearly in code and docs.
+
+1. **Screen coordinates**: pixels or normalized device coordinates
+2. **Display plane coordinates**: user-facing 2D plane in which the effect is framed
+3. **Source complex plane** (`w`-plane): where the Droste source lives
+4. **Log plane** (`z`-plane): where `z = log(w)`
+
+A common source of confusion is mixing display-plane coordinates and source-plane coordinates. Keep them separate.
+
+Suggested naming:
+
+* `uvScreen`
+* `pDisplay`
+* `wSource`
+* `zLog`
+
+---
+
+## Shader responsibilities
+
+Do not put all logic into one shader. Use several small shaders or one shader with explicit modes only if the shared code is substantial.
+
+### Recommended passes
+
+#### Pass A: source renderer
+
+Inputs:
+
+* source texture(s) or procedural source content
+* scale factor `S`
+* framing parameters
+
+Output:
+
+* source image in `w`-plane
+
+#### Pass B: log view renderer
+
+Inputs:
+
+* source texture
+* domain bounds in log-space
+* branch cut convention
+
+Output:
+
+* texture showing `source(exp(z))`
+
+#### Pass C: transformed log renderer
+
+Inputs:
+
+* Pass B texture or direct source sampling
+* complex multiplier `a`
+* anchor `z0`
+
+Output:
+
+* transformed tiling in log-space
+
+#### Pass D: final rewrapped renderer
+
+Inputs:
+
+* transformed log coordinates
+* optional center mask
+
+Output:
+
+* final Escher-like image
+
+#### Pass E: overlays
+
+Inputs:
+
+* tracked feature positions
+* grid settings
+* annotation data
+
+Output:
+
+* composited labels, arrows, highlighted tiles
+
+---
+
+## Core formulas for implementation
+
+### Complex log and exp
+
+Assuming `w = (x, y)` and `z = (u, v)`:
+
+```text
+log(w) = (log(|w|), atan2(y, x))
+exp(z) = exp(u) * (cos(v), sin(v))
+```
+
+In shaders, the principal branch of `atan` gives one angle band. For explorable views, make branch behavior explicit instead of pretending it does not exist.
+
+### Affine transform in log space
+
+```text
+z' = a * (z - z0) + z0 + t
+```
+
+where:
+
+* `a` is a complex multiplier controlling rotation and scale in log-space
+* `z0` is an anchor point
+* `t` is an optional translation used for layout or alignment
+
+### Final mapping
+
+```text
+w' = exp(z')
+```
+
+### Compressed form
+
+```text
+w' = C * exp(a * log(w)) = C * w^a
+```
+
+Again: expose the expanded form in the explorable UI.
+
+---
+
+## Choosing parameters
+
+The most important authoring problem is choosing `a`.
+
+The intuitive constraint is:
+
+* a specific displacement in the log plane representing one self-similar scale jump should map to a vertical displacement of `2πi`
+
+For a Droste image with scale factor `S`, horizontal repetition in log-space is:
+
+```text
+L = log(S)
+```
+
+If you choose a displacement vector `d` that connects equivalent features between tiles, then you want:
+
+```text
+a * d = 2πi
+```
+
+So:
+
+```text
+a = 2πi / d
+```
+
+This is the cleanest explanation-oriented way to derive the parameter.
+
+In practice:
+
+* expose `S`
+* expose the chosen tile-to-tile correspondence vector `d`
+* derive `a`
+* optionally let advanced users perturb `a`
+
+This yields a better educational interface than exposing a mysterious raw complex exponent.
+
+---
+
+## Source content strategy
+
+You need a source image that is already Droste-like. There are three realistic options.
+
+### Option 1: authored texture atlas
+
+Create a clean 2D source image manually in SVG or raster form.
+
+Pros:
+
+* easiest to control
+* easiest to annotate
+* easiest to align with explanation
+
+Cons:
+
+* less dynamic
+
+### Option 2: procedurally generated source
+
+Generate a simple cartoon scene recursively.
+
+Pros:
+
+* highly explainable
+* parameterized
+* ideal for demo presets
+
+Cons:
+
+* more authoring work
+
+### Option 3: photobashed / painted source
+
+Use an illustration or museum-safe reconstruction-style asset.
+
+Pros:
+
+* aesthetically rich
+
+Cons:
+
+* harder to align precisely with explanatory overlays
+* rights and provenance become important
+
+For the explorable explanation, **Option 1 or 2** is better than a visually dense source.
+
+---
+
+## Interaction design
+
+This project will fail if the interaction model is decorative rather than diagnostic.
+
+### Essential controls
+
+* **scale factor `S`**
+* **show/hide grid**
+* **show one fundamental domain**
+* **toggle branch cut**
+* **toggle center mask**
+* **step through pipeline**
+* **scrub correspondence point**
+* **drag log-space transform vector**
+
+### Strongly recommended controls
+
+* synchronized hover across all views
+* pin a point in one view and show its images in the others
+* preset buttons:
+
+  * simple toy example (e.g. `S = 16`)
+  * Escher-like deeper example (`S = 256`)
+  * intentionally wrong parameter choices
+
+### Controls to avoid
+
+* gratuitous camera drift
+* arbitrary shader noise
+* excessive time-based animation unrelated to explanation
+* too many simultaneous sliders with no narrative ordering
+
+---
+
+## Narrative sequence for users
+
+Design the explanation so the user learns one invariant at a time.
+
+### Sequence A: self-similarity
+
+* start with a plain Droste image
+* highlight the inset copy
+* show repeated scaling bands
+
+### Sequence B: log makes scale additive
+
+* unwrap the image
+* show why circles become vertical lines
+* show why scaling by `S` becomes horizontal shift by `log(S)`
+
+### Sequence C: choose the right transform
+
+* pick equivalent points in adjacent tiles
+* rotate/scale the log plane so the connecting segment becomes vertical length `2π`
+
+### Sequence D: exponentiate back
+
+* wrap back into the plane
+* observe the loop
+* explain the apparent hole versus the mathematical infinite spiral
+
+### Sequence E: connect to Escher
+
+* compare with a warped mesh
+* explain local near-conformality
+* optionally connect to the original print and related analysis
+
+---
+
+## Handling the center
+
+This is one of the most important conceptual points.
+
+The center can be presented in two distinct ways:
+
+1. **Masked center**
+
+   * black or blank disk
+   * useful for matching familiar presentations
+   * visually calmer
+
+2. **Unmasked mathematical center**
+
+   * show the infinite inward spiral
+   * more honest mathematically
+   * stronger explanatory value
+
+Recommendation:
+
+* default to masked in the final “hero” view
+* default to unmasked in the explanatory views
+* explicitly state that the hole is a presentation choice, not a necessity of the transform
+
+---
+
+## Handling branch cuts and singularities
+
+Do not hide singularities. Make them teachable.
+
+### Singularity at zero
+
+`log(0)` is undefined.
+
+Implementation implications:
+
+* clamp radius below `epsilon`
+* optionally mask a small disk
+* or render a distinct center treatment
+
+### Branch cut
+
+The principal log has a discontinuity.
+
+Implementation implications:
+
+* expose branch angle as a parameter in explanatory views
+* allow users to rotate the cut away from key content
+* show that the cut is a representational artifact, not a flaw in the geometry
+
+### Texture seam management
+
+If using a repeated log tile texture:
+
+* wrap vertically for angle periodicity
+* wrap horizontally only when the source is truly Droste-periodic under scale `S`
+* otherwise explicitly blend or clamp
+
+---
+
+## Numerical and visual quality concerns
+
+### Antialiasing
+
+Transformations around the center can magnify frequency aggressively.
+
+Use:
+
+* mipmapped textures
+* derivative-aware sampling when available
+* supersampling for the final polished render if budget allows
+
+### Precision
+
+Near the center and across many scale levels, numerical instability appears quickly.
+
+Mitigations:
+
+* use highp where available
+* work in log-space as long as possible
+* avoid repeated exp/log roundtrips if one expression can be simplified
+* cap visible zoom depth in interactive mode
+
+### Temporal stability
+
+If parameters animate, tiny changes near the center can flicker badly.
+
+Mitigations:
+
+* quantize some annotation overlays
+* keep motion slow and intention-revealing
+* prefer scrubbing to autoplay
+
+---
+
+## Performance guidance
+
+### Prefer texture-driven explanatory passes
+
+The educational views should all run in one fullscreen fragment pass each.
+
+Expected cost drivers:
+
+* complex function eval per pixel
+* multiple texture reads for overlays / comparison views
+* supersampling near center
+
+### Keep the raymarched gallery isolated
+
+The procedural 3D scene is the expensive outlier.
+
+Recommendations:
+
+* render it at reduced resolution and upscale
+* disable by default on mobile
+* separate it from the main teaching flow
+* avoid deep recursion; use domain remapping instead
+
+### Mobile strategy
+
+Offer quality tiers:
+
+* low: no procedural scene, limited overlays, lower internal resolution
+* medium: full 2D explainers
+  n- high: add procedural appendix and polished antialiasing
+
+---
+
+## Suggested GLSL utility surface
+
+A useful minimal shader library might include:
+
+```glsl
+vec2 cmul(vec2 a, vec2 b);
+vec2 cdiv(vec2 a, vec2 b);
+float carg(vec2 z);
+float cabs(vec2 z);
+vec2 clog_principal(vec2 z);
+vec2 cexp(vec2 z);
+vec2 cpow(vec2 z, vec2 a);
+vec2 rotate2(vec2 p, float ang);
+vec2 foldLogTile(vec2 z, vec2 period);
+float annulusBand(vec2 w, float S);
+```
+
+Add matching TypeScript implementations for testing and UI annotation.
+
+---
+
+## Testing strategy
+
+This is not optional. Transform-heavy visual systems drift subtly.
+
+### CPU-side tests
+
+Test invariants in TypeScript:
+
+* `exp(log(w)) ≈ w` away from branch cut and zero
+* log-space periodicity under `w -> S*w`
+* angle periodicity under `arg + 2π`
+* derived `a` satisfies `a * d ≈ 2πi`
+
+### Visual regression tests
+
+Capture screenshots for presets:
+
+* source view
+* log view
+* transformed log view
+* final wrapped view
+
+Test at:
+
+* desktop wide
+* desktop square
+* mobile portrait
+
+### Interaction tests
+
+Ensure linked hover / selected points stay consistent across views.
+
+---
+
+## Accessibility and explanation quality
+
+Shader work easily becomes opaque. Counteract that deliberately.
+
+### Use text labels that state operations plainly
+
+Prefer:
+
+* “Take logarithm”
+* “Scale becomes translation”
+* “Rotate and scale in log-space”
+* “Wrap back with exponential”
+
+Avoid:
+
+* “Apply conformal morph”
+* “Perform complex exponentiation pass”
+
+### Make colors semantic
+
+* one color for angle
+* one color for scale band
+* one color for selected correspondence
+
+Do not let color choices be purely decorative.
+
+### Support reduced motion
+
+* disable autoplay
+* replace animated transitions with step buttons
+* preserve the explanation without motion
+
+---
+
+## Why a mesh-warp comparison still matters
+
+Even if the implementation is entirely complex-function-based, include one comparison panel that shows the corresponding warped grid.
+
+Reason:
+
+* it bridges mathematical and artistic viewpoints
+* it explains “local squares remain nearly squares” visually
+* it connects the reconstruction back to Escher’s likely practical workflow
+
+Implementation idea:
+
+* render a square grid in source space
+* apply the same transform used for the image
+* draw the resulting curved grid as a vector overlay or line shader
+
+---
+
+## Practical development plan
+
+### Milestone 1: math sandbox
+
+Build a dev page with:
+
+* complex plane display
+* source texture sampling
+* log and exp toggles
+* draggable branch cut and transform vector
+
+Deliverable:
+
+* a crude but correct prototype
+
+### Milestone 2: linked explanatory views
+
+Build four synchronized panels:
+
+* source
+* log
+* transformed log
+* final
+
+Deliverable:
+
+* point tracking and preset system
+
+### Milestone 3: authored narrative
+
+Add captions, annotation overlays, and progression steps.
+
+Deliverable:
+
+* coherent explorable explanation without extra ornament
+
+### Milestone 4: visual polish
+
+Add:
+
+* anti-aliasing
+* typography
+* responsive layout
+* center mask toggle
+
+Deliverable:
+
+* publication-ready core explainer
+
+### Milestone 5: optional 3D appendix
+
+Add the procedural gallery scene only after the 2D explanation is solid.
+
+Deliverable:
+
+* bonus scene, isolated from the main teaching path
+
+---
+
+## What to borrow from each Shadertoy, specifically
+
+### Borrow from the first example
+
+* the idea of a framed picture embedded in a larger scene
+* domain remapping as a visual recursion trick
+* using a simplified scene to evoke the lithograph’s framing
+
+Do **not** borrow:
+
+* the monolithic structure
+* the hardcoded scene as the pedagogical basis
+* unexplained magic constants
+
+### Borrow from the second example
+
+* the image-first workflow
+* explicit log/exp reasoning
+* periodic folding in canonical domains
+* the idea of band-based texture selection / scale decomposition
+
+Refactor before adoption:
+
+* macro-heavy style
+* implicit math names (`S`, `voi`, `E`)
+* tightly coupled texture channel assumptions
+
+---
+
+## Documentation your implementation should ship with
+
+The developer docs for the project itself should include:
+
+1. **Math overview**
+
+   * complex log/exp recap
+   * why Droste self-similarity gives horizontal log periodicity
+   * how `a` is chosen
+
+2. **Rendering overview**
+
+   * pass graph
+   * coordinate systems
+   * data flow between views
+
+3. **Authoring guide**
+
+   * how to create a new source image
+   * how to define self-similar inset and scale factor
+   * how to choose presets
+
+4. **Performance guide**
+
+   * quality tiers
+   * mobile caveats
+   * texture and precision requirements
+
+5. **Testing guide**
+
+   * numerical invariants
+   * screenshot baselines
+   * known seam cases
+
+---
+
+## Minimal glossary for the target developers
+
+* **Droste effect**: an image containing a smaller copy of itself
+* **Self-similarity scale factor `S`**: the zoom ratio mapping one copy to the next
+* **`w`-plane**: the original complex plane where the source image lives
+* **`z`-plane**: the log plane, where `z = log(w)`
+* **Branch cut**: the seam introduced when choosing one angle representative for the logarithm
+* **Fundamental domain**: one rectangle in log-space containing all unique information before repetition
+* **Complex multiplier**: a number that rotates and scales simultaneously
+* **Conformal (local sense)**: locally preserves angles; tiny squares remain nearly square
+
+---
+
+## Final recommendation
+
+For an explorable explanation, the correct center of gravity is:
+
+* **image-driven transform engine first**
+* **multiple linked explanatory renderings second**
+* **optional procedural gallery last**
+
+If the team starts from the raymarched gallery shader, they will spend too much time rebuilding a spectacle. If they start from the `log -> transform -> exp` pipeline, they can build an actual explanation.
