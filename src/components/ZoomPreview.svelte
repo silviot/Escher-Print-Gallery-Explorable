@@ -4,16 +4,23 @@
   import { drosteGeometry } from '../lib/math/droste';
 
   /**
-   * Continuous Droste zoom: sample the source at a window centred so that the
-   * limit point c stays fixed on screen, and shrink that window by a factor
-   * S^t over one cycle (t ∈ [0, 1)). Because the image is self-similar with
-   * factor S, t wraps back to 0 seamlessly.
+   * Continuous Droste zoom.
+   *
+   * At time t, we draw the source image at multiple nested levels k = 0, 1, 2, …
+   * Each level k is drawn at scale σ_fit · S^t / S^k, with the limit point c
+   * pinned to the same canvas anchor. Level 0 is the outermost (fit-to-canvas
+   * at t = 0); each subsequent level lands exactly in the inner rectangle of
+   * the previous one, so we synthesise an infinitely nested Droste image even
+   * when the source only has one physical level of self-similarity.
+   *
+   * As t grows from 0 to 1, every level is multiplied by S — level k at t = 1
+   * matches level (k-1) at t = 0 — so the loop closes seamlessly.
    */
 
   let canvas: HTMLCanvasElement | null = $state(null);
   let t = $state(0);
   let playing = $state(true);
-  let cycleSeconds = $state(6);
+  let cycleSeconds = $state(8);
 
   const geom = $derived.by(() => {
     const src = imageState.source;
@@ -23,12 +30,18 @@
   });
 
   $effect(() => {
-    if (!canvas || !imageState.source) return;
-    const src = imageState.source;
-    const dpr = window.devicePixelRatio || 1;
-    const rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width * dpr;
-    canvas.height = rect.height * dpr;
+    if (!canvas) return;
+    const resize = () => {
+      if (!canvas) return;
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = Math.max(1, Math.round(rect.width * dpr));
+      canvas.height = Math.max(1, Math.round(rect.height * dpr));
+    };
+    resize();
+    const ro = new ResizeObserver(resize);
+    ro.observe(canvas);
+    return () => ro.disconnect();
   });
 
   $effect(() => {
@@ -51,7 +64,6 @@
     if (!canvas || !src || !g) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    // Deps for reactivity:
     void t;
 
     const dpr = window.devicePixelRatio || 1;
@@ -61,8 +73,7 @@
     ctx.fillStyle = '#0a1016';
     ctx.fillRect(0, 0, W, H);
 
-    // Map canvas coords ↔ image coords. We show the full image fit-to-canvas
-    // (letterboxed), then crop/zoom around c in image space.
+    // Fit the source image to the canvas (letterbox).
     const srcAspect = src.width / src.height;
     const canvasAspect = W / H;
     let fitW: number, fitH: number, offX: number, offY: number;
@@ -75,36 +86,43 @@
     }
     offX = (W - fitW) / 2;
     offY = (H - fitH) / 2;
+    const sigmaFit = fitW / src.width; // canvas-px per image-px when rendered fit-to-canvas
 
-    const z = Math.pow(g.S, t);
-    // Source window in image pixels.
-    const sw = src.width / z;
-    const sh = src.height / z;
-    const sx = g.limit.x * (1 - 1 / z);
-    const sy = g.limit.y * (1 - 1 / z);
+    // Anchor: where c appears on canvas at t = 0 (i.e. in the fitted source).
+    const anchorX = offX + g.limit.x * sigmaFit;
+    const anchorY = offY + g.limit.y * sigmaFit;
 
+    // Clip to the letterbox region so levels don't spill onto the background.
     ctx.save();
     ctx.beginPath();
     ctx.rect(offX, offY, fitW, fitH);
     ctx.clip();
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
-    try {
-      ctx.drawImage(src.bitmap, sx, sy, sw, sh, offX, offY, fitW, fitH);
-    } catch {
-      // If the window falls outside the image (c far outside), drawImage may throw.
-      // Fallback: draw full image.
-      ctx.drawImage(src.bitmap, offX, offY, fitW, fitH);
+
+    const zoom = Math.pow(g.S, t);
+
+    // Draw outermost first so nested levels paint on top of the inner rectangle.
+    // Stop when the rendered image shrinks below ~1.5 canvas pixels — invisible.
+    for (let k = 0; k < 32; k++) {
+      const scale = (sigmaFit * zoom) / Math.pow(g.S, k);
+      const w = src.width * scale;
+      if (w < 1.5) break;
+      const h = src.height * scale;
+      const dx = anchorX - g.limit.x * scale;
+      const dy = anchorY - g.limit.y * scale;
+      try {
+        ctx.drawImage(src.bitmap, dx, dy, w, h);
+      } catch {
+        // non-fatal
+      }
     }
+
     ctx.restore();
   });
 
-  function togglePlay() {
-    playing = !playing;
-  }
-  function reset() {
-    t = 0;
-  }
+  function togglePlay() { playing = !playing; }
+  function reset() { t = 0; }
 </script>
 
 <section class="zoom-preview">
@@ -117,13 +135,7 @@
       <button onclick={reset}>Reset</button>
       <label class="speed">
         Cycle
-        <input
-          type="range"
-          min="1"
-          max="20"
-          step="0.5"
-          bind:value={cycleSeconds}
-        />
+        <input type="range" min="1" max="20" step="0.5" bind:value={cycleSeconds} />
         <span>{cycleSeconds.toFixed(1)} s</span>
       </label>
       <label class="scrub">
@@ -141,11 +153,15 @@
   </header>
 
   {#if imageState.source}
-    <canvas bind:this={canvas} class="view" style="aspect-ratio: {imageState.source.width} / {imageState.source.height};"
+    <canvas
+      bind:this={canvas}
+      class="view"
+      style="aspect-ratio: {imageState.source.width} / {imageState.source.height};"
     ></canvas>
     <p class="muted hint">
-      The image is sampled at scale S<sup>t</sup> around the limit point. Because the
-      rectangle you placed is self-similar, the loop closes at t = 1.
+      Source drawn at scale σ · S<sup>t</sup> / S<sup>k</sup> for every level k, all
+      anchored at the limit point c. Level k + 1 always lands in level k's inner rectangle;
+      t = 1 is identical to t = 0 so the loop is seamless.
     </p>
   {:else}
     <p class="muted">Place a rectangle above to start.</p>
