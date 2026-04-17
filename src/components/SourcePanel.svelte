@@ -3,6 +3,7 @@
   import { selectionState, initSelection } from '../lib/stores/selection.svelte';
   import { drosteGeometry } from '../lib/math/droste';
   import RectanglePicker from './RectanglePicker.svelte';
+  import Magnifier from './Magnifier.svelte';
 
   let canvas: HTMLCanvasElement | null = $state(null);
 
@@ -50,13 +51,18 @@
 
   {#if imageState.source}
     {@const src = imageState.source}
-    <RectanglePicker image={{ width: src.width, height: src.height }}>
-      <canvas bind:this={canvas} class="img"></canvas>
-    </RectanglePicker>
-    <p class="hint muted">
-      Drag the rectangle to translate · drag a corner to scale (aspect-locked) ·
-      <span class="dot warm"></span> marks the limit point
-    </p>
+    <div class="layout">
+      <div class="picker-wrap">
+        <RectanglePicker image={{ width: src.width, height: src.height }}>
+          <canvas bind:this={canvas} class="img"></canvas>
+        </RectanglePicker>
+        <p class="hint muted">
+          Drag the rectangle to translate · drag a corner to scale (aspect-locked) ·
+          <span class="dot warm"></span> marks the limit point
+        </p>
+      </div>
+      <Magnifier />
+    </div>
   {:else if imageState.loading}
     <p class="muted">Loading image…</p>
   {:else}
@@ -69,6 +75,17 @@
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
+    max-width: 1240px;
+  }
+  .layout {
+    display: flex;
+    gap: 1.25rem;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .picker-wrap {
+    flex: 1 1 480px;
+    min-width: 0;
     max-width: 960px;
   }
   header {

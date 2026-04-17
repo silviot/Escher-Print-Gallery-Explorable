@@ -2,6 +2,7 @@
   import type { Rect } from '../lib/math/droste';
   import { drosteGeometry } from '../lib/math/droste';
   import { selectionState, setRect } from '../lib/stores/selection.svelte';
+  import { interactionState } from '../lib/stores/interaction.svelte';
 
   import type { Snippet } from 'svelte';
   type Props = { image: { width: number; height: number }; children?: Snippet };
@@ -63,6 +64,7 @@
       startRect: { ...selectionState.rect },
       startPx: clientToImage(e)
     };
+    interactionState.active = true;
   }
 
   function onCornerPointerDown(e: PointerEvent, corner: 0 | 1 | 2 | 3) {
@@ -78,11 +80,15 @@
     const signX: -1 | 1 = corner === 0 || corner === 3 ? -1 : 1;
     const signY: -1 | 1 = corner === 0 || corner === 1 ? -1 : 1;
     drag = { type: 'corner', corner, opposite, signX, signY };
+    interactionState.active = true;
+    // focus the magnifier on the corner the user grabbed
+    interactionState.focus = { x: r.x + (corner === 1 || corner === 2 ? r.w : 0), y: r.y + (corner === 2 || corner === 3 ? r.h : 0) };
   }
 
   function onPointerMove(e: PointerEvent) {
-    if (!drag || !selectionState.rect) return;
     const p = clientToImage(e);
+    interactionState.focus = p;
+    if (!drag || !selectionState.rect) return;
     if (drag.type === 'body') {
       const dx = p.x - drag.startPx.x;
       const dy = p.y - drag.startPx.y;
@@ -101,6 +107,11 @@
       const x = drag.signX === 1 ? drag.opposite.x : drag.opposite.x - w;
       const y = drag.signY === 1 ? drag.opposite.y : drag.opposite.y - h;
       setRect(image, { x, y, w, h });
+      // keep the magnifier on the corner that's actually moving
+      interactionState.focus = {
+        x: drag.signX === 1 ? x + w : x,
+        y: drag.signY === 1 ? y + h : y
+      };
     }
   }
 
@@ -111,6 +122,11 @@
       } catch {}
       drag = null;
     }
+    interactionState.active = false;
+  }
+
+  function onPointerLeave() {
+    if (!interactionState.active) interactionState.focus = null;
   }
 
   // Edge-arrow geometry for when c is outside the image.
@@ -134,6 +150,7 @@
   onpointermove={onPointerMove}
   onpointerup={onPointerUp}
   onpointercancel={onPointerUp}
+  onpointerleave={onPointerLeave}
 >
   {@render children?.()}
 

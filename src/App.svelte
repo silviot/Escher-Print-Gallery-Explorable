@@ -1,6 +1,7 @@
 <script lang="ts">
   import Uploader from './components/Uploader.svelte';
   import SourcePanel from './components/SourcePanel.svelte';
+  import ZoomPreview from './components/ZoomPreview.svelte';
   import { imageState, loadImageFromUrl } from './lib/stores/image.svelte';
 
   const EXAMPLE_URL = '/Droste_1260359-nevit.jpg';
@@ -36,6 +37,10 @@
 
   <div class="row">
     <SourcePanel />
+  </div>
+
+  <div class="row">
+    <ZoomPreview />
   </div>
 
   {#if usingExample}
