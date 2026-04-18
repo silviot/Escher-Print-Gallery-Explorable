@@ -73,6 +73,19 @@
       return true;
     });
     ctx.putImageData(out, 0, 0);
+
+    // Period-markers: Droste vector (logS, 2π) now runs vertically with length
+    // L = sqrt(logS² + 4π²). Draw one period downwards from the top.
+    const L = Math.hypot(g.logS, 2 * Math.PI);
+    const periodPx = (L / uSpan) * (H - 1);
+    ctx.strokeStyle = 'rgba(255, 184, 92, 0.55)';
+    ctx.setLineDash([4, 4]);
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(0, periodPx + 0.5);
+    ctx.lineTo(W, periodPx + 0.5);
+    ctx.stroke();
+    ctx.setLineDash([]);
   });
 </script>
 
@@ -94,8 +107,8 @@
   <canvas bind:this={canvas} style="width: {W}px; max-width: 100%; height: auto;"></canvas>
   <p class="muted hint">
     Same log strip, rotated by α = atan(logS / 2π). The Droste lattice
-    vector (logS, 2π) lands on the vertical axis, so the diagonal stripes
-    straighten into vertical columns of period 2π.
+    vector (logS, 2π) lands on the vertical axis with length
+    L = √(logS² + 4π²); the dashed line marks one period downward.
   </p>
 </section>
 

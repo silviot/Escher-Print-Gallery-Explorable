@@ -64,6 +64,19 @@
       return true;
     });
     ctx.putImageData(out, 0, 0);
+
+    // Droste period markers: horizontal lines at u = uMax − n·logS.
+    ctx.strokeStyle = 'rgba(255, 184, 92, 0.55)';
+    ctx.setLineDash([4, 4]);
+    ctx.lineWidth = 1;
+    for (let n = 1; n < N_PERIODS; n++) {
+      const y = ((n * g.logS) / uSpan) * (H - 1);
+      ctx.beginPath();
+      ctx.moveTo(0, y + 0.5);
+      ctx.lineTo(W, y + 0.5);
+      ctx.stroke();
+    }
+    ctx.setLineDash([]);
   });
 </script>
 
@@ -83,8 +96,10 @@
   </header>
   <canvas bind:this={canvas} style="width: {W}px; max-width: 100%; height: auto;"></canvas>
   <p class="muted hint">
-    Horizontal: angle v around the limit point (−π to π, wraps). Vertical: log-radius u.
-    A Droste image becomes a diagonal stripe pattern — the slope is logS / 2π.
+    Horizontal: angle v around the limit point (−π to π, wraps).
+    Vertical: log-radius u, with larger radii at the top.
+    A Droste image repeats every logS downward (dashed lines); combined
+    with the 2π angle wrap, the self-similarity lattice is (logS, 2π).
   </p>
 </section>
 
