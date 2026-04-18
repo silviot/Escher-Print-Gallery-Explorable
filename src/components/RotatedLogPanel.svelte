@@ -2,10 +2,10 @@
   import { imageState } from '../lib/stores/image.svelte';
   import { selectionState } from '../lib/stores/selection.svelte';
   import { drosteGeometry } from '../lib/math/droste';
-  import { renderMapped } from '../lib/math/transforms';
+  import { renderMappedDroste, maxCornerRadius } from '../lib/math/transforms';
 
-  const W = 720;
-  const H = 240;
+  const W = 840;
+  const H = 280;
   const N_PERIODS = 3;
 
   let canvas: HTMLCanvasElement | null = $state(null);
@@ -21,20 +21,10 @@
     const src = imageState.source;
     const g = geom;
     if (!src || !g) return null;
-    const c = g.limit;
-    let maxR = 0;
-    for (const [x, y] of [
-      [0, 0],
-      [src.width, 0],
-      [0, src.height],
-      [src.width, src.height]
-    ] as const) {
-      const r = Math.hypot(x - c.x, y - c.y);
-      if (r > maxR) maxR = r;
-    }
-    const uMax = Math.log(Math.max(maxR, 1));
+    const rMax = maxCornerRadius(src.width, src.height, g.limit.x, g.limit.y);
+    const uMax = Math.log(Math.max(rMax, 1));
     const uMin = uMax - N_PERIODS * g.logS;
-    return { uMin, uMax };
+    return { uMin, uMax, rMax };
   });
 
   $effect(() => {
@@ -48,23 +38,26 @@
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Droste rotation angle: a = atan(logS / 2π). The vector (logS, 2π) — the
-    // Droste-repeat direction in (u, v) space — rotates onto the v-axis, so
-    // after this rotation the spiral's stripes stand vertical.
+    // Rotate (u, v) space by a = atan(logS / 2π) so the Droste-repeat vector
+    // (logS, 2π) lands on the v'-axis with length L. In the display, v' is
+    // vertical → the Droste repeat runs top-to-bottom.
     const a = Math.atan2(g.logS, 2 * Math.PI);
     const cosA = Math.cos(a);
     const sinA = Math.sin(a);
+    const L = Math.hypot(g.logS, 2 * Math.PI);
 
     const cx = g.limit.x;
     const cy = g.limit.y;
     const uSpan = ur.uMax - ur.uMin;
+    const droste = { cx, cy, logS: g.logS, rMax: ur.rMax };
 
     const out = ctx.createImageData(W, H);
-    renderMapped(out, src.pixels, (px, py, s) => {
-      // canvas pixel → (u', v') in the rotated-log frame
-      const vPrime = -Math.PI + (px / (W - 1)) * 2 * Math.PI;
-      const uPrime = ur.uMax - (py / (H - 1)) * uSpan;
-      // inverse-rotate to the plain log frame: (u, v) = R(-a) · (u', v')
+    renderMappedDroste(out, src.pixels, droste, (px, py, s) => {
+      // Horizontal: u' log-radius axis in the rotated frame.
+      // Vertical: v' ∈ [-L/2, L/2] — exactly one Droste period.
+      const uPrime = ur.uMin + (px / (W - 1)) * uSpan;
+      const vPrime = -L / 2 + (py / (H - 1)) * L;
+      // Inverse-rotate to the plain log frame: (u, v) = R(-a) · (u', v')
       const u = uPrime * cosA + vPrime * sinA;
       const v = -uPrime * sinA + vPrime * cosA;
       const r = Math.exp(u);
@@ -74,16 +67,15 @@
     });
     ctx.putImageData(out, 0, 0);
 
-    // Period-markers: Droste vector (logS, 2π) now runs vertically with length
-    // L = sqrt(logS² + 4π²). Draw one period downwards from the top.
-    const L = Math.hypot(g.logS, 2 * Math.PI);
-    const periodPx = (L / uSpan) * (H - 1);
-    ctx.strokeStyle = 'rgba(255, 184, 92, 0.55)';
+    // The canvas is exactly one Droste period tall: top and bottom rows show
+    // the same source pixels. Draw a subtle marker at the vertical midline
+    // (v' = 0) as a reference for where the rotation-free horizon sits.
+    ctx.strokeStyle = 'rgba(255, 184, 92, 0.35)';
     ctx.setLineDash([4, 4]);
     ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.moveTo(0, periodPx + 0.5);
-    ctx.lineTo(W, periodPx + 0.5);
+    ctx.moveTo(0, H / 2 + 0.5);
+    ctx.lineTo(W, H / 2 + 0.5);
     ctx.stroke();
     ctx.setLineDash([]);
   });
@@ -94,6 +86,7 @@
     <h2>log(z − c), rotated by α</h2>
     {#if geom}
       {@const a = Math.atan2(geom.logS, 2 * Math.PI)}
+      {@const L = Math.hypot(geom.logS, 2 * Math.PI)}
       <div class="chips mono">
         <span class="chip" title="Droste rotation angle">
           α = {(a * 180 / Math.PI).toFixed(2)}°
@@ -101,14 +94,19 @@
         <span class="chip" title="tan α = logS / 2π">
           tan α = logS / 2π = {(geom.logS / (2 * Math.PI)).toFixed(3)}
         </span>
+        <span class="chip" title="Vertical Droste period after rotation">
+          period = L = {L.toFixed(3)}
+        </span>
       </div>
     {/if}
   </header>
   <canvas bind:this={canvas} style="width: {W}px; max-width: 100%; height: auto;"></canvas>
   <p class="muted hint">
-    Same log strip, rotated by α = atan(logS / 2π). The Droste lattice
-    vector (logS, 2π) lands on the vertical axis with length
-    L = √(logS² + 4π²); the dashed line marks one period downward.
+    Same log strip, rotated by α = atan(logS / 2π). After the rotation, the
+    Droste lattice vector (logS, 2π) stands along the vertical with length
+    L = √(logS² + 4π²); the canvas is exactly one period tall, so top and
+    bottom rows coincide. Apply exp to this strip and it winds into the
+    Escher spiral below.
   </p>
 </section>
 

@@ -83,3 +83,103 @@ export function renderMapped(
     }
   }
 }
+
+/**
+ * Droste self-similarity context: image is assumed invariant under
+ * p → c + S·(p − c), i.e. scaling by S around the limit point c.
+ */
+export type DrosteCtx = {
+  cx: number;
+  cy: number;
+  logS: number;
+  /** Largest radius from c that we will accept as "inside the image"; use max corner distance. */
+  rMax: number;
+};
+
+/**
+ * Droste-wrapped sampling. Given a candidate source point (sx, sy) — which may
+ * be outside the image, or so close to c that the image is just a blur — scale
+ * (sx − c, sy − c) by S^n (n ∈ Z) until the resulting point is inside the image.
+ * Among valid n we pick the one giving the largest radius, so every output
+ * pixel draws from the richest, outermost equivalent copy.
+ */
+export function sampleDroste(
+  src: Pixels,
+  ctx: DrosteCtx,
+  sx: number,
+  sy: number,
+  out: [number, number, number, number]
+): boolean {
+  const W = src.width;
+  const H = src.height;
+  const dx = sx - ctx.cx;
+  const dy = sy - ctx.cy;
+  const r = Math.hypot(dx, dy);
+  if (r < 1e-9) {
+    out[0] = 0; out[1] = 0; out[2] = 0; out[3] = 0;
+    return false;
+  }
+  // Largest n such that r·exp(n·logS) ≤ rMax; start there and walk inward.
+  const n0 = Math.floor((Math.log(ctx.rMax) - Math.log(r)) / ctx.logS);
+  for (let dn = 0; dn <= 10; dn++) {
+    const n = n0 - dn;
+    const scale = Math.exp(n * ctx.logS);
+    const tx = ctx.cx + dx * scale;
+    const ty = ctx.cy + dy * scale;
+    if (tx >= 0 && ty >= 0 && tx <= W - 1 && ty <= H - 1) {
+      sample(src, tx, ty, out);
+      return true;
+    }
+  }
+  return false;
+}
+
+/** Like renderMapped, but samples through sampleDroste so the infinite tiling fills every output pixel. */
+export function renderMappedDroste(
+  out: ImageData,
+  pixels: Pixels,
+  ctx: DrosteCtx,
+  mapInv: (px: number, py: number, src: { x: number; y: number }) => boolean
+): void {
+  const rgba: [number, number, number, number] = [0, 0, 0, 0];
+  const src = { x: 0, y: 0 };
+  const W = out.width;
+  const H = out.height;
+  for (let py = 0; py < H; py++) {
+    for (let px = 0; px < W; px++) {
+      const idx = (py * W + px) * 4;
+      if (mapInv(px, py, src) && sampleDroste(pixels, ctx, src.x, src.y, rgba)) {
+        out.data[idx] = rgba[0];
+        out.data[idx + 1] = rgba[1];
+        out.data[idx + 2] = rgba[2];
+        out.data[idx + 3] = rgba[3];
+      } else {
+        out.data[idx] = 0;
+        out.data[idx + 1] = 0;
+        out.data[idx + 2] = 0;
+        out.data[idx + 3] = 0;
+      }
+    }
+  }
+}
+
+/** Largest |corner − c| for the given image size — used as rMax in Droste wrap. */
+export function maxCornerRadius(
+  imageWidth: number,
+  imageHeight: number,
+  cx: number,
+  cy: number
+): number {
+  let maxR = 0;
+  const corners: Array<[number, number]> = [
+    [0, 0],
+    [imageWidth, 0],
+    [0, imageHeight],
+    [imageWidth, imageHeight]
+  ];
+  for (const [x, y] of corners) {
+    const r = Math.hypot(x - cx, y - cy);
+    if (r > maxR) maxR = r;
+  }
+  return maxR;
+}

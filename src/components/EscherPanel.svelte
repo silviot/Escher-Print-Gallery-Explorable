@@ -2,7 +2,7 @@
   import { imageState } from '../lib/stores/image.svelte';
   import { selectionState } from '../lib/stores/selection.svelte';
   import { drosteGeometry } from '../lib/math/droste';
-  import { renderMapped } from '../lib/math/transforms';
+  import { renderMappedDroste, maxCornerRadius } from '../lib/math/transforms';
 
   const MAX_W = 560;
 
@@ -45,8 +45,11 @@
     const cx = g.limit.x;
     const cy = g.limit.y;
 
+    const rMax = maxCornerRadius(src.width, src.height, cx, cy);
+    const droste = { cx, cy, logS: g.logS, rMax };
+
     const out = ctx.createImageData(d.W, d.H);
-    renderMapped(out, src.pixels, (px, py, s) => {
+    renderMappedDroste(out, src.pixels, droste, (px, py, s) => {
       // Output canvas pixel → image coord
       const x = px / d.scale;
       const y = py / d.scale;
@@ -96,10 +99,11 @@
   </header>
   <canvas bind:this={canvas}></canvas>
   <p class="muted hint">
-    Output pixel p maps to source pixel c + (p − c)<sup>1/α</sup>. Following a
-    circle around c once multiplies the sampled radius by S, so the picture
-    winds into its own reduced copy. The pattern repeats under the Droste
-    zoom: scale by S, and the image matches itself exactly.
+    Output pixel p maps to source pixel c + (p − c)<sup>1/α</sup>. Each output
+    pixel is then folded by the image's Droste self-similarity until it lands
+    inside the picture, so you see the full infinite spiral. Following a
+    circle around c once multiplies sampled radius by S and rotates by α;
+    going outward, the image winds into itself and keeps going.
   </p>
 </section>
 
