@@ -1,5 +1,7 @@
 import type { Rect } from '../math/droste';
 import { clampRect } from '../math/droste';
+import { imageState } from './image.svelte';
+import { identityOf, writeRect } from '../persistence';
 
 export const selectionState = $state<{ rect: Rect | null }>({
   rect: null
@@ -24,4 +26,8 @@ export function initSelection(image: { width: number; height: number }, preset?:
 
 export function setRect(image: { width: number; height: number }, rect: Rect) {
   selectionState.rect = clampRect(image, rect);
+  const src = imageState.source;
+  if (src && selectionState.rect) {
+    writeRect(identityOf(src.url), selectionState.rect);
+  }
 }

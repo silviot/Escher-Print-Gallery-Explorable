@@ -146,7 +146,7 @@
   class="picker"
   style="aspect-ratio: {image.width} / {image.height};"
   role="application"
-  aria-label="Droste rectangle picker"
+  aria-label="Nest picker"
   onpointermove={onPointerMove}
   onpointerup={onPointerUp}
   onpointercancel={onPointerUp}
@@ -161,7 +161,7 @@
       viewBox="0 0 {image.width} {image.height}"
       preserveAspectRatio="none"
       role="application"
-      aria-label="Droste rectangle picker"
+      aria-label="Nest picker"
     >
       <!-- dim outside region -->
       <defs>
@@ -212,10 +212,10 @@
       />
 
       <!-- corner handles -->
-      {#each [{ cx: r.x, cy: r.y, i: 0 }, { cx: r.x + r.w, cy: r.y, i: 1 }, { cx: r.x + r.w, cy: r.y + r.h, i: 2 }, { cx: r.x, cy: r.y + r.h, i: 3 }] as h}
+      {#each [{ cx: r.x, cy: r.y, i: 0, diag: 'nwse' }, { cx: r.x + r.w, cy: r.y, i: 1, diag: 'nesw' }, { cx: r.x + r.w, cy: r.y + r.h, i: 2, diag: 'nwse' }, { cx: r.x, cy: r.y + r.h, i: 3, diag: 'nesw' }] as h}
         <!-- svelte-ignore a11y_no_static_element_interactions -->
         <g
-          class="handle"
+          class="handle handle-{h.diag}"
           onpointerdown={(e) => onCornerPointerDown(e, h.i as 0 | 1 | 2 | 3)}
           transform="translate({h.cx} {h.cy})"
         >
@@ -323,7 +323,10 @@
   .overlay :global(.handle:hover .dot) {
     stroke-width: 2;
   }
-  .overlay :global(.handle) {
+  .overlay :global(.handle-nwse) {
     cursor: nwse-resize;
+  }
+  .overlay :global(.handle-nesw) {
+    cursor: nesw-resize;
   }
 </style>

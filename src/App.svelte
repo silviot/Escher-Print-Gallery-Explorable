@@ -2,7 +2,8 @@
   import Uploader from './components/Uploader.svelte';
   import SourcePanel from './components/SourcePanel.svelte';
   import ZoomPreview from './components/ZoomPreview.svelte';
-  import { imageState, loadImageFromUrl } from './lib/stores/image.svelte';
+  import { imageState, loadImageFromUrl, restoreLastSession } from './lib/stores/image.svelte';
+  import { identityOf, readRect } from './lib/persistence';
 
   const EXAMPLE_URL = '/Droste_1260359-nevit.jpg';
   // Template-matched inner rectangle for the Wikipedia example (S ≈ 1.88).
@@ -14,14 +15,20 @@
   $effect(() => {
     if (imageState.source || imageState.loading) return;
     (async () => {
+      if (await restoreLastSession()) {
+        usingExample = imageState.source?.url === EXAMPLE_URL;
+        return;
+      }
       // Prefer a local (gitignored) image if present; otherwise the committed example.
       const head = await fetch(LOCAL_URL, { method: 'HEAD' }).catch(() => null);
       if (head && head.ok) {
         usingExample = false;
-        await loadImageFromUrl(LOCAL_URL);
+        const saved = readRect(identityOf(LOCAL_URL)) ?? undefined;
+        await loadImageFromUrl(LOCAL_URL, saved);
       } else {
         usingExample = true;
-        await loadImageFromUrl(EXAMPLE_URL, EXAMPLE_PRESET);
+        const saved = readRect(identityOf(EXAMPLE_URL)) ?? EXAMPLE_PRESET;
+        await loadImageFromUrl(EXAMPLE_URL, saved);
       }
     })();
   });
@@ -31,7 +38,7 @@
   <header class="page-head">
     <h1>Droste Explorable</h1>
     <p class="muted sub">
-      Place a self-similar rectangle inside an image. Watch the limit point emerge.
+      Place a self-similar nest inside an image. Watch the limit point emerge.
     </p>
   </header>
 

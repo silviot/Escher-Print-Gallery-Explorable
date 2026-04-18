@@ -34,7 +34,7 @@
 
 <section class="source">
   <header>
-    <h2>Source + inner rectangle</h2>
+    <h2>Source + nest</h2>
     {#if geom}
       <div class="chips mono">
         <span class="chip" title="Scale factor">S = {geom.S.toFixed(2)}</span>
@@ -57,7 +57,7 @@
           <canvas bind:this={canvas} class="img"></canvas>
         </RectanglePicker>
         <p class="hint muted">
-          Drag the rectangle to translate · drag a corner to scale (aspect-locked) ·
+          Drag the nest to translate · drag a corner to scale (aspect-locked) ·
           <span class="dot warm"></span> marks the limit point
         </p>
       </div>

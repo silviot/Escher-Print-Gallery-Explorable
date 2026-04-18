@@ -186,25 +186,16 @@
         zoomSnap: z
       };
     } else {
-      // empty click: just move the loupe centre, no drag
+      // empty click: no drag, keep the magnifier centred on the nest
       drag = null;
     }
-    interactionState.focus = img;
   }
 
   function onPointerMoveCanvas(e: PointerEvent) {
     if (!imageState.source || !selectionState.rect) return;
     const src = imageState.source;
+    if (!drag) return; // passive hover must NOT pan the magnifier away from the nest
     const cs = eventCss(e);
-
-    if (!drag) {
-      // passive hover: just update focus so the loupe tracks the pointer when idle
-      if (!interactionState.active && focus) {
-        interactionState.focus = cssToImage(cs.x, cs.y, focus, zoom);
-      }
-      return;
-    }
-
     const img = cssToImage(cs.x, cs.y, drag.focusSnap, drag.zoomSnap);
 
     if (drag.type === 'body') {
@@ -253,7 +244,7 @@
 
 <aside class="magnifier">
   <header>
-    <h3>Loupe</h3>
+    <h3>Magnifier</h3>
     <span class="mono zoom">×{zoom.toFixed(1)}</span>
   </header>
   <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -276,7 +267,7 @@
       step="0.1"
       value={zoom}
       oninput={(e) => (zoomOverride = parseFloat((e.currentTarget as HTMLInputElement).value))}
-      aria-label="Loupe zoom"
+      aria-label="Magnifier zoom"
     />
     <button
       class="reset"
@@ -285,7 +276,7 @@
       title="Match to S"
     >auto</button>
   </div>
-  <p class="muted hint">Drag handles or body here too — uses CSS-pixel precision even at extreme S.</p>
+  <p class="muted hint">Drag a handle or the nest here too — CSS-pixel precision even at extreme S.</p>
 </aside>
 
 <style>
