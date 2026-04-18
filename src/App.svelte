@@ -1,6 +1,9 @@
 <script lang="ts">
   import Uploader from './components/Uploader.svelte';
   import SourcePanel from './components/SourcePanel.svelte';
+  import LogPanel from './components/LogPanel.svelte';
+  import RotatedLogPanel from './components/RotatedLogPanel.svelte';
+  import EscherPanel from './components/EscherPanel.svelte';
   import ZoomPreview from './components/ZoomPreview.svelte';
   import { imageState, loadImageFromUrl, restoreLastSession } from './lib/stores/image.svelte';
   import { identityOf, readRect } from './lib/persistence';
@@ -46,6 +49,18 @@
 
   <div class="row">
     <SourcePanel />
+  </div>
+
+  <div class="row">
+    <LogPanel />
+  </div>
+
+  <div class="row">
+    <RotatedLogPanel />
+  </div>
+
+  <div class="row">
+    <EscherPanel />
   </div>
 
   <div class="row">

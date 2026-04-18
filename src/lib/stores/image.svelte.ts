@@ -9,12 +9,23 @@ import {
 
 export type SourceImage = {
   bitmap: ImageBitmap;
+  /** Raw RGBA pixel buffer so math panels can sample the image in JS. */
+  pixels: ImageData;
   width: number;
   height: number;
   url: string;
   /** Pre-computed self-similar rectangle, if the image is a known Droste. */
   presetRect?: Rect;
 };
+
+function extractPixels(bitmap: ImageBitmap): ImageData {
+  const c = document.createElement('canvas');
+  c.width = bitmap.width;
+  c.height = bitmap.height;
+  const ctx = c.getContext('2d', { willReadFrequently: true })!;
+  ctx.drawImage(bitmap, 0, 0);
+  return ctx.getImageData(0, 0, bitmap.width, bitmap.height);
+}
 
 export const imageState = $state<{ source: SourceImage | null; loading: boolean; error: string | null }>({
   source: null,
@@ -36,8 +47,9 @@ export async function loadImageFromUrl(url: string, presetRect?: Rect) {
     if (!res.ok) throw new Error(`Failed to fetch ${url} (${res.status})`);
     const blob = await res.blob();
     const bitmap = await createImageBitmap(blob);
+    const pixels = extractPixels(bitmap);
     revokePrevious();
-    imageState.source = { bitmap, width: bitmap.width, height: bitmap.height, url, presetRect };
+    imageState.source = { bitmap, pixels, width: bitmap.width, height: bitmap.height, url, presetRect };
     writeLast({ kind: 'url', url });
   } catch (e) {
     imageState.error = e instanceof Error ? e.message : String(e);
@@ -51,9 +63,10 @@ export async function loadImageFromFile(file: File) {
   imageState.error = null;
   try {
     const bitmap = await createImageBitmap(file);
+    const pixels = extractPixels(bitmap);
     const url = URL.createObjectURL(file);
     revokePrevious();
-    imageState.source = { bitmap, width: bitmap.width, height: bitmap.height, url };
+    imageState.source = { bitmap, pixels, width: bitmap.width, height: bitmap.height, url };
     try {
       await saveUploadBlob(file);
       writeLast({ kind: 'upload' });
@@ -77,10 +90,12 @@ export async function restoreLastSession(): Promise<boolean> {
       const blob = await loadUploadBlob();
       if (!blob) return false;
       const bitmap = await createImageBitmap(blob);
+      const pixels = extractPixels(bitmap);
       const url = URL.createObjectURL(blob);
       revokePrevious();
       imageState.source = {
         bitmap,
+        pixels,
         width: bitmap.width,
         height: bitmap.height,
         url,
