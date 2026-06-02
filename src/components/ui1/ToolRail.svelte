@@ -52,6 +52,15 @@
   >
     <Icon name="viewPipeline" />
   </button>
+  <button
+    class="tool"
+    class:active={ui.view === 'playground'}
+    title="Complex playground (f(z) explorer)"
+    aria-label="Complex playground"
+    onclick={() => setView('playground')}
+  >
+    <Icon name="viewPlayground" />
+  </button>
   <div class="spacer"></div>
   <!-- Self-hides on browsers without navigator.canShare for files. -->
   <ShareMenu {renderFrame} />

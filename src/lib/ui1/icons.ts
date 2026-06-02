@@ -49,6 +49,8 @@ export const ICON = {
     '<rect x="3" y="3" width="18" height="18" rx="1"/><rect x="7" y="6" width="11" height="12" rx="0.5"/><rect x="10" y="8" width="6" height="8" rx="0.5"/><rect x="12" y="10" width="2.5" height="4" rx="0.5"/>',
   viewPipeline:
     '<rect x="3" y="3" width="18" height="18" rx="1"/><path d="M12 3v18"/><path d="M3 12h18"/>',
+  viewPlayground:
+    '<path d="M4 3v15a2 2 0 0 0 2 2h15"/><path d="M7 15c3 0 3-8 6-8s3 5 6 5"/>',
   share:
     '<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51l6.83 3.98"/><path d="M15.41 6.51l-6.82 3.98"/>',
   info:

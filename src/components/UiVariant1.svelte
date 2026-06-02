@@ -21,6 +21,8 @@
   import DrosteStage from './ui1/DrosteStage.svelte';
   import PipelinePanel from './ui1/PipelinePanel.svelte';
   import PipelineControls from './ui1/PipelineControls.svelte';
+  import PlaygroundStage from './ui1/PlaygroundStage.svelte';
+  import PlaygroundControls from './ui1/PlaygroundControls.svelte';
   import Timeline from './ui1/Timeline.svelte';
   import DropZone from './ui1/DropZone.svelte';
   import {
@@ -142,9 +144,16 @@
           <PipelinePanel kind="log" />
           <PipelinePanel kind="rotlog" />
           <PipelinePanel kind="escher" />
+          <!--
+            Complex playground: image warped by a chosen f(z). Own complex
+            frame (not doc.rect); hidden in every other view.
+          -->
+          <PlaygroundStage />
         </div>
         {#if ui.view === 'pipeline'}
           <PipelineControls />
+        {:else if ui.view === 'playground'}
+          <PlaygroundControls />
         {:else}
           <Timeline />
         {/if}
@@ -210,6 +219,8 @@
   .stages :global(.droste) { display: none; }
   /* Pipeline's three derived panels are hidden in every non-pipeline view. */
   .stages :global(.ppanel) { display: none; }
+  /* The complex playground stage is hidden in every non-playground view. */
+  .stages :global(.playground-stage) { display: none; }
   .stages.view-preview :global(.stage) { display: none; }
   .stages.view-droste :global(.stage),
   .stages.view-droste :global(.preview) { display: none; }
@@ -226,6 +237,11 @@
   .stages.view-pipeline :global(.droste) { display: none; }
   .stages.view-pipeline :global(.stage) { display: flex; }
   .stages.view-pipeline :global(.ppanel) { display: flex; }
+  /* Playground: single full-bleed stage; hide the editor/spiral/droste. */
+  .stages.view-playground :global(.stage),
+  .stages.view-playground :global(.preview),
+  .stages.view-playground :global(.droste) { display: none; }
+  .stages.view-playground :global(.playground-stage) { display: flex; }
   /* Narrow viewports: stack the four panels in a single column. */
   @media (max-width: 640px) {
     .stages.view-pipeline {

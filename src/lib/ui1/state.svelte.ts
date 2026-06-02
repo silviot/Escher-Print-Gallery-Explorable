@@ -28,12 +28,15 @@ export type Theme = 'light-neutral' | 'light-warm' | 'dark-warm';
  *   pipeline— the 4-panel explorable: rect editor (top-left) + the log,
  *             rotated-log, and tententoon-still derived panels. A static
  *             view of the math; playback/exports are irrelevant here.
+ *   playground— the complex playground: pick a complex function f(z), tweak
+ *             its parameters live, and hand-drag to add a complex constant.
+ *             Uses doc.image only (its own complex frame, not doc.rect).
  * All stages stay mounted in every mode so each one's renderFrame
  * binding survives view switches; the inactive stages are hidden in
  * CSS, which also short-circuits their render effects via 0×0
  * ResizeObserver readouts.
  */
-export type ViewMode = 'split' | 'preview' | 'droste' | 'pipeline';
+export type ViewMode = 'split' | 'preview' | 'droste' | 'pipeline' | 'playground';
 
 export type Rect = { x: number; y: number; w: number; h: number };
 
