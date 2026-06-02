@@ -10,6 +10,9 @@ precision highp float;
  *   mode 0  log(z − c)      : fill the cell with the (logS, 2π) lattice.
  *   mode 1  rotated log      : same lattice rotated by β = atan(logS/2π).
  *   mode 2  tententoon still : (z − c)^α, α = 1 − i·logS/2π, at t = 0.
+ *   mode 3  unroll           : morph spiral (u_morph=1) ↔ rotated-log strip
+ *                              (u_morph=0). The "take the log" intuition made
+ *                              visible: the spiral is the strip rolled up.
  *
  * log / rotlog map the WHOLE canvas (no letterbox): log space is doubly
  * periodic, so every pixel folds to a valid source ring — the panel tiles
@@ -40,6 +43,7 @@ uniform float u_lnR0;         // log of the orientation radius R0
 uniform float u_rot;          // rotated-log rotation angle (canonical: atan(logS/2π))
 uniform float u_kTwist;       // tententoon twist k (canonical: logS/2π = tan(u_rot))
 uniform vec2  u_pan;          // log-space pan (δu, δv) applied to all panels
+uniform float u_morph;        // unroll: 1 = spiral, 0 = rotated-log strip
 
 out vec4 fragColor;
 
@@ -66,6 +70,38 @@ void main() {
     float r = exp(bLnR);
     src = u_c + r * vec2(cos(nPhi), sin(nPhi));
     footA = sqrt(1.0 + k * k) * exp(k * Phi + u_pan.x) / u_scale;
+  } else if (u_mode == 3) {
+    // --- unroll --- one continuous deformation between the rolled-up spiral
+    // (m = 1) and the flat rotated-log strip (m = 0). We express BOTH ends in
+    // source log-polar coords (u = log-radius, v = angle) and mix there, so
+    // each endpoint is exact and the in-between reads as the strip curling up.
+    float k = u_kTwist;
+    float m = u_morph;
+    float cu = (pxd.x - u_canvas.x * 0.5) / u_pxPerUnit;
+    float cv = (pxd.y - u_canvas.y * 0.5) / u_pxPerUnit;
+
+    // Strip end: the rotated-log lattice (un-rotate the centred pixel by −β).
+    float cosB = cos(u_rot);
+    float sinB = sin(u_rot);
+    float uStrip = cu * cosB + cv * sinB + u_uRef;
+    float vStrip = -cu * sinB + cv * cosB;
+
+    // Spiral end: read the centred pixel as a point in the plane, take its
+    // screen log-polar (radius, angle), then apply the same twist the
+    // tententoon uses. A small radius floor leaves a clean central hole
+    // (the very spot Escher left blank) instead of a −∞ singularity.
+    float rho = max(length(vec2(cu, cv)), 0.06);
+    float phi = atan(cv, cu);
+    float Lr = log(rho);
+    float uSpiral = Lr + k * phi + u_uRef;
+    float vSpiral = phi - k * (Lr - u_lnR0);
+
+    float u = mix(uStrip, uSpiral, m) + u_pan.x;
+    float v = mix(vStrip, vSpiral, m) + u_pan.y;
+    u = u_uRef - mod(u_uRef - u, u_logS);
+    float r = exp(u);
+    src = u_c + r * vec2(cos(v), sin(v));
+    footA = r / u_pxPerUnit;
   } else {
     // --- log / rotated log: fill the cell, centred anchor ---
     float cu = (pxd.x - u_canvas.x * 0.5) / u_pxPerUnit;

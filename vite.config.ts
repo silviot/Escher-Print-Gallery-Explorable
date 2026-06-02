@@ -130,5 +130,16 @@ export default defineConfig({
   // (root, subdirectory, or static-file hosts like GitHub Pages).
   base: './',
   plugins: [svelte(), falUpscaleProxy(), generateVariantPages()],
+  build: {
+    rollupOptions: {
+      input: {
+        // The app, and the standalone explorable explainer (explain.html +
+        // src/explain/main.ts). Two HTML entry points → dist/index.html and
+        // dist/explain.html, each with its own bundled module.
+        main: resolve(process.cwd(), 'index.html'),
+        explain: resolve(process.cwd(), 'explain.html')
+      }
+    }
+  },
   server: { host: '127.0.0.1', port: 5173, strictPort: true }
 });

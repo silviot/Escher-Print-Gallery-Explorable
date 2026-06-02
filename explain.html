@@ -1,0 +1,1157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>What is a tententoon?</title>
+<meta name="description" content="A self-repeating image whose copies spiral as they shrink, in the manner of Escher's Print Gallery, and why such a spiral can close on itself without a seam. With a live, draggable log." />
+<meta property="og:title" content="What is a tententoon?" />
+<meta property="og:description" content="A self-repeating image whose copies spiral as they shrink, in the manner of Escher's Print Gallery." />
+<meta property="og:type" content="article" />
+<meta property="og:image" content="/tententoon-demo.gif" />
+<style>
+  :root {
+    --bg: #faf7f0;
+    --ink: #211c16;
+    --ink-2: #4a463f;
+    --muted: #8c8474;
+    --accent: #d94f2c;
+    --accent-deep: #a83a1d;
+    --rule: #e7e0d2;
+    --panel: #fffdf8;
+    --frame: #2a261f;
+    --maxw: 680px;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+    font-size: 19px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  .sans { font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif; }
+  a {
+    color: var(--accent-deep);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(168, 58, 29, 0.28);
+    transition: border-color 120ms;
+  }
+  a:hover { border-bottom-color: var(--accent-deep); }
+
+  .topnav {
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 13px;
+    letter-spacing: 0.02em;
+    border-bottom: 1px solid var(--rule);
+    background: rgba(250, 247, 240, 0.86);
+    backdrop-filter: blur(6px);
+    position: sticky;
+    top: 0;
+    z-index: 5;
+  }
+  .topnav .inner {
+    max-width: var(--maxw);
+    margin: 0 auto;
+    padding: 12px 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .topnav .brand { font-weight: 600; color: var(--ink); border: 0; }
+  .topnav .brand b { color: var(--accent); }
+  .topnav a.back { color: var(--ink-2); border: 0; }
+  .topnav a.back:hover { color: var(--accent-deep); }
+
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 22px; }
+
+  header.hero { padding: 64px 0 8px; }
+  h1 {
+    font-size: 68px;
+    line-height: 1;
+    letter-spacing: -0.025em;
+    margin: 0;
+    font-weight: 600;
+  }
+  .card {
+    position: relative;
+    max-width: 540px;
+    margin: 6px auto 0;
+    padding: 30px 36px 28px;
+    background-color: #f1e6cd;
+    color: #2c2318;
+    border: 1px solid #d6c49d;
+    border-radius: 4px;
+    box-shadow: 0 16px 40px rgba(40, 28, 12, 0.22),
+      inset 0 1px 0 rgba(255, 250, 235, 0.55);
+    transform: rotate(-0.7deg);
+    overflow: hidden;
+    background-image:
+      radial-gradient(circle at 84% 20%, transparent 23px, rgba(108, 70, 26, 0.10) 24px, rgba(108, 70, 26, 0.14) 29px, transparent 31px),
+      radial-gradient(ellipse 130px 96px at 8% 94%, rgba(116, 78, 30, 0.13), transparent 70%),
+      radial-gradient(ellipse 88px 66px at 95% 90%, rgba(116, 78, 30, 0.07), transparent 72%);
+  }
+  .card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity: 0.06;
+    mix-blend-mode: multiply;
+    pointer-events: none;
+  }
+  .card > * { position: relative; z-index: 1; }
+  .card-mark {
+    position: absolute;
+    top: 18px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    color: #b0651f;
+    opacity: 0.5;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.3;
+  }
+  .card-mark rect { vector-effect: non-scaling-stroke; }
+  .headline {
+    margin: 0 60px 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px 13px;
+  }
+  .hw {
+    font-size: 39px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.04;
+  }
+  .ipa { font-size: 16px; font-style: italic; color: #7c6c4d; }
+  .pos { font-size: 15px; font-style: italic; color: #7c6c4d; }
+  .sense {
+    margin: 17px 0 0;
+    font-size: 19px;
+    line-height: 1.5;
+  }
+  .sense .num { font-weight: 700; margin-right: 5px; }
+  .sense em { font-style: italic; }
+  .eg {
+    margin: 8px 0 0 16px;
+    font-size: 16px;
+    line-height: 1.5;
+    color: #6a5b40;
+  }
+  .eg .dot { color: #b0651f; }
+  .eg em { font-style: italic; }
+  .origin {
+    margin: 18px 0 0;
+    padding-top: 14px;
+    border-top: 1px solid rgba(150, 120, 70, 0.32);
+    font-size: 14.5px;
+    line-height: 1.6;
+    color: #5c4e38;
+  }
+  .origin .lbl {
+    font-family: Inter, system-ui, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-size: 10.5px;
+    font-weight: 700;
+    color: #9a7c4a;
+    margin-right: 7px;
+  }
+  .origin em { font-style: italic; }
+  .title { font-style: italic; }
+  .title b { color: #b0531f; font-weight: 700; font-style: italic; }
+
+  h2 {
+    font-size: 30px;
+    line-height: 1.15;
+    letter-spacing: -0.015em;
+    margin: 2.6em 0 0.6em;
+    font-weight: 600;
+  }
+  p { margin: 1em 0; }
+  strong, b { font-weight: 700; }
+
+  figure { margin: 2.2em 0; }
+  .frame {
+    background: var(--frame);
+    padding: 14px;
+    border-radius: 9px;
+    box-shadow: 0 14px 38px rgba(20, 14, 10, 0.20);
+  }
+  .frame img { display: block; width: 100%; height: auto; border-radius: 3px; }
+  figcaption {
+    margin-top: 0.8em;
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--muted);
+    text-align: center;
+  }
+  figcaption em { font-style: italic; }
+  .fig-droste { max-width: 560px; margin-left: auto; margin-right: auto; }
+
+  .pull {
+    font-size: 27px;
+    line-height: 1.38;
+    font-style: italic;
+    color: var(--ink);
+    border-left: 3px solid var(--accent);
+    padding-left: 24px;
+    margin: 2.4em 0;
+  }
+  .pull b { color: var(--accent-deep); font-style: italic; }
+
+  .formula {
+    text-align: center;
+    font-size: 21px;
+    line-height: 1.5;
+    margin: 1.4em 0;
+    color: var(--ink);
+  }
+  .formula em { font-style: italic; }
+  .formula sup { font-size: 0.7em; }
+
+  /* ── Live panels (src/explain/main.ts) ───────────────────────────────── */
+  .panel-cell {
+    position: relative;
+    background: #000;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .panel-cell canvas { display: block; width: 100%; height: 100%; }
+  .ar-img { aspect-ratio: var(--cell-ar, 4 / 3); }
+  .ar-wide { aspect-ratio: 18 / 7; }
+
+  .solo-panel { margin: 2em auto; max-width: 520px; }
+  .solo-panel .panel-cell { box-shadow: 0 14px 38px rgba(20, 14, 10, 0.2); }
+
+  .experiment { margin: 1.6em 0 0; }
+  .exp-pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    background: var(--frame);
+    padding: 8px;
+    border-radius: 11px;
+    box-shadow: 0 14px 38px rgba(20, 14, 10, 0.18);
+  }
+  #exp-orig { will-change: transform; }
+  #exp-log { cursor: grab; touch-action: none; }
+  #exp-log:active { cursor: grabbing; }
+
+  .plabel {
+    position: absolute;
+    left: 7px;
+    top: 7px;
+    z-index: 2;
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 2px 7px;
+    border-radius: 4px;
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+    pointer-events: none;
+  }
+  .plabel .pchip {
+    font-weight: 700;
+    font-size: 9.5px;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: #1b140e;
+    background: var(--accent);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+  .draghint {
+    position: absolute;
+    right: 7px;
+    bottom: 7px;
+    z-index: 2;
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.78);
+    background: rgba(0, 0, 0, 0.4);
+    padding: 2px 7px;
+    border-radius: 4px;
+    pointer-events: none;
+  }
+  .exp-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 9px 0 0.4em;
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 13px;
+    color: var(--ink-2);
+  }
+  .exp-controls .readout { font-variant-numeric: tabular-nums; }
+  .exp-controls button {
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent-deep);
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    border-radius: 7px;
+    padding: 5px 13px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .exp-controls button:hover { border-color: var(--accent); color: var(--accent); }
+  .exp-fallback { font-family: Inter, system-ui, sans-serif; font-size: 13.5px; color: var(--muted); }
+
+  .angle-ctl { display: inline-flex; align-items: center; gap: 9px; }
+  .angle-ctl em { font-style: italic; }
+  .angle-ctl input[type="range"] { width: 150px; accent-color: var(--accent); cursor: pointer; }
+  .angle-ctl .aval { font-variant-numeric: tabular-nums; min-width: 96px; }
+  .angle-ctl .aval.closed { color: var(--accent-deep); font-weight: 700; }
+
+  .seg { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .seg .seg-label { color: var(--muted); }
+  .seg button {
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink-2);
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    border-radius: 7px;
+    padding: 5px 11px;
+    cursor: pointer;
+  }
+  .seg button:hover { border-color: var(--accent); color: var(--accent); }
+  .seg button.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  /* Rich control rows (twist / unroll): slider + readout + button + note */
+  .ctl-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 9px 18px;
+    margin: 11px 0 0.3em;
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 13px;
+    color: var(--ink-2);
+  }
+  .ctl { display: inline-flex; align-items: center; gap: 9px; }
+  .ctl em { font-style: italic; }
+  .ctl input[type="range"] { width: 168px; max-width: 48vw; accent-color: var(--accent); cursor: pointer; }
+  .ctl .val { font-variant-numeric: tabular-nums; font-weight: 600; min-width: 42px; }
+  .ctl .val.closed { color: var(--accent-deep); }
+  .ctl-note { color: var(--muted); }
+  .ctl-note em { font-style: italic; color: var(--ink-2); }
+  .ctl-note.closed-now { color: var(--accent-deep); font-weight: 600; }
+  .btn {
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent-deep);
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    border-radius: 7px;
+    padding: 6px 13px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* The hero spiral lights up when the twist seals it shut. */
+  .panel-cell { transition: box-shadow 220ms ease; }
+  .panel-cell.is-closed {
+    box-shadow: 0 0 0 2px var(--accent), 0 0 26px rgba(217, 79, 44, 0.55);
+  }
+
+  p.aside {
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 14.5px;
+    line-height: 1.55;
+    color: var(--muted);
+    margin: 0.5em 0 0;
+  }
+  p.aside em { font-style: italic; color: var(--ink-2); }
+
+  /* Everyday analogy: rings ↔ flat tracks */
+  .analogy { margin: 2em 0; }
+  .analogy .board {
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    border-radius: 12px;
+    padding: 16px 14px 10px;
+    box-shadow: 0 10px 30px rgba(20, 14, 10, 0.08);
+  }
+  .analogy svg { display: block; width: 100%; height: auto; }
+
+  /* ── Function playground (src/explain/playground.ts) ──────────────────────
+     A free complex-function explorer that runs before the tententoon build:
+     input plane | function selector | output plane. Breaks out wider than the
+     text column on desktop; stacks on narrow screens. */
+  .playground {
+    width: min(96vw, 1180px);
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    display: grid;
+    grid-template-columns: 1fr 230px 1fr;
+    gap: 18px;
+    align-items: start;
+    margin: 1.8em 0 0.4em;
+  }
+  .pg-side { margin: 0; display: flex; flex-direction: column; gap: 9px; }
+  .pg-side .panel-cell { aspect-ratio: 1 / 1; box-shadow: 0 14px 38px rgba(20, 14, 10, 0.18); }
+  #pg-in { cursor: grab; touch-action: none; }
+  #pg-in:active { cursor: grabbing; }
+  .pg-cap {
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 12.5px;
+    color: var(--ink-2);
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .pg-cap .who { color: var(--muted); }
+  .pg-cap .val { font-variant-numeric: tabular-nums; font-weight: 600; color: var(--accent-deep); }
+
+  .pg-mid {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    border-radius: 12px;
+    padding: 14px;
+    box-shadow: 0 10px 30px rgba(20, 14, 10, 0.08);
+  }
+  .pg-mid .lbl {
+    font-family: Inter, system-ui, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--muted);
+  }
+  .pg-fns { display: flex; flex-direction: column; gap: 6px; }
+  .pg-fn {
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    font-style: italic;
+    font-size: 15px;
+    text-align: left;
+    color: var(--ink-2);
+    background: var(--bg);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 7px 11px;
+    cursor: pointer;
+  }
+  .pg-fn:hover { border-color: var(--accent); color: var(--accent); }
+  .pg-fn.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .pg-layers { display: flex; flex-wrap: wrap; gap: 6px; }
+  .pg-layers button {
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink-2);
+    background: var(--bg);
+    border: 1px solid var(--rule);
+    border-radius: 7px;
+    padding: 5px 11px;
+    cursor: pointer;
+  }
+  .pg-layers button:hover { border-color: var(--accent); color: var(--accent); }
+  .pg-layers button.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .pg-tee { display: flex; flex-direction: column; gap: 6px; }
+  .pg-tee input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer; }
+  .pg-tee .ends {
+    display: flex;
+    justify-content: space-between;
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    font-style: italic;
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+  .pg-mid .btn { align-self: flex-start; }
+
+  @media (max-width: 820px) {
+    .playground {
+      width: 100%;
+      left: auto;
+      transform: none;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    .pg-mid { order: -1; }
+  }
+
+  /* The three-step pipeline: log → bend → exp. Breaks out wider than the
+     text column on desktop; stacks to one column on narrow screens. */
+  .pipeline {
+    width: min(96vw, 1180px);
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin: 1.8em 0 0.4em;
+  }
+  .pipeline .stage { display: flex; flex-direction: column; gap: 9px; margin: 0; }
+  .stagehead {
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink-2);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .stagehead .step {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 21px;
+    height: 21px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .stagehead .step.in { background: var(--muted); font-size: 9.5px; letter-spacing: 0.02em; }
+  .stagehead .smath {
+    margin-left: auto;
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 13px;
+    color: var(--accent-deep);
+    white-space: nowrap;
+  }
+  .stagehead .smath sup { font-size: 0.72em; }
+  .stagemath {
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    font-style: italic;
+    font-size: 13.5px;
+    line-height: 1.3;
+    color: var(--ink-2);
+    min-height: 1.25em;
+    margin-top: -2px;
+  }
+  .stagemath em { font-style: italic; }
+  .stagemath sup { font-size: 0.72em; }
+  .stagemath .mv {
+    font-style: normal;
+    font-weight: 700;
+    color: var(--accent-deep);
+    font-variant-numeric: tabular-nums;
+  }
+  .pipeline .ctl-row { margin: 0; gap: 7px 12px; }
+  .pipeline .ctl input[type="range"] { width: 100%; min-width: 70px; max-width: none; }
+  .pipeline .ctl { flex: 1; }
+  .pipeline .seg { gap: 5px; }
+  .pipeline .seg button { padding: 4px 9px; font-size: 11.5px; }
+  .pipeline .ctl-row.src { margin-top: 1px; }
+
+  @media (max-width: 720px) {
+    .pipeline {
+      width: 100%;
+      left: auto;
+      transform: none;
+      grid-template-columns: 1fr;
+      gap: 26px;
+    }
+  }
+
+  /* Vendored video thumbnail → link out */
+  .videolink { margin: 1.4em auto 2em; max-width: 560px; }
+  .videolink a {
+    display: block;
+    position: relative;
+    border: 0;
+    border-radius: 9px;
+    overflow: hidden;
+    box-shadow: 0 14px 38px rgba(20, 14, 10, 0.2);
+  }
+  .videolink img { display: block; width: 100%; height: auto; }
+  .videolink .play {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: rgba(217, 79, 44, 0.92);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+    transition: transform 140ms, background 140ms;
+  }
+  .videolink .play::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 54%;
+    transform: translate(-50%, -50%);
+    border-style: solid;
+    border-width: 12px 0 12px 21px;
+    border-color: transparent transparent transparent #fff;
+  }
+  .videolink a:hover .play { transform: scale(1.08); background: var(--accent-deep); }
+  .videolink figcaption {
+    margin-top: 0.7em;
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 13.5px;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  .cta-row { margin: 2em 0 1em; }
+  .cta {
+    display: inline-block;
+    font-family: Inter, system-ui, sans-serif;
+    font-weight: 600;
+    font-size: 16px;
+    background: var(--accent);
+    color: #fff;
+    border: 0;
+    border-radius: 11px;
+    padding: 14px 24px;
+    box-shadow: 0 8px 22px rgba(217, 79, 44, 0.32);
+  }
+  .cta:hover { background: var(--accent-deep); border: 0; }
+
+  footer {
+    margin: 3.4em 0 4.5em;
+    padding-top: 1.5em;
+    border-top: 1px solid var(--rule);
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--muted);
+  }
+  footer p { margin: 0.5em 0; }
+  footer a { color: var(--muted); border-bottom-color: rgba(140, 132, 116, 0.4); }
+  footer a:hover { color: var(--ink-2); }
+
+  @media (max-width: 640px) {
+    body { font-size: 17.5px; }
+    header.hero { padding: 40px 0 4px; }
+    h1 { font-size: 46px; }
+    h2 { font-size: 25px; }
+    .card { padding: 24px 22px 22px; transform: rotate(-0.5deg); }
+    .headline { margin-right: 50px; }
+    .hw { font-size: 30px; }
+    .card-mark { width: 48px; height: 48px; top: 14px; right: 14px; }
+    .sense { font-size: 17.5px; }
+    .eg { font-size: 15px; }
+    .pull { font-size: 22px; padding-left: 18px; }
+    .exp-controls { flex-direction: column; align-items: flex-start; gap: 7px; }
+    .ctl-row { gap: 8px 14px; }
+    .ctl input[type="range"] { width: 150px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="inner">
+    <a class="brand" href="/">ten<b>ten</b>toon</a>
+    <a class="back" href="/">open the tool&nbsp;&rarr;</a>
+  </div>
+</nav>
+
+<div class="wrap" id="exp-root">
+
+  <header class="hero">
+    <div class="card">
+      <svg class="card-mark" viewBox="-50 -50 100 100" aria-hidden="true">
+        <g>
+          <rect x="-44" y="-44" width="88" height="88" rx="1.5"/>
+          <g transform="rotate(22) scale(0.8)">
+            <rect x="-44" y="-44" width="88" height="88" rx="1.5"/>
+            <g transform="rotate(22) scale(0.8)">
+              <rect x="-44" y="-44" width="88" height="88" rx="1.5"/>
+              <g transform="rotate(22) scale(0.8)">
+                <rect x="-44" y="-44" width="88" height="88" rx="1.5"/>
+                <g transform="rotate(22) scale(0.8)">
+                  <rect x="-44" y="-44" width="88" height="88" rx="1.5"/>
+                  <g transform="rotate(22) scale(0.8)">
+                    <rect x="-44" y="-44" width="88" height="88" rx="1.5"/>
+                    <g transform="rotate(22) scale(0.8)">
+                      <rect x="-44" y="-44" width="88" height="88" rx="1.5"/>
+                    </g>
+                  </g>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </svg>
+
+      <p class="headline">
+        <span class="hw">ten&middot;ten&middot;toon</span>
+        <span class="ipa">/&#716;t&#603;n.t&#603;n&#712;to&#720;n/</span>
+        <span class="pos">noun</span>
+      </p>
+
+      <p class="sense">
+        <span class="num">1.</span> a self-repeating image whose copies spiral as
+        they shrink, in the manner of M.&nbsp;C.&nbsp;Escher's
+        <em>Print&nbsp;Gallery</em>.
+      </p>
+      <p class="eg"><span class="dot">&bull;</span> <em>a tententoon of the old
+        gallery, winding inward without end.</em></p>
+
+      <p class="origin">
+        <span class="lbl">Origin</span>
+        coined from the Dutch <span class="title">Pren<b>tententoon</b>stelling</span>
+        (&ldquo;print exhibition&rdquo;): <em>prenten</em>, prints +
+        <em>tentoonstelling</em>, exhibition. The coined word sits right where
+        the two halves meet.
+      </p>
+    </div>
+  </header>
+
+  <h2>Start with an ordinary photo</h2>
+  <p>
+    Here is one: someone on a couch, holding an empty frame.
+  </p>
+
+  <figure class="fig-droste">
+    <div class="frame">
+      <img src="/pre-droste-nevit.jpg" alt="A photograph of a person sitting on a couch, holding up an empty rectangular picture frame." loading="lazy" />
+    </div>
+    <figcaption>Nothing unusual yet: a person, a couch, an empty frame.</figcaption>
+  </figure>
+
+  <p>
+    Now do one thing to it. Take the whole photo &mdash; couch, smile, frame and
+    all &mdash; shrink it, and slot it into that empty frame. The frame isn't empty
+    now; it holds the photo. But the copy you just dropped in has a frame of its
+    own, and <em>that</em> one is empty. So fill it the same way. And the copy
+    inside it. There is no last step.
+  </p>
+
+  <figure class="fig-droste">
+    <div class="frame">
+      <img src="/Droste_1260359-nevit.jpg" alt="The same photograph, but now the frame holds a smaller copy of the whole photo, which holds a smaller copy again, repeating inward." loading="lazy" />
+    </div>
+    <figcaption>The same photo, dropped into its own frame, again and again.</figcaption>
+  </figure>
+
+  <p>
+    That is the <strong>Droste&nbsp;effect</strong>, after the 1904 cocoa tin that
+    used it. Each copy sits squarely inside the last, the same shape a fixed
+    fraction smaller, and the picture falls straight toward its own centre &mdash;
+    with no bottom to reach.
+  </p>
+
+  <p class="pull">
+    That straight fall is one kind of infinity. Here is a second: let every copy
+    <b>turn</b> a little as it shrinks, and the stack winds into a spiral.
+  </p>
+
+  <p>
+    To build that, we need one idea first &mdash; the one Escher was really using
+    when he drew his curved grid by hand. So before the spiral, a short detour to
+    pick up the language the rest of the page speaks.
+  </p>
+
+  <h2>First, what is a function?</h2>
+  <p>
+    A function is a rule with an input and an output. For us the input is a point
+    on the plane, and the output is another point:
+  </p>
+  <p class="formula"><em>z</em> &rarr; <em>f</em>(<em>z</em>)</p>
+  <p>
+    So if <em>z</em> is one point on the picture, <em>f</em>(<em>z</em>) tells us
+    where that point goes. Now do it for <em>every</em> point at once. The grid
+    moves. The rings move. The photo moves. That is all a warp is: one function,
+    evaluated everywhere.
+  </p>
+  <p>
+    Drag the point on the left and watch where it lands on the right. Switch the
+    function. Then turn on the grid, and the formula stops being a formula &mdash;
+    it becomes a machine moving the plane.
+  </p>
+
+  <figure class="playground" id="pg-root" aria-label="A function playground: an input plane on the left, a function selector in the middle, and the output plane on the right. Drag the point on the input plane to see where the chosen function sends it.">
+    <div class="pg-side">
+      <div class="panel-cell">
+        <span class="plabel">input plane <span class="pchip">drag me</span></span>
+        <canvas id="pg-in"></canvas>
+      </div>
+      <div class="pg-cap"><span class="who">input</span><span><em>z</em> = <span class="val" id="pg-z"></span></span></div>
+    </div>
+    <div class="pg-mid">
+      <div>
+        <div class="lbl">function</div>
+        <div class="pg-fns">
+          <button type="button" class="pg-fn" data-fn="id"><em>f</em>(<em>z</em>) = <em>z</em></button>
+          <button type="button" class="pg-fn" data-fn="double"><em>f</em>(<em>z</em>) = 2<em>z</em></button>
+          <button type="button" class="pg-fn" data-fn="rot"><em>f</em>(<em>z</em>) = <em>iz</em></button>
+          <button type="button" class="pg-fn" data-fn="square"><em>f</em>(<em>z</em>) = <em>z</em><sup>2</sup></button>
+          <button type="button" class="pg-fn" data-fn="exp"><em>f</em>(<em>z</em>) = exp(<em>z</em>)</button>
+          <button type="button" class="pg-fn" data-fn="log"><em>f</em>(<em>z</em>) = log(<em>z</em>)</button>
+        </div>
+      </div>
+      <div>
+        <div class="lbl">show</div>
+        <div class="pg-layers">
+          <button type="button" data-layer="grid">grid</button>
+          <button type="button" data-layer="rings">rings</button>
+          <button type="button" data-layer="image">photo</button>
+        </div>
+      </div>
+      <div class="pg-tee">
+        <div class="lbl">identity &rarr; function</div>
+        <input type="range" id="pg-t" aria-label="scrub from the identity to the chosen function" />
+        <div class="ends"><span><em>z</em></span><span><em>f</em>(<em>z</em>)</span></div>
+      </div>
+      <button type="button" class="btn" id="pg-reset">reset</button>
+    </div>
+    <div class="pg-side">
+      <div class="panel-cell">
+        <span class="plabel">output plane</span>
+        <canvas id="pg-out"></canvas>
+      </div>
+      <div class="pg-cap"><span class="who">output</span><span><em>f</em>(<em>z</em>) = <span class="val" id="pg-fz"></span></span></div>
+    </div>
+  </figure>
+  <p class="aside">
+    The <em>identity&nbsp;&rarr;&nbsp;function</em> slider doesn't jump straight to
+    <em>f</em>(<em>z</em>); it pulls the plane there continuously, so you can watch
+    the motion instead of just the before and after. (That in-between is a teaching
+    aid, not the real map.)
+  </p>
+
+  <p>
+    Walk down the list and the moves get bolder. <em>f</em>(<em>z</em>)&nbsp;=&nbsp;<em>z</em>
+    leaves every point exactly where it was &mdash; dull, but it's the baseline.
+    <em>f</em>(<em>z</em>)&nbsp;=&nbsp;2<em>z</em> doubles every distance from the
+    centre: pure scale. <em>f</em>(<em>z</em>)&nbsp;=&nbsp;<em>iz</em> turns
+    everything a quarter-turn: multiplication can <em>mean</em> rotation. Put those
+    two together and you get a scale-and-spin in one step &mdash; which is exactly
+    the move the spiral will need.
+  </p>
+  <p>
+    Then the plane starts to bend. <em>f</em>(<em>z</em>)&nbsp;=&nbsp;<em>z</em><sup>2</sup>
+    curves the whole grid, yet&mdash;look closely&mdash;the little squares stay
+    nearly square. The last two are the pair this whole page turns on:
+    <strong>exp</strong> rolls the plane around the origin, so upright lines become
+    rings; and <strong>log</strong> is its undo, unrolling those rings back into
+    upright lines. Hold on to that. The tententoon is built from precisely those
+    two, with a scale-and-spin wedged between them.
+  </p>
+
+  <h2>The function we need</h2>
+  <p>
+    Now we can state the job. We have a Droste image: zoom in by the right amount
+    and the same picture appears again. We want a single function where moving
+    <em>around</em> the centre also carries us one Droste step <em>inward</em>
+    &mdash; turning and zooming folded into the same motion.
+  </p>
+  <p>
+    From the playground we already have the parts. The detour is three moves:
+    <strong>log</strong> to unroll the rings into a flat repeating strip, a
+    <strong>scale-and-spin</strong> to lean that strip until its copies line up
+    diagonally, and <strong>exp</strong> to roll the strip back into rings. The
+    three panels below are those moves, wired together &mdash; move any control and
+    the whole row answers at once.
+  </p>
+
+  <figure class="pipeline live-panels" aria-label="The original picture, then three connected transforms: the flat log strip, the strip leaned over, and the strip rolled back up into a spiral.">
+    <div class="stage">
+      <div class="stagehead"><span class="step in">in</span> the original</div>
+      <div class="stagemath">shrink&nbsp;<em>S</em> = <b class="mv" id="m-s">2.1</b></div>
+      <div class="panel-cell ar-img">
+        <span class="plabel">source</span>
+        <canvas id="exp-orig"></canvas>
+      </div>
+      <div class="ctl-row src">
+        <span class="seg" role="group" aria-label="what to feed in">
+          <button type="button" data-source="polar">ring</button>
+          <button type="button" data-source="grid">grid</button>
+          <button type="button" data-source="picture">photo</button>
+          <button type="button" data-source="overlay" class="on">overlay</button>
+        </span>
+      </div>
+    </div>
+    <div class="stage">
+      <div class="stagehead"><span class="step">1</span> we log it</div>
+      <div class="stagemath"><em>&zeta;</em> = log(<em>z</em>&nbsp;&minus;&nbsp;<em>c</em>) &nbsp;&middot;&nbsp; log&nbsp;<em>S</em> = <b class="mv" id="m-logs">0.75</b></div>
+      <div class="panel-cell ar-img">
+        <span class="plabel">flat strip <span class="pchip">drag me</span></span>
+        <canvas id="exp-log"></canvas>
+        <span class="draghint">&harr; zoom&nbsp;&nbsp;&updownarrow; turn</span>
+      </div>
+      <div class="ctl-row src">
+        <span class="seg" role="group" aria-label="what to feed in">
+          <button type="button" data-source="polar">ring</button>
+          <button type="button" data-source="grid">grid</button>
+          <button type="button" data-source="picture">photo</button>
+          <button type="button" data-source="overlay" class="on">overlay</button>
+        </span>
+      </div>
+    </div>
+    <div class="stage">
+      <div class="stagehead"><span class="step">2</span> we bend it</div>
+      <div class="stagemath"><em>&zeta;</em> &rarr; <em>&alpha;&zeta;</em>,&nbsp; <em>&alpha;</em> = 1 &minus; <b class="mv" id="m-k">0.12</b>&#8202;<em>i</em></div>
+      <div class="panel-cell ar-img is-closed">
+        <span class="plabel">leaned over</span>
+        <canvas id="exp-bend"></canvas>
+      </div>
+      <div class="ctl-row">
+        <label class="ctl">lean <input type="range" id="exp-bend-range" aria-label="lean angle" /> <span class="val" id="exp-bend-val"></span></label>
+        <button type="button" class="btn" id="exp-bend-snap">snap</button>
+      </div>
+      <div class="ctl-row"><span class="ctl-note" id="exp-bend-note"></span></div>
+      <div class="ctl-row src">
+        <span class="seg" role="group" aria-label="what to feed in">
+          <button type="button" data-source="polar">ring</button>
+          <button type="button" data-source="grid">grid</button>
+          <button type="button" data-source="picture">photo</button>
+          <button type="button" data-source="overlay" class="on">overlay</button>
+        </span>
+      </div>
+    </div>
+    <div class="stage">
+      <div class="stagehead"><span class="step">3</span> we exponentiate it</div>
+      <div class="stagemath"><em>w</em> = <em>c</em> + (<em>z</em>&nbsp;&minus;&nbsp;<em>c</em>)<sup><em>&alpha;</em></sup></div>
+      <div class="panel-cell ar-img is-closed">
+        <span class="plabel">rolled up</span>
+        <canvas id="exp-exp"></canvas>
+      </div>
+      <div class="ctl-row">
+        <label class="ctl">flat <input type="range" id="exp-roll" aria-label="roll up into the spiral" /> spiral</label>
+      </div>
+      <div class="ctl-row src">
+        <span class="seg" role="group" aria-label="what to feed in">
+          <button type="button" data-source="polar">ring</button>
+          <button type="button" data-source="grid">grid</button>
+          <button type="button" data-source="picture">photo</button>
+          <button type="button" data-source="overlay" class="on">overlay</button>
+        </span>
+      </div>
+    </div>
+  </figure>
+  <div class="exp-controls">
+    <span class="readout" id="exp-readout">drag the flat strip: &harr; zooms everything, &updownarrow; turns it</span>
+    <button type="button" class="btn" id="exp-reset">reset</button>
+  </div>
+  <p class="exp-fallback" id="exp-fallback" hidden>
+    This live pipeline needs WebGL2 and JavaScript. In short: flatten the nested
+    frames into a repeating strip, lean the strip to the angle where its tiles
+    still line up, and roll it back up &mdash; the lean becomes the spiral.
+  </p>
+  <p class="aside">
+    The <em>photo</em>'s own nesting is gentle, so it closes at only about&nbsp;7&deg;.
+    The <em>ring</em> and <em>grid</em> patterns repeat at every scale, so they
+    close at the full ~25&deg; &mdash; almost exactly the 26&deg; Escher used. The
+    source choice under each panel is shared across all three.
+  </p>
+
+  <h2>1 &middot; We log it</h2>
+  <p>
+    Start with the turning. A ring around the centre has no end: travel round it,
+    return to your mark, set off again, as many laps as you please. Lay that trip
+    out straight and it's a line on which one lap repeats, then an identical lap,
+    then another. Going around always brings you home &mdash; so flattened, the
+    picture is <em>periodic</em>: shift it by one lap and nothing has changed.
+  </p>
+
+  <figure class="analogy">
+    <div class="board">
+      <svg viewBox="0 0 640 190" role="img" aria-label="A single ring unrolls into a line that repeats: the same point returns after every lap, evenly spaced along the line with no end.">
+        <defs>
+          <marker id="ah2" viewBox="0 0 10 10" refX="7.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="#d94f2c" />
+          </marker>
+        </defs>
+        <circle cx="104" cy="86" r="62" fill="none" stroke="#3a4a52" stroke-width="2" />
+        <path d="M104,24 A62,62 0 0 1 160,55" fill="none" stroke="#d94f2c" stroke-width="2.5" marker-end="url(#ah2)" />
+        <circle cx="104" cy="24" r="4.5" fill="#d1495b" />
+        <text x="104" y="180" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="13" fill="#8c8474">one trip around</text>
+
+        <text x="223" y="72" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-style="italic" font-size="15" fill="#a83a1d">unroll</text>
+        <path d="M196,86 C216,70 236,70 256,86" fill="none" stroke="#d94f2c" stroke-width="2.5" marker-end="url(#ah2)" />
+
+        <text x="268" y="91" text-anchor="end" font-family="Inter, system-ui, sans-serif" font-size="16" fill="#b9b1a0">&hellip;</text>
+        <line x1="278" y1="86" x2="616" y2="86" stroke="#3a4a52" stroke-width="2" />
+        <line x1="362" y1="86" x2="430" y2="86" stroke="#d1495b" stroke-width="4" stroke-linecap="round" />
+        <g fill="#d1495b">
+          <circle cx="294" cy="86" r="4.5" />
+          <circle cx="362" cy="86" r="4.5" />
+          <circle cx="430" cy="86" r="4.5" />
+          <circle cx="498" cy="86" r="4.5" />
+          <circle cx="566" cy="86" r="4.5" />
+        </g>
+        <text x="396" y="72" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="12.5" fill="#a83a1d">one lap</text>
+        <text x="628" y="91" text-anchor="start" font-family="Inter, system-ui, sans-serif" font-size="16" fill="#b9b1a0">&hellip;</text>
+        <text x="447" y="180" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="13" fill="#8c8474">the same point returns every lap</text>
+      </svg>
+    </div>
+    <figcaption>
+      A ring has no end, so unrolling it gives a line that repeats: the same point
+      comes back every lap. That is the periodic strip in the first panel, read
+      along its short way.
+    </figcaption>
+  </figure>
+
+  <p>
+    Going inward usually breaks the spell &mdash; zoom toward the middle of a photo
+    and you meet new detail forever, never the same view twice. The Droste is the
+    exception, and we built it on purpose: one frame inward is an exact copy of the
+    whole, so inward repeats as well. Flatten both directions and the picture turns
+    into a plain grid of identical tiles. (The flattening trades a point's distance
+    from the centre for the number of shrink-steps that reach it, so repeated
+    multiplying becomes repeated adding. Its name is the <strong>logarithm</strong>.)
+  </p>
+  <p>
+    This is the quiet fact the whole spiral rests on: in that grid, <strong>a step
+    of exactly one tile lands you on a region identical to where you started.</strong>
+    Drag the flat strip and feel it &mdash; a sideways slide zooms, an up-and-down
+    slide turns, and after one full tile everything is precisely as it was.
+  </p>
+
+  <h2>2 &middot; We bend it</h2>
+  <p>
+    Bending a spiral by hand is hopeless; leaning a flat grid is easy. Push the
+    <strong>lean</strong> slider on the middle panel and the strip tilts. Most
+    angles drag the tiles out of step, but at one the rows click back into
+    register &mdash; every tile still meets its neighbours, no gaps, no overlaps.
+    That angle is the one marked <em>closed&nbsp;&check;</em>; <strong>snap</strong>
+    lands on it exactly.
+  </p>
+  <p>
+    Here's why any lean can work. The grid repeats one step over <em>and</em> one
+    step up, so it also repeats along a staircase built from those two steps. Lean
+    the strip along such a staircase and it still lies on top of itself. Only that
+    family of angles keeps the tiles aligned, and the shallowest of them is the one
+    that will close the spiral.
+  </p>
+
+  <h2>3 &middot; We exponentiate it</h2>
+  <p>
+    One move remains: roll the leaned strip back up &mdash; the exact reverse of
+    flattening it. Press <strong>roll it up</strong> on the third panel and the
+    strip winds around the centre; the lean becomes a turn, and the grid of tiles
+    closes into the spiral. Because we only ever leaned a pattern that repeats, the
+    spiral meets itself with no seam &mdash; follow any line inward and it returns
+    to where it began. That is the <strong>tententoon</strong>.
+  </p>
+  <p>
+    Rolling up is the undo of logging: where one counted shrink-steps to flatten
+    the picture, the other grows them back. Both infinities live at its two ends
+    &mdash; leave the strip upright and it rolls into the straight Droste fall; lean
+    it first and it rolls into Escher's spiral. Same picture, same roll &mdash; only
+    the lean is different.
+  </p>
+
+  <h2>Why the picture still looks like a picture</h2>
+  <p>
+    A careless warp wrecks an image: squares shear into parallelograms, faces
+    smear, straight edges buckle. The overall shape might land where you wanted,
+    but up close the picture stops being readable. Escher needed the opposite
+    &mdash; an enormous global bend in which every <em>small</em> neighbourhood
+    stays almost untouched.
+  </p>
+  <p>
+    This is the real work the playground's <em>z</em><sup>2</sup>, <strong>exp</strong>,
+    and <strong>log</strong> were doing. Near any single point, each of them acts
+    like nothing more than a scale plus a rotation &mdash; not a squash, not a
+    shear. So the whole plane can twist violently around itself while the little
+    squares stay square. Turn the grid back on and watch one tile through the
+    bend: it moves and turns and shrinks, but it keeps its shape. That is why this
+    family of functions is the right tool for warping a photograph, and it is the
+    quiet reason the spiral still reads as Escher's gallery rather than a smear.
+  </p>
+
+  <h2>Escher got there first, by hand</h2>
+  <p>
+    Escher had no computer in 1956. He worked the curved grid out by eye, ruled it
+    onto the canvas, and painted a gallery, a print, a town, and the gallery again
+    into the bend. And he got it <em>right</em>: the mathematics later showed his
+    intuition was very nearly exact.
+  </p>
+  <p>
+    But a spiral tightens forever toward its centre, and a pen can only go so fine.
+    So Escher stopped, left a soft white patch in the middle of the picture, curled
+    his signature into it, and called it finished. The one place the picture could
+    not finish itself.
+  </p>
+
+  <h2>The map that filled the hole</h2>
+  <p>
+    In 2003, two mathematicians in Leiden (<strong>Bart de&nbsp;Smit</strong> and
+    <strong>Hendrik Lenstra</strong>) worked out the exact map hiding in Escher's
+    grid. The idealised <em>Print Gallery</em>, they showed, contains a complete
+    copy of itself rotated by <strong>157.6256&deg;</strong> and shrunk by a factor
+    of <strong>22.5837</strong>. Pin those two numbers down and the rest of the
+    picture is forced, including the part Escher left blank.
+  </p>
+  <p>
+    With the exact map written down, the blank centre is no longer a place a hand
+    has to reach: it can be computed. So they did &mdash; continuing the spiral
+    inward, far past any pen, and closing the white hole at last.
+  </p>
+
+  <h2>See it move</h2>
+  <p>
+    If you'd like the whole argument animated, <strong>Grant Sanderson</strong>
+    (of <em>3Blue1Brown</em>) made a tour of the de&nbsp;Smit&ndash;Lenstra paper in
+    2026 &mdash; the very <em>log(Escher)</em> step you just played with, and more.
+  </p>
+  <figure class="videolink">
+    <a href="https://www.youtube.com/watch?v=ldxFjLJ3rVY" target="_blank" rel="noopener noreferrer" aria-label="Watch the 3Blue1Brown video on YouTube">
+      <img src="/3b1b-print-gallery.jpg" alt="Video thumbnail: Escher's Print Gallery beside its logarithm, captioned Escher → log(Escher)." loading="lazy" />
+      <span class="play" aria-hidden="true"></span>
+    </a>
+    <figcaption>3Blue1Brown on Escher's <em>Print Gallery</em> &mdash; watch on YouTube.</figcaption>
+  </figure>
+
+  <h2>Now make one</h2>
+  <p>
+    This tool does the bending for you. Drop in any photo, draw the rectangle where
+    the next copy should sit, and flip between the two infinities: the straight
+    Droste fall, or the tententoon spiral. Export the loop as a PNG, a GIF, or a
+    video. It all runs in your browser: no upload, no account, no server.
+  </p>
+  <div class="cta-row">
+    <a class="cta" href="/">Open the tool&nbsp;&rarr;</a>
+  </div>
+
+  <footer>
+    <p>
+      <em>Prentententoonstelling</em> (&ldquo;<em>Print Gallery</em>&rdquo;),
+      M.&nbsp;C.&nbsp;Escher, lithograph, 1956. Escher's works are
+      &copy;&nbsp;The&nbsp;M.&nbsp;C.&nbsp;Escher&nbsp;Company (shown here by
+      description and link, not reproduction).
+    </p>
+    <p>
+      &ldquo;The Mathematical Structure of Escher's Print Gallery,&rdquo;
+      B.&nbsp;de&nbsp;Smit &amp; H.&nbsp;W.&nbsp;Lenstra&nbsp;Jr.,
+      <a href="https://www.ams.org/notices/200304/fea-escher.pdf" target="_blank" rel="noopener noreferrer">Notices of the AMS, 2003</a>.
+      See also <a href="https://en.wikipedia.org/wiki/Print_Gallery_(M._C._Escher)" target="_blank" rel="noopener noreferrer">Wikipedia: Print Gallery</a>.
+    </p>
+    <p>
+      Demonstration photograph: &ldquo;Droste effect&rdquo; by
+      <a href="https://commons.wikimedia.org/wiki/File:Droste_1260359-nevit.jpg" target="_blank" rel="noopener noreferrer">Nevit&nbsp;Dilmen</a>,
+      <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener noreferrer">CC&nbsp;BY-SA&nbsp;3.0</a>.
+    </p>
+  </footer>
+
+</div>
+<script type="module" src="/src/explain/main.ts"></script>
+</body>
+</html>

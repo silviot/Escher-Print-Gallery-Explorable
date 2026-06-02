@@ -24,14 +24,15 @@
     <header class="head">
       <div class="title-wrap">
         <h2 id="info-title">About <span class="name">tententoon</span></h2>
-        <p class="sub">A toy for re-creating the Droste effect from Escher's Print&nbsp;Gallery.</p>
+        <p class="sub human-written">A toy for re-creating the Droste effect from Escher's Print&nbsp;Gallery.</p>
       </div>
       <button class="x" onclick={onClose} aria-label="Close">
         <Icon name="close" size={16} />
       </button>
     </header>
 
-    <div class="body">
+    <!-- Hand-written copy. Marked .human-written — do not rewrite or regenerate. -->
+    <div class="body human-written">
       <p>
         Inspired by M.&nbsp;C.&nbsp;Escher's lithograph
         <em>Prentententoonstelling</em> (1956) &mdash; Dutch for

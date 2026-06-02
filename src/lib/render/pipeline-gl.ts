@@ -19,9 +19,9 @@ import vertSrc from './escher-zoom/shader.vert.glsl?raw';
 import fragSrc from './pipeline-gl.frag.glsl?raw';
 import type { DrosteCtx } from '../math/transforms';
 
-export type PanelMode = 'log' | 'rotlog' | 'escher';
+export type PanelMode = 'log' | 'rotlog' | 'escher' | 'unroll';
 
-const MODE_CODE: Record<PanelMode, number> = { log: 0, rotlog: 1, escher: 2 };
+const MODE_CODE: Record<PanelMode, number> = { log: 0, rotlog: 1, escher: 2, unroll: 3 };
 
 export type PipelineGLInput = {
   pixels: ImageData;
@@ -45,6 +45,8 @@ export type PipelineGLInput = {
   kTwist?: number;
   panU?: number;
   panV?: number;
+  /** unroll mode only: 1 = rolled-up spiral, 0 = flat rotated-log strip. */
+  morph?: number;
 };
 
 export class PipelinePanelGLRenderer {
@@ -111,7 +113,8 @@ export class PipelinePanelGLRenderer {
       u_lnR0: input.lnR0 ?? 0,
       u_rot: input.rot ?? Math.atan2(droste.logS, 2 * Math.PI),
       u_kTwist: input.kTwist ?? droste.logS / (2 * Math.PI),
-      u_pan: [input.panU ?? 0, input.panV ?? 0]
+      u_pan: [input.panU ?? 0, input.panV ?? 0],
+      u_morph: input.morph ?? 0
     });
     twgl.drawBufferInfo(gl, quad, gl.TRIANGLE_STRIP);
   }
