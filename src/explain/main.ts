@@ -409,7 +409,7 @@ async function main(): Promise<void> {
       state.panV -= (e.clientY - lastY) / perUnit;
       lastX = e.clientX;
       lastY = e.clientY;
-      schedule(['log', 'bend', 'exp']);
+      schedule(['orig', 'log', 'bend', 'exp']);
     });
     const end = (e: PointerEvent) => {
       active = false;
@@ -426,7 +426,7 @@ async function main(): Promise<void> {
   byId<HTMLButtonElement>('exp-reset')?.addEventListener('click', () => {
     state.panU = 0;
     state.panV = 0;
-    schedule(['log', 'bend', 'exp']);
+    schedule(['orig', 'log', 'bend', 'exp']);
   });
 
   // ── Boot ─────────────────────────────────────────────────────────────────
