@@ -155,27 +155,27 @@
 {#if ui.exportMenuOpen}
   <div class="menu" role="menu">
     <div class="header">SAVE AS</div>
-    <button class="item" disabled={busy || !doc.image} onclick={doPng}>
-      <span class="ic"><Icon name="image" size={14} /></span>
+    <button class="item" disabled={busy || !doc.image} onclick={doGif}>
+      <span class="ic"><Icon name="gif" size={14} /></span>
       <span class="text">
-        <span class="t">Image</span>
-        <span class="s">A tententoon of your picture · {doc.image?.width ?? 0}×{doc.image?.height ?? 0}</span>
+        <span class="t">Looping GIF</span>
+        <span class="s">The seamless infinite zoom — made to share.</span>
       </span>
       <span class="dl"><Icon name="download" size={14} /></span>
     </button>
     <button class="item" disabled={busy || !doc.image} onclick={doVideo}>
       <span class="ic"><Icon name="film" size={14} /></span>
       <span class="text">
-        <span class="t">Video</span>
-        <span class="s">A looping zoom of a tententoon of your picture · {playback.loopLength.toFixed(0)}s</span>
+        <span class="t">Video (MP4)</span>
+        <span class="s">The same loop, crisper and smaller.</span>
       </span>
       <span class="dl"><Icon name="download" size={14} /></span>
     </button>
-    <button class="item" disabled={busy || !doc.image} onclick={doGif}>
-      <span class="ic"><Icon name="gif" size={14} /></span>
+    <button class="item" disabled={busy || !doc.image} onclick={doPng}>
+      <span class="ic"><Icon name="image" size={14} /></span>
       <span class="text">
-        <span class="t">Looping GIF</span>
-        <span class="s">{playback.loopLength.toFixed(0)}s · 480px · 25fps</span>
+        <span class="t">Still image (PNG)</span>
+        <span class="s">A single moment, not the loop.</span>
       </span>
       <span class="dl"><Icon name="download" size={14} /></span>
     </button>
