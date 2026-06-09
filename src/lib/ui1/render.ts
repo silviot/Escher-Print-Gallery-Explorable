@@ -79,12 +79,14 @@ export function buildRenderInputs(
 }
 
 /**
- * The renderer's `t` advances 0→1 over one Droste step inward.
- * HANDOFF's direction='in' matches that; 'out' is just the mirror.
- * We map [0,1) cleanly without negative-modulo nonsense.
+ * The renderer's `t` advances 0→1 over one Droste step OUTWARD: the
+ * sample radius grows by S^t, so on-screen features contract toward
+ * the limit point. direction='in' therefore needs the mirror (1 - t),
+ * and 'out' passes t through. The loop stays seamless either way
+ * because the renderer is periodic in t mod 1.
  */
 export function effectiveT(): number {
-  return playback.direction === 'in' ? playback.t : 1 - playback.t;
+  return playback.direction === 'in' ? 1 - playback.t : playback.t;
 }
 
 /**

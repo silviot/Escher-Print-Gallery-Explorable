@@ -154,7 +154,9 @@
     }
     const u = buildRenderInputs(pixels, doc.rect, doc.crop, off.width, off.height);
     if (!u || !exportRenderer) return;
-    const effT = playback.direction === 'in' ? t : 1 - t;
+    // Renderer t advances outward (see effectiveT in lib/ui1/render.ts),
+    // so 'in' takes the mirror.
+    const effT = playback.direction === 'in' ? 1 - t : t;
     exportRenderer.render({ ...u, t: effT });
   }
 
