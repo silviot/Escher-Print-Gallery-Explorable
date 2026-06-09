@@ -1,5 +1,5 @@
 /**
- * UI variant 1 — shared $state runes. Mirrors HANDOFF.md §3 (ui / doc /
+ * UI variant 1 — shared $state runes. Mirrors docs/HANDOFF.md §3 (ui / doc /
  * playback). Scoped to /ui1; the main view's stores are untouched.
  *
  * State machine implied by the runes:
