@@ -458,6 +458,23 @@
   }
   .pg-fn:hover { border-color: var(--accent); color: var(--accent); }
   .pg-fn.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .pg-fn.tagged { display: flex; align-items: center; justify-content: space-between; gap: 7px; flex-wrap: wrap; }
+  .pg-fn .fn-tag {
+    font-family: Inter, system-ui, sans-serif;
+    font-style: normal;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #fff;
+    background: var(--muted);
+    padding: 1.5px 6px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+  .pg-fn .fn-tag.gold { background: #c8922a; }
+  .pg-fn.on .fn-tag { background: rgba(255, 255, 255, 0.28); }
+  .pg-fn.imp { font-size: 13px; }
   .pg-layers { display: flex; flex-wrap: wrap; gap: 6px; }
   .pg-layers button {
     font-family: Inter, system-ui, sans-serif;
@@ -723,9 +740,27 @@
     </div>
   </header>
 
+  <p>
+    In 1956, M.&nbsp;C.&nbsp;Escher made a lithograph of a young man standing in
+    a gallery, looking at a print of a seaside town. Follow the town to the
+    right and one of its waterfront buildings turns out to be a gallery.
+    Inside the gallery: a young man, looking at a print of a seaside town. The
+    picture contains the gallery that contains the picture; the man is standing
+    inside the very print he is studying. Escher wrote to his son that he
+    didn't think he had ever done anything as peculiar in his life.
+  </p>
+  <p>
+    And at the dead centre, where the loop should wind in on itself, he left a
+    blank white disc with nothing in it but his signature. Hold on to that
+    hole. By the end of this page you'll know exactly what belongs in it &mdash;
+    and you'll have driven, with your own hands, the machine that draws it.
+  </p>
+
   <h2>Start with an ordinary photo</h2>
   <p>
-    Here is one: someone on a couch, holding an empty frame.
+    A picture that contains itself sounds like sorcery, but half of the trick
+    is easy to manufacture at home. Here is an ordinary photo: someone on a
+    couch, holding an empty frame.
   </p>
 
   <figure class="fig-droste">
@@ -762,16 +797,104 @@
     <b>turn</b> a little as it shrinks, and the stack winds into a spiral.
   </p>
 
+  <figure class="analogy">
+    <div class="board">
+      <svg viewBox="0 0 640 236" role="img" aria-label="Two stacks of nested squares. Left: each copy only shrinks, sitting squarely inside the last. Right: each copy also rotates 22 degrees as it shrinks, so the stack winds into a spiral.">
+        <g transform="translate(166,104)" fill="none" stroke="#3a4a52" stroke-width="1.6">
+          <rect x="-84" y="-84" width="168" height="168" rx="1.5"/>
+          <g transform="scale(0.78)"><rect x="-84" y="-84" width="168" height="168" rx="1.5"/>
+            <g transform="scale(0.78)"><rect x="-84" y="-84" width="168" height="168" rx="1.5"/>
+              <g transform="scale(0.78)"><rect x="-84" y="-84" width="168" height="168" rx="1.5"/>
+                <g transform="scale(0.78)"><rect x="-84" y="-84" width="168" height="168" rx="1.5"/>
+                  <g transform="scale(0.78)"><rect x="-84" y="-84" width="168" height="168" rx="1.5"/>
+                    <g transform="scale(0.78)"><rect x="-84" y="-84" width="168" height="168" rx="1.5"/></g>
+                  </g>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+        <g transform="translate(474,104)" fill="none" stroke="#d94f2c" stroke-width="1.6">
+          <rect x="-84" y="-84" width="168" height="168" rx="1.5"/>
+          <g transform="rotate(22) scale(0.78)"><rect x="-84" y="-84" width="168" height="168" rx="1.5"/>
+            <g transform="rotate(22) scale(0.78)"><rect x="-84" y="-84" width="168" height="168" rx="1.5"/>
+              <g transform="rotate(22) scale(0.78)"><rect x="-84" y="-84" width="168" height="168" rx="1.5"/>
+                <g transform="rotate(22) scale(0.78)"><rect x="-84" y="-84" width="168" height="168" rx="1.5"/>
+                  <g transform="rotate(22) scale(0.78)"><rect x="-84" y="-84" width="168" height="168" rx="1.5"/>
+                    <g transform="rotate(22) scale(0.78)"><rect x="-84" y="-84" width="168" height="168" rx="1.5"/></g>
+                  </g>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+        <text x="166" y="222" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="13" fill="#8c8474">shrink only &mdash; the straight fall</text>
+        <text x="474" y="222" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="13" fill="#a83a1d">shrink <tspan font-style="italic">and turn</tspan> &mdash; the tententoon</text>
+      </svg>
+    </div>
+    <figcaption>
+      The same rule twice &mdash; a copy inside a copy inside a copy. On the
+      right, each copy also turns 22&deg; as it shrinks. That second stack is
+      this page's whole subject.
+    </figcaption>
+  </figure>
+
   <p>
-    To build that, we need one idea first &mdash; the one Escher was really using
-    when he drew his curved grid by hand. So before the spiral, a short detour to
-    pick up the language the rest of the page speaks.
+    Turning-while-shrinking is one move, not two &mdash; but to see that, we
+    need the idea Escher was unknowingly computing with when he drew his curved
+    grid by hand. So before the spiral, a short detour through the kind of
+    number that can hold a shrink and a turn at once.
   </p>
 
-  <h2>First, what is a function?</h2>
+  <h2>Numbers that can turn</h2>
+  <p>
+    Think of the ordinary numbers as living on a line. Multiplication stretches
+    that line about its centre, 0: multiply everything by 2 and every point
+    lands twice as far out; multiply by &frac12; and the line contracts. One
+    number is stranger. Multiply by &minus;1 and the whole line flips around 0
+    &mdash; a half-turn.
+  </p>
+  <p>
+    Now ask a child's question: if &minus;1 is a half-turn, which number is a
+    <em>quarter</em>-turn? Half of a flip? No number on the line manages it. So
+    invent one &mdash; call it <em>i</em>, and give it exactly one job:
+    <em>multiplying by i turns the plane a quarter-turn.</em> Where must
+    <em>i</em> itself live? Multiplying sends 1 to 1&nbsp;&times;&nbsp;<em>i</em>
+    = <em>i</em>, and a quarter-turn carries 1 to the spot one unit
+    <em>above</em> 0 &mdash; so that is <em>i</em>'s address: just off the
+    line, one step up. And doing the job twice is the flip:
+    <em>i</em>&nbsp;&times;&nbsp;<em>i</em> = &minus;1. That famous equation,
+    usually served as a pill to swallow, is plain geometry &mdash; a
+    quarter-turn, done twice, is an about-face.
+  </p>
+  <p>
+    The moment you allow <em>i</em>, every point of the plane becomes a number.
+    The point 1.1 across and 0.6 up is the number 1.1&nbsp;+&nbsp;0.6<em>i</em>
+    &mdash; the <em>i</em> tags the up-part. These are the <strong>complex
+    numbers</strong>, and the name slanders them; they are simpler than what
+    they do. Multiply the plane by any one of them, <em>c</em>, and two small
+    facts pin down the entire move: 0&nbsp;&times;&nbsp;<em>c</em> = 0, so the
+    centre stays put; and 1&nbsp;&times;&nbsp;<em>c</em> = <em>c</em>, so the
+    point 1 lands exactly on <em>c</em>. The rest of the plane follows as
+    rigidly as it can. Every multiplication is a <strong>scale-and-spin</strong>
+    about the centre &mdash; never a squash, never a shear. Where 1 lands tells
+    you everything.
+  </p>
+  <p>
+    Now look back at the Droste photo. &ldquo;Every copy shrinks by the same
+    step&rdquo; means the picture doesn't change when you multiply it, about
+    its centre, by an ordinary number &mdash; its shrink factor. A
+    <strong>tententoon</strong> is the same sentence with the number moved off
+    the line: <em>a picture that doesn't change when you multiply it by a
+    complex number</em> &mdash; a shrink with a turn folded in. The rest of
+    this page is one question: how do you paint such a picture?
+  </p>
+
+  <h2>A function moves the plane</h2>
   <p>
     A function is a rule with an input and an output. For us the input is a point
-    on the plane, and the output is another point:
+    of the plane &mdash; which is now a number, <em>z</em> &mdash; and the output
+    is another point:
   </p>
   <p class="formula"><em>z</em> &rarr; <em>f</em>(<em>z</em>)</p>
   <p>
@@ -781,9 +904,19 @@
     evaluated everywhere.
   </p>
   <p>
-    Drag the point on the left and watch where it lands on the right. Switch the
-    function. Then turn on the grid, and the formula stops being a formula &mdash;
-    it becomes a machine moving the plane.
+    Below, the left plane is the input and the right plane shows where
+    everything lands. The red line is the ordinary number line; the blue one is
+    the up-direction where <em>i</em> lives; the readouts underneath write each
+    point in the across-plus-up notation from a moment ago. And the small orange
+    square glued to your point is the real experiment: whatever a function does
+    to the whole plane, watch what it does to that square.
+  </p>
+  <p>
+    Start by clicking <em>f</em>(<em>z</em>)&nbsp;=&nbsp;2<em>z</em> and watch
+    the plane stretch away from the centre. Park the dot on the little point
+    marked 1 and read the output: it landed on 2. Then click <em>iz</em> &mdash;
+    the quarter-turn, no longer a claim but a thing you can drag. The
+    formula stops being a formula; it becomes a machine moving the plane.
   </p>
 
   <figure class="playground" id="pg-root" aria-label="A function playground: an input plane on the left, a function selector in the middle, and the output plane on the right. Drag the point on the input plane to see where the chosen function sends it.">
@@ -801,9 +934,11 @@
           <button type="button" class="pg-fn" data-fn="id"><em>f</em>(<em>z</em>) = <em>z</em></button>
           <button type="button" class="pg-fn" data-fn="double"><em>f</em>(<em>z</em>) = 2<em>z</em></button>
           <button type="button" class="pg-fn" data-fn="rot"><em>f</em>(<em>z</em>) = <em>iz</em></button>
+          <button type="button" class="pg-fn tagged" data-fn="mul"><span><em>f</em>(<em>z</em>) = <em>c</em>&middot;<em>z</em></span> <span class="fn-tag gold">drag&nbsp;c</span></button>
           <button type="button" class="pg-fn" data-fn="square"><em>f</em>(<em>z</em>) = <em>z</em><sup>2</sup></button>
           <button type="button" class="pg-fn" data-fn="exp"><em>f</em>(<em>z</em>) = exp(<em>z</em>)</button>
           <button type="button" class="pg-fn" data-fn="log"><em>f</em>(<em>z</em>) = log(<em>z</em>)</button>
+          <button type="button" class="pg-fn tagged imp" data-fn="xy"><span><em>f</em>(<em>x</em>,&#8202;<em>y</em>) = (<em>x</em>&nbsp;&minus;&nbsp;<em>y</em><sup>2</sup>,&nbsp; <em>y</em>&nbsp;+&nbsp;<em>x</em><sup>2</sup>)</span> <span class="fn-tag">not&nbsp;complex</span></button>
         </div>
       </div>
       <div>
@@ -839,36 +974,84 @@
   <p>
     Walk down the list and the moves get bolder. <em>f</em>(<em>z</em>)&nbsp;=&nbsp;<em>z</em>
     leaves every point exactly where it was &mdash; dull, but it's the baseline.
-    <em>f</em>(<em>z</em>)&nbsp;=&nbsp;2<em>z</em> doubles every distance from the
-    centre: pure scale. <em>f</em>(<em>z</em>)&nbsp;=&nbsp;<em>iz</em> turns
-    everything a quarter-turn: multiplication can <em>mean</em> rotation. Put those
-    two together and you get a scale-and-spin in one step &mdash; which is exactly
-    the move the spiral will need.
+    2<em>z</em> doubles every distance: pure scale. <em>iz</em> is the
+    quarter-turn: pure spin. And <em>c</em>&middot;<em>z</em> is the general
+    case with the constant handed to you &mdash; grab the gold dot and steer the
+    multiplication yourself. Push <em>c</em> out along the red line: pure zoom.
+    Swing it around the centre: pure turn. Park it anywhere else and the two
+    fuse into a single scale-and-spin, with the point 1 landing on <em>c</em>
+    every time and the whole plane following rigidly behind it. Keep a hand on
+    that dial; it is exactly the move the spiral will need.
   </p>
   <p>
     Then the plane starts to bend. <em>f</em>(<em>z</em>)&nbsp;=&nbsp;<em>z</em><sup>2</sup>
-    curves the whole grid, yet&mdash;look closely&mdash;the little squares stay
-    nearly square. The last two are the pair this whole page turns on:
-    <strong>exp</strong> rolls the plane around the origin, so upright lines become
-    rings; and <strong>log</strong> is its undo, unrolling those rings back into
-    upright lines. Hold on to that. The tententoon is built from precisely those
-    two, with a scale-and-spin wedged between them.
+    squares each point &mdash; distances get squared while angles double, so
+    the grid fans out and curves. But watch the orange square ride through:
+    carried, turned, resized &mdash; still very nearly a square. File that
+    oddity away. It is the only reason a photograph will survive what we are
+    about to do to one.
+  </p>
+  <p>
+    The next two are the pair this whole page turns on, and you don't need
+    their formulas: on this page <strong>exp</strong> is the roll-up machine and
+    <strong>log</strong> is the unroll machine. <strong>exp</strong> reads a
+    point's two coordinates separately. The across-part sets the output's
+    <em>size</em>: each step right multiplies the distance from the centre by a
+    fixed factor. The up-part sets its <em>direction</em>: climb one unit and
+    the output swings one radian around. So climb 2&pi; &mdash; one full turn's
+    worth, about 6.28 &mdash; and the output comes all the way around. This
+    input plane is exactly 2&pi; tall on purpose: pick <strong>exp</strong> and
+    drag your point straight up, bottom edge to top, and its image sweeps one
+    complete lap and comes home. Upright lines roll into rings.
+  </p>
+  <p>
+    <strong>log</strong> is the undo. Pick it, swap the grid for the
+    <em>rings</em>, and watch every circle snap out into an upright line. Then
+    show the <em>photo</em> with <strong>log</strong> still chosen: you have
+    just taken the logarithm of a picture. Hold that thought.
+  </p>
+  <p class="aside">
+    With <em>log</em>, if the dot's image suddenly teleports from the top of the
+    panel to the bottom: that's the seam where we cut the unrolling. A circle
+    has no start, so one panel can only show one lap's worth; the unrolled plane
+    truly continues above and below, forever. You'll see it do so in a moment.
+  </p>
+  <p>
+    One button doesn't belong. The last one is written as a recipe on plain
+    coordinates &mdash; so much per <em>x</em>, so much per <em>y</em> &mdash;
+    rather than as complex arithmetic, and it bends the grid as bravely as
+    <em>z</em><sup>2</sup> does. But press it and watch where the orange square
+    lands: sheared into a parallelogram. No complex function ever does that.
+    Before the page ends, that one shear will turn out to be the difference
+    between Escher's picture and mush.
   </p>
 
   <h2>The function we need</h2>
   <p>
-    Now we can state the job. We have a Droste image: zoom in by the right amount
-    and the same picture appears again. We want a single function where moving
-    <em>around</em> the centre also carries us one Droste step <em>inward</em>
-    &mdash; turning and zooming folded into the same motion.
+    Now we can state the job. We have a Droste image: it repeats when you zoom
+    in by its shrink factor <em>S</em> &mdash; for our photo, each copy is
+    about 2.1&times; smaller. We want to rebuild it so that it repeats under a
+    complex multiplication instead: turning and zooming folded into one motion,
+    so that walking once <em>around</em> the centre carries you exactly one
+    Droste step <em>inward</em>.
   </p>
   <p>
-    From the playground we already have the parts. The detour is three moves:
-    <strong>log</strong> to unroll the rings into a flat repeating strip, a
-    <strong>scale-and-spin</strong> to lean that strip until its copies line up
-    diagonally, and <strong>exp</strong> to roll the strip back into rings. The
-    three panels below are those moves, wired together &mdash; move any control and
-    the whole row answers at once.
+    Housekeeping first. Multiplication scales about 0, and log unrolls rings
+    around 0 &mdash; so slide the picture until its vanishing point, the spot
+    all the copies fall toward, sits at the centre. Call that point
+    <em>z</em><sub>0</sub>; it is the <em>z</em>&nbsp;&minus;&nbsp;<em>z</em><sub>0</sub>
+    in the formulas over the panels.
+  </p>
+  <p>
+    From the playground we already own all the parts, and the plan is three
+    moves: <strong>log</strong> to unroll the rings into a flat repeating
+    strip, one <strong>scale-and-spin</strong> &mdash; a single complex
+    multiplication &mdash; to lean that strip, and <strong>exp</strong> to roll
+    it back up. Below: the original, then the three moves, wired together live
+    &mdash; touch any control and the whole row answers. Click <em>ring</em> as
+    the source once and follow the thick red ring across the row: an upright
+    red line in the flat strip, the same line leaned over, and at last a red
+    coil in the spiral. One ring, traced through the entire machine.
   </p>
 
   <figure class="pipeline live-panels" aria-label="The original picture, then three connected transforms: the flat log strip, the strip leaned over, and the strip rolled back up into a spiral.">
@@ -890,7 +1073,7 @@
     </div>
     <div class="stage">
       <div class="stagehead"><span class="step">1</span> we log it</div>
-      <div class="stagemath"><em>&zeta;</em> = log(<em>z</em>&nbsp;&minus;&nbsp;<em>c</em>) &nbsp;&middot;&nbsp; log&nbsp;<em>S</em> = <b class="mv" id="m-logs">0.75</b></div>
+      <div class="stagemath"><em>&zeta;</em> = log(<em>z</em>&nbsp;&minus;&nbsp;<em>z</em><sub>0</sub>); &nbsp;tile width log&nbsp;<em>S</em> = <b class="mv" id="m-logs">0.75</b></div>
       <div class="panel-cell ar-img">
         <span class="plabel">flat strip <span class="pchip">drag me</span></span>
         <canvas id="exp-log"></canvas>
@@ -907,7 +1090,7 @@
     </div>
     <div class="stage">
       <div class="stagehead"><span class="step">2</span> we bend it</div>
-      <div class="stagemath"><em>&zeta;</em> &rarr; <em>&alpha;&zeta;</em>,&nbsp; <em>&alpha;</em> = 1 &minus; <b class="mv" id="m-k">0.12</b>&#8202;<em>i</em></div>
+      <div class="stagemath">lookup&nbsp;<em>&zeta;</em> &rarr; <em>&alpha;&zeta;</em>,&nbsp; <em>&alpha;</em> = 1 &minus; <b class="mv" id="m-k">0.12</b>&#8202;<em>i</em></div>
       <div class="panel-cell ar-img is-closed">
         <span class="plabel">leaned over</span>
         <canvas id="exp-bend"></canvas>
@@ -928,7 +1111,7 @@
     </div>
     <div class="stage">
       <div class="stagehead"><span class="step">3</span> we exponentiate it</div>
-      <div class="stagemath"><em>w</em> = <em>c</em> + (<em>z</em>&nbsp;&minus;&nbsp;<em>c</em>)<sup><em>&alpha;</em></sup></div>
+      <div class="stagemath"><em>w</em> = <em>z</em><sub>0</sub> + (<em>z</em>&nbsp;&minus;&nbsp;<em>z</em><sub>0</sub>)<sup><em>&alpha;</em></sup></div>
       <div class="panel-cell ar-img is-closed">
         <span class="plabel">rolled up</span>
         <canvas id="exp-exp"></canvas>
@@ -956,10 +1139,20 @@
     still line up, and roll it back up &mdash; the lean becomes the spiral.
   </p>
   <p class="aside">
-    The <em>photo</em>'s own nesting is gentle, so it closes at only about&nbsp;7&deg;.
-    The <em>ring</em> and <em>grid</em> patterns repeat at every scale, so they
-    close at the full ~25&deg; &mdash; almost exactly the 26&deg; Escher used. The
-    source choice under each panel is shared across all three.
+    The <em>photo</em>'s own nesting is gentle (<em>S</em>&nbsp;&asymp;&nbsp;2.1),
+    so it closes at only about&nbsp;7&deg;. The <em>ring</em> and <em>grid</em>
+    patterns repeat at every scale, so they ride a bolder geometry
+    (<em>S</em>&nbsp;=&nbsp;20) and close at ~25.5&deg;; <em>overlay</em> is the
+    photo with the patterns inked on, and closes with the photo. Switching
+    source resets the lean to the new closing angle. The law behind these
+    numbers is waiting in step&nbsp;2.
+  </p>
+  <p>
+    Before reading on, do one thing. Drag the <strong>lean</strong> slider on
+    the second move off its mark and watch the spiral on the right tear at its
+    seam. Now press <strong>snap</strong>. That click &mdash; the tiles sliding
+    back into register, the frames lighting up &mdash; is the entire content of
+    the next three sections. All we are going to do is slow it down.
   </p>
 
   <h2>1 &middot; We log it</h2>
@@ -1010,101 +1203,324 @@
   </figure>
 
   <p>
-    Going inward usually breaks the spell &mdash; zoom toward the middle of a photo
-    and you meet new detail forever, never the same view twice. The Droste is the
-    exception, and we built it on purpose: one frame inward is an exact copy of the
-    whole, so inward repeats as well. Flatten both directions and the picture turns
-    into a plain grid of identical tiles. (The flattening trades a point's distance
-    from the centre for the number of shrink-steps that reach it, so repeated
-    multiplying becomes repeated adding. Its name is the <strong>logarithm</strong>.)
+    Going inward usually breaks the spell &mdash; zoom toward the middle of an
+    ordinary photo and you meet new detail forever, never the same view twice.
+    The Droste is the exception, and we built it on purpose: one frame inward is
+    an exact copy of the whole, so inward repeats as well. Flatten both
+    directions and the picture becomes a plain grid of identical tiles. This
+    flattening is exactly the playground's <strong>log</strong>: a point's
+    distance from the centre becomes how far <em>across</em> it sits, and its
+    angle around becomes how far <em>up</em>. Distance is traded for
+    shrink-<em>steps</em> &mdash; multiplying turned into adding &mdash; and
+    that trade has a name you already know: the <strong>logarithm</strong>.
+    You are looking at the log of a photograph.
   </p>
   <p>
-    This is the quiet fact the whole spiral rests on: in that grid, <strong>a step
-    of exactly one tile lands you on a region identical to where you started.</strong>
-    Drag the flat strip and feel it &mdash; a sideways slide zooms, an up-and-down
-    slide turns, and after one full tile everything is precisely as it was.
+    Read a tile's dimensions off the strip. It is one lap tall &mdash; 2&pi;,
+    because going around is 2&pi; radians' worth of turning &mdash; and one
+    shrink-step wide: log&nbsp;<em>S</em>, the number over the first panel,
+    because that is what a zoom of <em>S</em> adds after the trade. Two ways
+    home, two repeats: <em>around</em> brings you home in any picture;
+    <em>inward</em> brings you home only in a Droste. So here is the quiet fact
+    the whole spiral rests on: <strong>a step of exactly one tile lands you on
+    a region identical to where you started.</strong> Don't take the page's
+    word for it. Drag the strip sideways until the readout under the panels
+    announces <em>identical again&nbsp;&check;</em> &mdash; you just zoomed one
+    whole Droste step. Drag it one tile vertically: identical again.
+  </p>
+  <p>
+    And a picture that repeats one step over <em>and</em> one step up is a
+    picture you can lean without breaking. That lean is the entire trick. It's
+    next.
   </p>
 
   <h2>2 &middot; We bend it</h2>
   <p>
-    Bending a spiral by hand is hopeless; leaning a flat grid is easy. Push the
-    <strong>lean</strong> slider on the middle panel and the strip tilts. Most
-    angles drag the tiles out of step, but at one the rows click back into
-    register &mdash; every tile still meets its neighbours, no gaps, no overlaps.
-    That angle is the one marked <em>closed&nbsp;&check;</em>; <strong>snap</strong>
-    lands on it exactly.
+    Bending a spiral by hand is hopeless; leaning a flat grid is easy &mdash;
+    that is the whole reason we flattened. And you have already felt this
+    step: most angles drag the tiles out of step and the spiral tears, but at
+    one angle the rows click back into register, every tile meeting its
+    neighbours with no gaps and no overlaps. <strong>snap</strong> lands on it
+    exactly. Call that angle <em>&beta;</em>.
   </p>
   <p>
-    Here's why any lean can work. The grid repeats one step over <em>and</em> one
-    step up, so it also repeats along a staircase built from those two steps. Lean
-    the strip along such a staircase and it still lies on top of itself. Only that
-    family of angles keeps the tiles aligned, and the shallowest of them is the one
-    that will close the spiral.
+    Why that angle? In the flat grid you live at many addresses at once. One
+    tile to your right stands a copy of you, one shrink-step further in. One tile
+    straight up or down stands another &mdash; you, one lap around. And one
+    tile over, one tile down stands the copy reached by zooming and turning
+    <em>at once</em>: the diagonal neighbour. Now remember what rolling up
+    does: it glues each point of the strip to the point one lap below it. So
+    the rolled-up picture is seamless only if <em>one lap straight down lands
+    on an identical copy</em>. Upright, it does &mdash; but boringly: straight
+    down is pure turning, and the roll-up gives back the plain Droste. Lean the
+    strip until the <em>diagonal</em> neighbour stands directly underneath you
+    instead, and one lap around now comes with one shrink-step folded in.
+  </p>
+
+  <figure class="analogy">
+    <div class="board">
+      <svg viewBox="0 0 640 342" role="img" aria-label="Left: a flat lattice of identical tiles; dots mark copies of the same view, with arrows for one step in, one lap around, and the diagonal that does both at once. Right: the same lattice leaned by the angle beta, so the diagonal copy now sits exactly one lap straight below.">
+        <defs>
+          <marker id="ah3" viewBox="0 0 10 10" refX="7.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="#d94f2c" />
+          </marker>
+          <marker id="ah4" viewBox="0 0 10 10" refX="7.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="#3a4a52" />
+          </marker>
+        </defs>
+
+        <g transform="translate(150,152)">
+          <g stroke="#3a4a52" stroke-opacity="0.28" stroke-width="1.2" fill="none">
+            <line x1="-84" y1="-118" x2="-84" y2="118"/>
+            <line x1="-28" y1="-118" x2="-28" y2="118"/>
+            <line x1="28" y1="-118" x2="28" y2="118"/>
+            <line x1="84" y1="-118" x2="84" y2="118"/>
+            <line x1="-84" y1="-118" x2="84" y2="-118"/>
+            <line x1="-84" y1="0" x2="84" y2="0"/>
+            <line x1="-84" y1="118" x2="84" y2="118"/>
+          </g>
+          <g fill="#d1495b">
+            <circle cx="-56" cy="-59" r="4.5"/>
+            <circle cx="56" cy="-59" r="4.5"/>
+            <circle cx="-56" cy="59" r="4.5"/>
+            <circle cx="0" cy="59" r="4.5"/>
+            <circle cx="56" cy="59" r="4.5"/>
+          </g>
+          <circle cx="0" cy="-59" r="5.5" fill="#d94f2c"/>
+          <text x="0" y="-73" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="10.5" fill="#a83a1d">you</text>
+          <line x1="8" y1="-59" x2="46" y2="-59" stroke="#3a4a52" stroke-width="1.8" marker-end="url(#ah4)"/>
+          <text x="28" y="-44" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="10.5" fill="#8c8474">in &times;S</text>
+          <line x1="0" y1="-50" x2="0" y2="48" stroke="#3a4a52" stroke-width="1.8" marker-end="url(#ah4)"/>
+          <text x="-7" y="4" text-anchor="end" font-family="Inter, system-ui, sans-serif" font-size="10.5" fill="#8c8474">one lap</text>
+          <line x1="6.2" y1="-46" x2="51.5" y2="49.6" stroke="#d94f2c" stroke-width="2.5" marker-end="url(#ah3)"/>
+          <text x="38" y="10" text-anchor="start" font-family="Inter, system-ui, sans-serif" font-size="10.5" fill="#a83a1d">in + around</text>
+        </g>
+
+        <path d="M 268,62 A 46,46 0 0 1 332,58" fill="none" stroke="#d94f2c" stroke-width="2" marker-end="url(#ah3)"/>
+        <text x="300" y="46" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-style="italic" font-size="13" fill="#a83a1d">lean by &beta;</text>
+
+        <g transform="translate(452,152)">
+          <g transform="rotate(25.4)">
+            <g stroke="#3a4a52" stroke-opacity="0.28" stroke-width="1.2" fill="none">
+              <line x1="-84" y1="-118" x2="-84" y2="118"/>
+              <line x1="-28" y1="-118" x2="-28" y2="118"/>
+              <line x1="28" y1="-118" x2="28" y2="118"/>
+              <line x1="84" y1="-118" x2="84" y2="118"/>
+              <line x1="-84" y1="-118" x2="84" y2="-118"/>
+              <line x1="-84" y1="0" x2="84" y2="0"/>
+              <line x1="-84" y1="118" x2="84" y2="118"/>
+            </g>
+            <g fill="#d1495b">
+              <circle cx="-56" cy="-59" r="4.5"/>
+              <circle cx="56" cy="-59" r="4.5"/>
+              <circle cx="-56" cy="59" r="4.5"/>
+              <circle cx="0" cy="59" r="4.5"/>
+              <circle cx="56" cy="59" r="4.5"/>
+            </g>
+            <circle cx="0" cy="-59" r="5.5" fill="#d94f2c"/>
+            <line x1="6.2" y1="-46" x2="51.5" y2="49.6" stroke="#d94f2c" stroke-width="2.5" marker-end="url(#ah3)"/>
+          </g>
+          <text x="25" y="-67" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="10.5" fill="#a83a1d">you</text>
+          <text x="38" y="20" text-anchor="start" font-family="Inter, system-ui, sans-serif" font-size="10.5" fill="#a83a1d">straight down now</text>
+          <text x="38" y="34" text-anchor="start" font-family="Inter, system-ui, sans-serif" font-size="10.5" fill="#a83a1d">= one lap &check;</text>
+        </g>
+
+        <text x="150" y="314" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="13" fill="#8c8474">the flat grid:</text>
+        <text x="150" y="330" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="13" fill="#8c8474">every dot is an identical view</text>
+        <text x="452" y="314" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="13" fill="#8c8474">leaned by &beta;:</text>
+        <text x="452" y="330" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="13" fill="#8c8474">the diagonal copy waits one lap below</text>
+      </svg>
+    </div>
+    <figcaption>
+      Left: the log-strip's hidden lattice. Right: lean it by <em>&beta;</em>
+      and the diagonal copy &mdash; one shrink-step in, one lap around &mdash;
+      stands exactly one lap straight below. Rolling up glues along that
+      vertical, so the seam closes on an identical picture.
+    </figcaption>
+  </figure>
+
+  <p>
+    That one requirement fixes everything. The lean must stand a tile's
+    diagonal &mdash; one shrink-step across, one lap up &mdash; on end, so
+    tan&nbsp;<em>&beta;</em> = log&nbsp;<em>S</em>&nbsp;&divide;&nbsp;2&pi;.
+    There is the law behind the panel's numbers: the photo's gentle
+    <em>S</em>&nbsp;&asymp;&nbsp;2.1 asks for just under 7&deg; of lean, the
+    bold patterns' <em>S</em>&nbsp;=&nbsp;20 for 25.5&deg;, and Escher's deep
+    <em>S</em>&nbsp;=&nbsp;256 demands a full 41&deg;. And the lean itself is
+    nothing new: it is the playground's <em>c</em>&middot;<em>z</em> &mdash;
+    one complex multiplication, a turn by <em>&beta;</em> with a whisper of
+    shrink folded in, sized so the upended diagonal measures exactly one lap.
+    Nudge the slider and watch the constant follow in the header above the
+    panel.
+  </p>
+  <p class="aside">
+    Steeper closings exist too: keep leaning, and at twice the tangent the copy
+    standing one lap below you is the one <em>two</em> tiles over &mdash; the
+    seam heals again, now diving two Droste steps per lap. With the
+    <em>photo</em> as source, sneak the lean up to about 13.3&deg; and watch
+    the spiral quietly seal itself; the glow only honours the first angle, but
+    the mathematics honours the whole family. One step per lap &mdash; the
+    gentlest closing lean &mdash; is the clean single spiral Escher drew.
   </p>
 
   <h2>3 &middot; We exponentiate it</h2>
   <p>
-    One move remains: roll the leaned strip back up &mdash; the exact reverse of
-    flattening it. Press <strong>roll it up</strong> on the third panel and the
-    strip winds around the centre; the lean becomes a turn, and the grid of tiles
-    closes into the spiral. Because we only ever leaned a pattern that repeats, the
-    spiral meets itself with no seam &mdash; follow any line inward and it returns
-    to where it began. That is the <strong>tententoon</strong>.
+    One move remains: roll the leaned strip back up &mdash; the exact undo of
+    the flattening. On the last panel, pull the <strong>flat&nbsp;&harr;&nbsp;spiral</strong>
+    slider down to <em>flat</em> and slowly back up, and watch each upright
+    line of the strip curl into a ring as <strong>exp</strong> winds it around
+    the centre.
   </p>
   <p>
-    Rolling up is the undo of logging: where one counted shrink-steps to flatten
-    the picture, the other grows them back. Both infinities live at its two ends
-    &mdash; leave the strip upright and it rolls into the straight Droste fall; lean
-    it first and it rolls into Escher's spiral. Same picture, same roll &mdash; only
-    the lean is different.
+    Now collect the winnings. Rolling up glues each point to the point one lap
+    away &mdash; and the lean put an identical copy exactly there, one lap
+    around <em>and</em> one tile inward. So the spiral meets itself with no
+    seam, because the two edges being glued were identical before the glue. And
+    the job we set ourselves is done: in the rolled-up picture, <strong>going
+    around <em>is</em> going inward</strong> &mdash; walk once about the centre
+    and you arrive one whole Droste step deeper. That is the
+    <strong>tententoon</strong>.
+  </p>
+  <p>
+    Both infinities live at the two ends of the lean. Set it to 0&deg; and the
+    roll-up gives the straight Droste fall; snap it to <em>&beta;</em> and the
+    same roll gives Escher's spiral. Same picture, same roll &mdash; only the
+    lean is different.
+  </p>
+  <p>
+    The algebra hands us a parting gift. The three moves were: take log,
+    multiply by a constant, take exp &mdash; and
+    exp(<em>&alpha;</em>&nbsp;&middot;&nbsp;log&nbsp;<em>z</em>) collapses, the
+    way exponents always collapse, into a single power. The entire machine
+    above is the one-line function over the third panel,
+  </p>
+  <p class="formula"><em>w</em> = <em>z</em><sub>0</sub> + (<em>z</em> &minus; <em>z</em><sub>0</sub>)<sup><em>&alpha;</em></sup></p>
+  <p>
+    &mdash; recentre on the vanishing point, raise to a complex power, done.
+    The whole lean hides inside the one constant <em>&alpha;</em>. Months of
+    Escher's labour, five symbols &mdash; though the symbols come cheap only
+    because the understanding didn't: everything the formula knows, you now
+    know.
+  </p>
+  <p class="aside">
+    For the sharp-eyed: the <em>&alpha;</em> in the panels is the lean's
+    <em>reciprocal</em>, because a renderer runs the machine backwards &mdash;
+    for every point of the finished spiral it asks which point of the straight
+    picture supplies its colour (that's the word <em>lookup</em> in the second
+    panel's header). Same machine, read right to left.
+  </p>
+  <p>
+    Before we leave the machine: scroll back to the dictionary card at the top
+    of this page and look at the stamp in its corner &mdash; squares turning
+    22&deg; as they shrink. You have been looking at a tententoon since before
+    you knew the word. And now you know how to build one.
   </p>
 
   <h2>Why the picture still looks like a picture</h2>
   <p>
-    A careless warp wrecks an image: squares shear into parallelograms, faces
-    smear, straight edges buckle. The overall shape might land where you wanted,
-    but up close the picture stops being readable. Escher needed the opposite
-    &mdash; an enormous global bend in which every <em>small</em> neighbourhood
-    stays almost untouched.
+    A puzzle is left over. We just bent a photograph around a spiral &mdash;
+    why didn't it turn to mush? A careless warp wrecks an image: squares shear
+    into parallelograms, faces smear, straight edges buckle. Escher needed the
+    opposite &mdash; an enormous global bend in which every <em>small</em>
+    neighbourhood stays almost untouched.
   </p>
   <p>
-    This is the real work the playground's <em>z</em><sup>2</sup>, <strong>exp</strong>,
-    and <strong>log</strong> were doing. Near any single point, each of them acts
-    like nothing more than a scale plus a rotation &mdash; not a squash, not a
-    shear. So the whole plane can twist violently around itself while the little
-    squares stay square. Turn the grid back on and watch one tile through the
-    bend: it moves and turns and shrinks, but it keeps its shape. That is why this
-    family of functions is the right tool for warping a photograph, and it is the
-    quiet reason the spiral still reads as Escher's gallery rather than a smear.
+    Earlier, you filed an oddity away. Go back to the playground and run the
+    comparison: press the <em>not complex</em> impostor and watch the orange
+    square land sheared; then press <em>z</em><sup>2</sup> and drag the same
+    path &mdash; bent, turned, resized, still square. Both recipes are smooth.
+    Only one respects shape. The difference is that the impostor handles
+    <em>x</em> and <em>y</em> as two separate ingredients, while
+    <em>z</em><sup>2</sup> is built from complex arithmetic alone.
+  </p>
+  <p>
+    Here is the why, and it is the payoff of the whole detour. Zoom far enough
+    in on <em>any</em> function built from complex arithmetic &mdash;
+    <em>z</em><sup>2</sup>, exp, log, the tententoon power itself &mdash; and
+    near a single point it becomes indistinguishable from one multiplication by
+    one constant. (That constant is the function's rate of change there;
+    having one is what <em>differentiable</em> means, drawn instead of
+    graphed.) And a multiplication, you now know by heart, is a
+    scale-and-spin: never a squash, never a shear. So the plane as a whole may
+    twist violently around itself while every little square stays a little
+    square &mdash; only bigger or smaller, only turned.
+  </p>
+  <p class="aside">
+    The orange square is drawn at a fixed size, so it bows slightly where the
+    warp is wild. Imagine it smaller and the fit sharpens without end.
+  </p>
+  <p>
+    That is why this family of functions is the right tool for warping a
+    photograph, and the quiet reason the spiral still reads as a gallery rather
+    than a smear. Write nearly any formula in <em>z</em> and this
+    shape-faithfulness falls out free; write an honest recipe on <em>x</em> and
+    <em>y</em> and it almost never does. Mathematicians call such maps
+    <em>conformal</em>. Escher, with no formal mathematics at all, demanded
+    exactly this of his hand-drawn grid &mdash; look closely at it and all his
+    curved lines cross at right angles.
   </p>
 
   <h2>Escher got there first, by hand</h2>
   <p>
-    Escher had no computer in 1956. He worked the curved grid out by eye, ruled it
-    onto the canvas, and painted a gallery, a print, a town, and the gallery again
-    into the bend. And he got it <em>right</em>: the mathematics later showed his
-    intuition was very nearly exact.
+    Escher had no computer in 1956 &mdash; and no complex numbers either. He
+    started from the idea of a straight Droste scene: a gallery containing a
+    print containing the gallery, nested squarely like our couch photo, each
+    copy <strong>256</strong> times smaller. Then he worked the curved grid out
+    by eye &mdash; spreading that zoom around the loop as four gentle steps of
+    4, one per quarter-turn &mdash; ruled it onto the paper, kept every
+    crossing at right angles, and copied the scene into the bend square by
+    little square. And he got it <em>right</em>: the mathematics later showed
+    his by-eye grid was very nearly exact. You found your closing angle by
+    nudging a slider until a frame glowed. Escher found his with a ruler, an
+    eraser, and what he described as almighty headaches.
   </p>
   <p>
-    But a spiral tightens forever toward its centre, and a pen can only go so fine.
-    So Escher stopped, left a soft white patch in the middle of the picture, curled
-    his signature into it, and called it finished. The one place the picture could
-    not finish itself.
+    But a spiral tightens forever toward its centre, and a pen can only go so
+    fine. So Escher stopped, left a soft white disc in the middle, curled his
+    signature into it, and called it finished. Stand at the rim of that disc
+    and try to say what should continue into it. Coming from the upper right,
+    surely rooftops. From the left, the moulding of the picture frame. From
+    below, the gallery floor. Every answer is correct &mdash; all the
+    picture's ambiguity about <em>where you are</em> drains into that one
+    blank circle, the one place the picture could not finish itself.
   </p>
 
   <h2>The map that filled the hole</h2>
   <p>
-    In 2003, two mathematicians in Leiden (<strong>Bart de&nbsp;Smit</strong> and
-    <strong>Hendrik Lenstra</strong>) worked out the exact map hiding in Escher's
-    grid. The idealised <em>Print Gallery</em>, they showed, contains a complete
-    copy of itself rotated by <strong>157.6256&deg;</strong> and shrunk by a factor
-    of <strong>22.5837</strong>. Pin those two numbers down and the rest of the
-    picture is forced, including the part Escher left blank.
+    In 2003, two mathematicians in Leiden &mdash; <strong>Bart
+    de&nbsp;Smit</strong> and <strong>Hendrik Lenstra</strong> &mdash; worked
+    out the exact map hiding in Escher's grid. The idealised <em>Print
+    Gallery</em>, they showed, contains a complete copy of itself rotated by
+    <strong>157.6256&deg;</strong> and shrunk by a factor of
+    <strong>22.5837</strong>. Pause on that pair: a turn and a shrink, fused
+    &mdash; one complex number. The picture Escher drew by instinct is, to the
+    millimetre his pen could manage, a picture that doesn't change when you
+    multiply it by a single complex constant: the very thing this page called a
+    tententoon back when the word was first on the table. Escher computed a
+    complex multiplication without ever writing a complex number down. Pin that
+    one constant, and the rest of the picture is forced &mdash; including the
+    part he left blank.
   </p>
   <p>
-    With the exact map written down, the blank centre is no longer a place a hand
-    has to reach: it can be computed. So they did &mdash; continuing the spiral
-    inward, far past any pen, and closing the white hole at last.
+    And the map says: there is no hole. The flat strip runs on forever, so its
+    roll-up fills every point of the plane except the exact centre &mdash; a
+    single dimensionless dot. What belongs in Escher's blank disc is the whole
+    picture again &mdash; gallery, print, town, young man &mdash; turned
+    157.6&deg; and 22.6&times; smaller, holding a smaller copy still, all the
+    way down. The blank was never a gap in the picture, only in what a pen can
+    do. So they computed it: the spiral continued inward, far past any
+    draughtsman's hand, and the white disc closed at last, almost fifty years
+    after Escher signed his name across it.
+  </p>
+  <p>
+    A last secret, then. A pattern that repeats in two directions at once &mdash;
+    the tiled strip you dragged around above &mdash; is the home ground of what
+    mathematicians call <em>elliptic curves</em>, a pillar of modern number
+    theory. De&nbsp;Smit and Lenstra are number theorists; where the rest of us
+    saw a curiosity, they recognised an old friend. The structures Escher was
+    drawn to by pure instinct sit a short walk from the research frontier
+    &mdash; which may be the deepest compliment mathematics can pay a
+    draughtsman.
   </p>
 
   <h2>See it move</h2>

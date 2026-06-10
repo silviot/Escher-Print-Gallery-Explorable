@@ -13,8 +13,11 @@
  *
  * That interpolation is a teaching tool, not the real math — it lets the plane
  * be *pulled* into place instead of snapping there. The order of functions
- * (z, 2z, iz, z², exp, log) walks from "nothing moves" up to the exp/log pair
- * the tententoon is built from.
+ * (z, 2z, iz, c·z, z², exp, log) walks from "nothing moves" up to the exp/log
+ * pair the tententoon is built from. Two specials: c·z has a draggable gold
+ * constant (grab c and steer the scale-and-spin yourself), and a final
+ * non-complex impostor written on (x, y) coordinates shears its little square —
+ * the hands-on proof that conformality belongs to complex arithmetic.
  *
  * Pure Canvas 2D, no WebGL and no dependency on the Droste pipeline: these are
  * general maps, not the one specific map. Grid/ring lines are drawn by sampling
@@ -25,7 +28,7 @@
 
 type C = { re: number; im: number };
 
-type FnKey = 'id' | 'double' | 'rot' | 'square' | 'exp' | 'log';
+type FnKey = 'id' | 'double' | 'rot' | 'mul' | 'square' | 'exp' | 'log' | 'xy';
 // `fixedOut`, when set, pins the output plane to that half-extent instead of
 // auto-fitting. The linear maps MUST share the input scale (D): if the output
 // viewport auto-grew to fit 2z, the doubling would be cancelled by the zoom and
@@ -43,11 +46,24 @@ type Fn = { key: FnKey; label: string; map: (z: C) => C; fixedOut?: number };
 // tententoon spiral.
 const D = Math.PI;
 
+// The draggable constant for f(z) = c·z. 1.2 + 0.9i is a 3-4-5 triangle:
+// |c| = 1.5 and arg c ≈ 36.9°, so the map visibly scales AND spins at once.
+const MUL_C0: C = { re: 1.2, im: 0.9 };
+const mulC: C = { ...MUL_C0 };
+
 const FNS: Fn[] = [
   { key: 'id', label: 'f(z) = z', map: (z) => ({ re: z.re, im: z.im }), fixedOut: D },
   { key: 'double', label: 'f(z) = 2z', map: (z) => ({ re: 2 * z.re, im: 2 * z.im }), fixedOut: D },
   // i·z = i(x + iy) = −y + ix : a quarter-turn.
   { key: 'rot', label: 'f(z) = iz', map: (z) => ({ re: -z.im, im: z.re }), fixedOut: D },
+  {
+    // (a+bi)(x+iy) — the general scale-and-spin, steered by dragging c. The
+    // whole map is pinned by two facts: 0 stays put, and 1 lands on c.
+    key: 'mul',
+    label: 'f(z) = c·z',
+    map: (z) => ({ re: mulC.re * z.re - mulC.im * z.im, im: mulC.re * z.im + mulC.im * z.re }),
+    fixedOut: D
+  },
   { key: 'square', label: 'f(z) = z²', map: (z) => ({ re: z.re * z.re - z.im * z.im, im: 2 * z.re * z.im }) },
   {
     key: 'exp',
@@ -61,6 +77,15 @@ const FNS: Fn[] = [
     key: 'log',
     label: 'f(z) = log(z)',
     map: (z) => ({ re: 0.5 * Math.log(z.re * z.re + z.im * z.im), im: Math.atan2(z.im, z.re) })
+  },
+  {
+    // The impostor: a perfectly smooth recipe written on coordinates (x, y)
+    // rather than in complex arithmetic. It bends the grid much like z² does,
+    // but it is not complex multiplication near any point, so the little
+    // square shears — the one thing no complex function ever does.
+    key: 'xy',
+    label: 'f(x, y) = (x − y², y + x²)',
+    map: (z) => ({ re: z.re - z.im * z.im, im: z.im + z.re * z.re })
   }
 ];
 
@@ -75,6 +100,7 @@ const ACCENT_DEEP = '#a83a1d';
 const INK = '#26424a';
 const RED = '#d1495b';
 const BLUE = '#2e86ab';
+const GOLD = '#e0a32e'; // the draggable constant c and everything it pins down
 
 const byId = <T extends Element>(id: string) => document.getElementById(id) as T | null;
 const clamp = (v: number, lo: number, hi: number) => (v < lo ? lo : v > hi ? hi : v);
@@ -327,6 +353,19 @@ export function initPlayground(): void {
         ];
         const sc = corners.map((p) => toSrc(p.re, p.im));
         const dc = corners.map((p) => map(apply ? ft(p) : p));
+        // A cell straddling a branch-cut jump (log's seam) would smear one giant
+        // triangle across the panel; drop it — a thin missing seam reads better.
+        const jump = cw * 0.5;
+        let ok = true;
+        for (let a = 0; a < 4 && ok; a++) {
+          for (let b = a + 1; b < 4; b++) {
+            if (Math.abs(dc[a].x - dc[b].x) > jump || Math.abs(dc[a].y - dc[b].y) > jump) {
+              ok = false;
+              break;
+            }
+          }
+        }
+        if (!ok) continue;
         texTri(ctx, photoSq, [sc[0], sc[1], sc[2]], [dc[0], dc[1], dc[2]]);
         texTri(ctx, photoSq, [sc[0], sc[2], sc[3]], [dc[0], dc[2], dc[3]]);
       }
@@ -341,6 +380,42 @@ export function initPlayground(): void {
     ctx.lineWidth = 2;
     ctx.strokeStyle = 'rgba(255,255,255,0.9)';
     ctx.stroke();
+  }
+
+  function label(ctx: CanvasRenderingContext2D, p: { x: number; y: number }, text: string, color: string): void {
+    ctx.font = `italic 600 ${Math.max(11, Math.round(cw * 0.026))}px Georgia, "Times New Roman", serif`;
+    ctx.fillStyle = color;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'alphabetic';
+    ctx.fillText(text, p.x + cw * 0.014, p.y - ch * 0.014);
+  }
+
+  // The story of f(z) = c·z lives in two marked points: 0 stays put, and 1 is
+  // dragged onto c — that alone pins the whole scale-and-spin. Input side: the
+  // point 1, the gold handle c, and the ray 0 → c. Output side: where 1 lands.
+  function drawMulMarkers(ctx: CanvasRenderingContext2D, map: (z: C) => { x: number; y: number }, apply: boolean): void {
+    const one: C = { re: 1, im: 0 };
+    if (!apply) {
+      const pc = map(mulC);
+      const p0 = map({ re: 0, im: 0 });
+      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = 'rgba(224,163,46,0.55)';
+      ctx.setLineDash([5, 5]);
+      ctx.beginPath();
+      ctx.moveTo(p0.x, p0.y);
+      ctx.lineTo(pc.x, pc.y);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      const p1 = map(one);
+      dot(ctx, p1, 'rgba(255,255,255,0.92)', 4);
+      label(ctx, p1, '1', 'rgba(255,255,255,0.92)');
+      dot(ctx, pc, GOLD, 7);
+      label(ctx, pc, 'c', GOLD);
+    } else {
+      const p1 = map(ft(one)); // at t = 1 this sits exactly on c
+      dot(ctx, p1, GOLD, 5);
+      label(ctx, p1, 'c·1', GOLD);
+    }
   }
 
   // the little neighbour square — stays near-square for analytic maps
@@ -383,7 +458,7 @@ export function initPlayground(): void {
     ctx.restore();
   }
 
-  function drawAxesFrame(ctx: CanvasRenderingContext2D): void {
+  function drawAxesFrame(ctx: CanvasRenderingContext2D, isInput: boolean): void {
     // faint origin crosshair so the centre is locatable even when layers are off
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.lineWidth = 1;
@@ -392,15 +467,49 @@ export function initPlayground(): void {
     ctx.moveTo(cw / 2, 0); ctx.lineTo(cw / 2, ch);
     ctx.moveTo(0, ch / 2); ctx.lineTo(cw, ch / 2);
     ctx.stroke();
+    if (!isInput) return;
+    // Scale cues, input side only. The plane spans exactly [−π, π] each way —
+    // 2π tall, the height exp wraps into one full lap — and the points 1 and i
+    // anchor the multiplication story (skip 1 when the gold c-markers draw it).
+    const fs = Math.max(10, Math.round(cw * 0.02));
+    ctx.font = `${fs}px Inter, system-ui, sans-serif`;
+    ctx.fillStyle = 'rgba(255,255,255,0.38)';
+    const pad = Math.max(4, cw * 0.012);
+    ctx.textBaseline = 'alphabetic';
+    ctx.textAlign = 'left';
+    ctx.fillText('−π', pad, ch / 2 - pad);
+    ctx.textAlign = 'right';
+    ctx.fillText('π', cw - pad, ch / 2 - pad);
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    ctx.fillText('π', cw / 2 + pad, pad);
+    ctx.textBaseline = 'bottom';
+    ctx.fillText('−π', cw / 2 + pad, ch - pad);
+    ctx.textBaseline = 'alphabetic';
+    const pi = toIn({ re: 0, im: 1 });
+    ctx.fillStyle = 'rgba(255,255,255,0.55)';
+    ctx.beginPath();
+    ctx.arc(pi.x, pi.y, 3, 0, Math.PI * 2);
+    ctx.fill();
+    label(ctx, pi, 'i', 'rgba(255,255,255,0.6)');
+    if (state.fn.key !== 'mul') {
+      const p1 = toIn({ re: 1, im: 0 });
+      ctx.fillStyle = 'rgba(255,255,255,0.55)';
+      ctx.beginPath();
+      ctx.arc(p1.x, p1.y, 3, 0, Math.PI * 2);
+      ctx.fill();
+      label(ctx, p1, '1', 'rgba(255,255,255,0.6)');
+    }
   }
 
   function drawSide(ctx: CanvasRenderingContext2D, map: (z: C) => { x: number; y: number }, apply: boolean): void {
     clearPlane(ctx);
     if (state.image) drawPhoto(ctx, map, apply);
-    drawAxesFrame(ctx);
+    drawAxesFrame(ctx, !apply);
     if (state.grid) drawGrid(ctx, map, apply);
     if (state.rings) drawRings(ctx, map, apply);
     drawSquare(ctx, neighbourSquare(state.z), map, apply);
+    if (state.fn.key === 'mul') drawMulMarkers(ctx, map, apply);
     dot(ctx, map(apply ? ft(state.z) : state.z), ACCENT, 6.5);
   }
 
@@ -428,13 +537,35 @@ export function initPlayground(): void {
   }
 
   // ── controls ────────────────────────────────────────────────────────────────
+  // Every function click is a watched transformation, not a before/after snap:
+  // pull the plane from the identity to the new map, so the motion teaches.
+  const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
+  let animRaf = 0;
+  function stopAnim(): void {
+    if (animRaf) cancelAnimationFrame(animRaf);
+    animRaf = 0;
+  }
+  function animateToFn(): void {
+    stopAnim();
+    const t0 = performance.now();
+    const DUR = 900;
+    const step = (now: number): void => {
+      const u = Math.min(1, (now - t0) / DUR);
+      state.t = easeOutCubic(u);
+      if (tSlider) tSlider.value = String(Math.round(state.t * 100));
+      draw();
+      animRaf = u < 1 ? requestAnimationFrame(step) : 0;
+    };
+    animRaf = requestAnimationFrame(step);
+  }
+
   function selectFn(key: FnKey): void {
     const f = FNS.find((x) => x.key === key);
     if (!f) return;
     state.fn = f;
     computeOutExtent();
     document.querySelectorAll<HTMLElement>('.pg-fn').forEach((b) => b.classList.toggle('on', b.dataset.fn === key));
-    draw();
+    animateToFn();
   }
   document.querySelectorAll<HTMLElement>('.pg-fn').forEach((b) => {
     b.addEventListener('click', () => selectFn((b.dataset.fn as FnKey) ?? 'id'));
@@ -460,38 +591,67 @@ export function initPlayground(): void {
     tSlider.step = '1';
     tSlider.value = '100';
     tSlider.addEventListener('input', () => {
+      stopAnim();
       state.t = parseFloat(tSlider.value) / 100;
       draw();
     });
   }
 
   byId<HTMLButtonElement>('pg-reset')?.addEventListener('click', () => {
+    stopAnim();
     state.z = { re: 1.1, im: 0.6 };
+    mulC.re = MUL_C0.re;
+    mulC.im = MUL_C0.im;
     state.t = 1;
     if (tSlider) tSlider.value = '100';
     draw();
   });
 
-  // ── drag the input point ─────────────────────────────────────────────────────
+  // ── drag the input point (or, for f(z) = c·z, the gold constant) ───────────
   let dragging = false;
-  function pointerToZ(e: PointerEvent): C {
+  let dragTarget: 'z' | 'c' = 'z';
+  function pointerPx(e: PointerEvent): { x: number; y: number } {
     const rect = inCanvas.getBoundingClientRect();
     const dpr = window.devicePixelRatio || 1;
-    const x = (e.clientX - rect.left) * dpr;
-    const y = (e.clientY - rect.top) * dpr;
-    const z = fromIn(x, y);
+    return { x: (e.clientX - rect.left) * dpr, y: (e.clientY - rect.top) * dpr };
+  }
+  function pointerToZ(e: PointerEvent): C {
+    const p = pointerPx(e);
+    const z = fromIn(p.x, p.y);
     return { re: clamp(z.re, -D, D), im: clamp(z.im, -D, D) };
+  }
+  function applyDrag(e: PointerEvent): void {
+    const z = pointerToZ(e);
+    if (dragTarget === 'c') {
+      mulC.re = z.re;
+      mulC.im = z.im;
+    } else {
+      state.z = z;
+    }
   }
   inCanvas.addEventListener('pointerdown', (e) => {
     dragging = true;
-    state.z = pointerToZ(e);
+    dragTarget = 'z';
+    if (state.fn.key === 'mul') {
+      // Grab c instead of teleporting z when the press lands on the gold
+      // handle — unless z itself is closer (z is drawn on top, so when the
+      // two overlap a press on the visible dot must move z, not c).
+      const p = pointerPx(e);
+      const pc = toIn(mulC);
+      const pz = toIn(state.z);
+      const grab = 26 * (window.devicePixelRatio || 1);
+      const dc = Math.hypot(p.x - pc.x, p.y - pc.y);
+      const dz = Math.hypot(p.x - pz.x, p.y - pz.y);
+      if (dc < grab && dc <= dz) dragTarget = 'c';
+    }
+    applyDrag(e);
     try { inCanvas.setPointerCapture(e.pointerId); } catch { /* noop */ }
     e.preventDefault();
     draw();
   });
   inCanvas.addEventListener('pointermove', (e) => {
     if (!dragging) return;
-    state.z = pointerToZ(e);
+    applyDrag(e);
     draw();
   });
   const end = (e: PointerEvent) => {

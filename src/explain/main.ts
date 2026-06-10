@@ -36,7 +36,7 @@ import { initPlayground } from './playground';
 
 const SOURCE = '/Droste_1260359-nevit.jpg';
 const PHOTO_NEST: Rect | null = { x: 343.2, y: 334.7, w: 583.5, h: 454.9 };
-const BOLD_S = 20; // β = atan(ln 20 / 2π) ≈ 25.5°, a hair under Escher's 26°
+const BOLD_S = 20; // β = atan(ln 20 / 2π) ≈ 25.5° — a strong lean (Escher's own S = 256 leans ≈ 41°)
 
 const TWO_PI = 2 * Math.PI;
 const MAX_PX = 720;
@@ -293,7 +293,22 @@ async function main(): Promise<void> {
     const zoom = Math.exp(state.panU);
     let deg = ((state.panV * 180) / Math.PI) % 360;
     if (deg < 0) deg += 360;
-    readout.textContent = `slid by ${state.panU >= 0 ? '+' : ''}${state.panU.toFixed(2)} → zoom ×${zoom.toFixed(2)}, turn ${deg.toFixed(0)}°`;
+    // Celebrate landing on the lattice: a whole number of tiles sideways plus a
+    // whole number of laps vertically is the page's one checkable claim — the
+    // view is exactly as it started. Tolerances are a few drag-pixels wide.
+    const logS = infoForSource(state.source).geom.ctx.logS;
+    const nT = Math.round(state.panU / logS);
+    const nL = Math.round(state.panV / TWO_PI);
+    const hitT = Math.abs(state.panU - nT * logS) < Math.max(0.1, logS * 0.06);
+    const hitL = Math.abs(state.panV - nL * TWO_PI) < 0.17;
+    let suffix = '';
+    if (hitT && hitL && (nT !== 0 || nL !== 0)) {
+      const bits: string[] = [];
+      if (nT !== 0) bits.push(`${Math.abs(nT)} Droste step${Math.abs(nT) === 1 ? '' : 's'}`);
+      if (nL !== 0) bits.push(`${Math.abs(nL)} full turn${Math.abs(nL) === 1 ? '' : 's'}`);
+      suffix = ` = ${bits.join(' + ')} — identical again ✓`;
+    }
+    readout.textContent = `slid by ${state.panU >= 0 ? '+' : ''}${state.panU.toFixed(2)} → zoom ×${zoom.toFixed(2)}, turn ${deg.toFixed(0)}°${suffix}`;
   }
 
   // ── Bend (the lean that becomes the twist) ─────────────────────────────────
@@ -412,6 +427,25 @@ async function main(): Promise<void> {
       schedule(['orig', 'log', 'bend', 'exp']);
     });
     const end = (e: PointerEvent) => {
+      if (active) {
+        // Magnetic release: if the drag ends within a few pixels of a lattice
+        // point (whole tiles sideways, whole laps vertically), settle onto it
+        // exactly, so the "identical again ✓" moment is reachable by hand.
+        const h = logCanvas.getBoundingClientRect().height || 1;
+        const perUnit = h / TWO_PI;
+        const logS = infoForSource(state.source).geom.ctx.logS;
+        const snapPx = 8;
+        const nT = Math.round(state.panU / logS);
+        const nL = Math.round(state.panV / TWO_PI);
+        if (
+          Math.abs(state.panU - nT * logS) * perUnit < snapPx &&
+          Math.abs(state.panV - nL * TWO_PI) * perUnit < snapPx
+        ) {
+          state.panU = nT * logS;
+          state.panV = nL * TWO_PI;
+          schedule(['orig', 'log', 'bend', 'exp']);
+        }
+      }
       active = false;
       try {
         logCanvas.releasePointerCapture(e.pointerId);
@@ -426,7 +460,12 @@ async function main(): Promise<void> {
   byId<HTMLButtonElement>('exp-reset')?.addEventListener('click', () => {
     state.panU = 0;
     state.panV = 0;
-    schedule(['orig', 'log', 'bend', 'exp']);
+    state.roll = 1;
+    state.angle = infoForSource(state.source).beta;
+    snapping = false;
+    syncBendUI();
+    syncRollUI();
+    schedule();
   });
 
   // ── Boot ─────────────────────────────────────────────────────────────────
