@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex" />
+<title>The Print Gallery · tententoon experiment</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<style>
+  :root {
+    --wall-hi: #4d1d22;
+    --wall: #38141a;
+    --wall-lo: #200a0e;
+    --brass-hi: #ecd194;
+    --brass: #c9a050;
+    --brass-lo: #8a6526;
+    --cream: #f3ecda;
+    --ink: #2b2418;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; }
+  body {
+    background: var(--wall-lo);
+    color: #efe3c8;
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: clip;
+  }
+  @media (min-width: 720px) {
+    html, body { height: 100%; overflow: hidden; }
+  }
+  button { font: inherit; color: inherit; background: none; border: none; padding: 0; cursor: pointer; }
+
+  /* ── The room (everything scales together when you step closer) ── */
+  .scene {
+    position: relative;
+    min-height: 100vh;
+    --zoom: 1; --mx: 0; --my: 0; --dx: 0px; --dy: 0px;
+    /* translate recentres the artwork in the viewport, then scale walks in */
+    transform: translate3d(var(--dx), var(--dy), 0) scale(var(--zoom));
+    transition: transform 600ms ease-in-out;
+  }
+  .room {
+    position: absolute; inset: 0; z-index: 0;
+    overflow: hidden;
+    transform: translate3d(calc(var(--mx) * -3px), calc(var(--my) * -2px), 0);
+  }
+  .wall {
+    position: absolute; inset: 0;
+    background:
+      repeating-linear-gradient(0deg, rgba(255,235,210,.013) 0 1px, transparent 1px 3px),
+      repeating-linear-gradient(90deg, rgba(0,0,0,.028) 0 1px, transparent 1px 4px),
+      repeating-linear-gradient(94deg, rgba(255,220,190,.008) 0 2px, transparent 2px 7px),
+      linear-gradient(180deg, var(--wall-lo) 0%, var(--wall) 26%, var(--wall-hi) 44%, var(--wall) 66%, var(--wall-lo) 100%);
+  }
+  .spot {
+    position: absolute; width: 150vh; height: 132vh; left: 50%; top: 44%;
+    transform: translate(-50%, -53%);
+    border-radius: 50%;
+    background: radial-gradient(closest-side,
+      rgba(255,208,142,.38) 0%, rgba(255,196,126,.16) 42%,
+      rgba(255,184,114,.05) 62%, transparent 76%);
+    pointer-events: none;
+  }
+  .wainscot {
+    position: absolute; left: 0; right: 0; bottom: 12vh; height: 8.5vh;
+    background:
+      repeating-linear-gradient(90deg,
+        transparent 0 calc(16vw - 5px),
+        rgba(0,0,0,.30) calc(16vw - 5px) calc(16vw - 3px),
+        rgba(255,214,170,.07) calc(16vw - 3px) 16vw),
+      linear-gradient(180deg, #6d5247 0%, #5b423a 38%, #4a342d 100%);
+    box-shadow:
+      inset 0 3px 0 rgba(255,218,180,.16),
+      inset 0 5px 4px rgba(0,0,0,.35),
+      inset 0 -4px 8px rgba(0,0,0,.4);
+  }
+  .wainscot::before { /* chair rail */
+    content: ''; position: absolute; left: 0; right: 0; top: -1.1vh; height: 1.1vh;
+    background: linear-gradient(180deg, #8a6a5c, #5d453c);
+    box-shadow: 0 2px 4px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,225,190,.22);
+  }
+  .floor {
+    position: absolute; left: 0; right: 0; bottom: 0; height: 12vh;
+    overflow: hidden; perspective: 52vh;
+    background: #1c0e05;
+  }
+  .planks {
+    position: absolute; left: -22%; top: 0; width: 144%; height: 420%;
+    transform-origin: top center;
+    transform: rotateX(57deg);
+    background:
+      repeating-linear-gradient(0deg, transparent 0 60px, rgba(16,7,2,.55) 60px 62px),
+      repeating-linear-gradient(90deg,
+        #7a4f2b 0 88px, #66401f 88px 91px,
+        #835730 91px 178px, #5b381c 178px 181px,
+        #744e2a 181px 266px, #6b4626 266px 269px);
+  }
+  .floor::before { /* skirting shadow where wall meets floor */
+    content: ''; position: absolute; left: 0; right: 0; top: 0; height: 38%; z-index: 1;
+    background: linear-gradient(180deg, rgba(8,3,1,.85), rgba(8,3,1,0));
+  }
+  .floor::after { /* sheen toward the viewer */
+    content: ''; position: absolute; inset: 0; z-index: 1;
+    background: linear-gradient(180deg, transparent 45%, rgba(255,200,140,.05) 72%, rgba(0,0,0,.35) 100%);
+  }
+  .pool { /* warm light pooling on the floor under the print */
+    position: absolute; bottom: -4vh; left: 50%; width: 70vh; height: 15vh; z-index: 1;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgba(255,198,130,.17), transparent 70%);
+    pointer-events: none;
+  }
+  .vignette {
+    position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(130% 125% at 50% 42%, transparent 52%, rgba(5,2,3,.55) 100%);
+  }
+
+  .roomtag {
+    position: absolute; z-index: 1; top: 26px; left: 30px;
+    font-size: 11px; letter-spacing: .26em; text-transform: uppercase;
+    color: rgba(222,186,124,.5);
+    transition: opacity 600ms ease-in-out;
+  }
+  body[data-stance="close"] .roomtag,
+  body[data-stance="nose"] .roomtag { opacity: 0; }
+
+  .dim {
+    position: absolute; inset: 0; z-index: 2;
+    background: #060203; opacity: 0;
+    transition: opacity 600ms ease-in-out;
+    pointer-events: none;
+  }
+  body[data-stance="close"] .dim { opacity: .42; pointer-events: auto; cursor: zoom-out; }
+  body[data-stance="nose"]  .dim { opacity: .78; pointer-events: auto; cursor: zoom-out; }
+
+  /* ── The hall: artwork + label ── */
+  .hall {
+    position: relative; z-index: 3;
+    min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    gap: clamp(44px, 6vw, 104px);
+    padding: 5vh 4vw 19vh;
+    /* let clicks on empty wall reach the dim layer (step back out) */
+    pointer-events: none;
+  }
+  .hall :is(.artwork, .plaque, .labelcol) { pointer-events: auto; }
+  .exhibit {
+    display: flex; flex-direction: column; align-items: center;
+    transform: translate3d(calc(var(--mx) * -7px), calc(var(--my) * -5px), 0);
+  }
+
+  .artwork {
+    margin: 0; cursor: zoom-in; touch-action: manipulation;
+    filter: drop-shadow(0 26px 30px rgba(0,0,0,.55)) drop-shadow(0 60px 80px rgba(0,0,0,.45));
+  }
+  body[data-stance="nose"] .artwork { cursor: zoom-out; }
+  .frame-wood {
+    padding: 15px;
+    border-radius: 2px;
+    background:
+      repeating-linear-gradient(31deg, rgba(255,205,150,.045) 0 2px, transparent 2px 6px),
+      linear-gradient(133deg, #54341f 0%, #331d11 26%, #1c0f08 52%, #3a2415 78%, #241409 100%);
+    box-shadow:
+      inset 0 1px 0 rgba(255,205,150,.35),
+      inset 1px 0 0 rgba(255,205,150,.14),
+      inset 0 -1px 0 rgba(0,0,0,.7),
+      inset -1px 0 0 rgba(0,0,0,.5),
+      inset 0 0 0 4px rgba(0,0,0,.28);
+  }
+  .frame-gilt {
+    padding: 3px; border-radius: 1px;
+    background: linear-gradient(155deg, var(--brass-hi) 0%, var(--brass-lo) 38%, #e3c684 64%, #6e4f1d 100%);
+    box-shadow: 0 0 6px rgba(0,0,0,.55);
+  }
+  .mat {
+    padding: 28px;
+    background: linear-gradient(180deg, #f4eedd 0%, #ece3cc 100%);
+    box-shadow:
+      inset 0 3px 7px rgba(40,24,8,.30),
+      inset 0 -1px 2px rgba(255,255,255,.7),
+      inset 2px 0 5px rgba(40,24,8,.12),
+      inset -2px 0 5px rgba(40,24,8,.12);
+  }
+  .glass {
+    position: relative;
+    width: min(66vh, 76vw); height: 52vh;  /* JS replaces with exact crop aspect */
+    background: #170b08;
+    box-shadow:
+      0 0 0 1px #c5b894,
+      0 -1px 0 1px rgba(120,100,60,.55),
+      inset 0 0 14px rgba(10,5,2,.55);
+  }
+  .glass::after { /* glazing glare */
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(112deg,
+      rgba(255,255,255,.085) 0%, rgba(255,255,255,.025) 16%, transparent 30%,
+      transparent 72%, rgba(255,255,255,.05) 90%);
+  }
+  .glass canvas { display: block; width: 100%; height: 100%; }
+  .veil {
+    position: absolute; inset: 0; z-index: 1;
+    display: grid; place-items: center; text-align: center;
+    padding: 18px;
+    background: var(--wall);
+    opacity: 0; transition: opacity 460ms ease;
+    pointer-events: none;
+  }
+  .veil.show { opacity: 1; }
+  .veil span { font-style: italic; font-size: 14px; color: rgba(240,220,176,.75); line-height: 1.5; }
+
+  /* brass plaque */
+  .plaque {
+    margin-top: 24px;
+    padding: 11px 36px 12px;
+    text-align: center;
+    border: 1px solid rgba(74,49,11,.9);
+    border-radius: 3px;
+    color: #41300e;
+    background:
+      radial-gradient(circle at 11px 50%, rgba(94,64,16,.95) 1.4px, rgba(255,238,186,.95) 2.4px, transparent 3.6px),
+      radial-gradient(circle at calc(100% - 11px) 50%, rgba(94,64,16,.95) 1.4px, rgba(255,238,186,.95) 2.4px, transparent 3.6px),
+      linear-gradient(178deg, #ecca7e 0%, #cb9e4e 36%, #a97e34 64%, #d8b264 100%);
+    box-shadow:
+      0 7px 16px rgba(0,0,0,.55),
+      inset 0 1px 0 rgba(255,246,205,.6),
+      inset 0 -1px 2px rgba(58,35,4,.5);
+    text-shadow: 0 1px 0 rgba(255,243,200,.42);
+    transition: opacity 500ms ease-in-out;
+  }
+  body[data-stance="nose"] .plaque { opacity: 0; pointer-events: none; }
+  .plaque-title {
+    font-style: italic; font-size: 16px; line-height: 1.3;
+    min-width: 200px; max-width: 46ch; outline: none;
+    border-bottom: 1px dashed transparent;
+    transition: border-color 200ms;
+  }
+  .plaque-title:hover, .plaque-title:focus { border-bottom-color: rgba(74,49,11,.5); }
+  .plaque-title:empty::before {
+    content: attr(data-placeholder);
+    opacity: .55;
+  }
+  .plaque-sub { margin-top: 3px; font-size: 11.5px; letter-spacing: .05em; }
+  .plaque-fine { margin-top: 2px; font-size: 9px; letter-spacing: .22em; text-transform: uppercase; opacity: .78; }
+
+  /* ── Wall label ── */
+  .labelcol {
+    display: flex; flex-direction: column; align-items: flex-start;
+    transform: translate3d(calc(var(--mx) * -5px), calc(var(--my) * -4px), 0);
+    transition: opacity 500ms ease-in-out;
+  }
+  body[data-stance="close"] .labelcol { opacity: .55; }
+  body[data-stance="nose"]  .labelcol { opacity: 0; pointer-events: none; }
+  .label-card {
+    width: 280px;
+    background: #f9f5ea; color: var(--ink);
+    padding: 18px 20px 15px;
+    border-radius: 2px;
+    box-shadow: 0 16px 34px rgba(0,0,0,.5), 0 3px 8px rgba(0,0,0,.35);
+  }
+  .lab-artist {
+    margin: 0; font-size: 11px; font-weight: 600;
+    letter-spacing: .17em; text-transform: uppercase; color: #6f6450;
+  }
+  .lab-title { margin: 5px 0 0; font-size: 16.5px; line-height: 1.3; }
+  .lab-title em { font-style: italic; }
+  .lab-medium { margin: 3px 0 0; font-size: 11px; font-style: italic; color: #8a7d63; }
+  .lab-body {
+    margin: 12px 0 0; padding-top: 11px;
+    border-top: 1px solid #e6ddc6;
+    font-size: 12.8px; line-height: 1.58; color: #423a2a;
+  }
+  .lab-meta {
+    margin: 12px 0 0; padding-top: 9px;
+    border-top: 1px solid #e6ddc6;
+    font-size: 10.5px; letter-spacing: .09em; text-transform: uppercase;
+    color: #8a6a2a; font-variant-numeric: tabular-nums;
+  }
+  .lab-meta span { white-space: nowrap; }
+  .lab-actions {
+    display: flex; align-items: center; flex-wrap: wrap; gap: 9px 14px;
+    margin-top: 13px;
+  }
+  .lab-link, .lab-btn { white-space: nowrap; }
+  .lab-link {
+    font-size: 12.5px; font-style: italic; color: #8a4a22;
+    border-bottom: 1px solid rgba(138,74,34,.4);
+    padding-bottom: 1px;
+    transition: color 180ms, border-color 180ms;
+  }
+  .lab-link:hover { color: #5e2f12; border-bottom-color: #5e2f12; }
+  .lab-btn {
+    font-size: 10.5px; letter-spacing: .07em; text-transform: uppercase;
+    color: #6f6450; border: 1px solid #d4c9ad; border-radius: 2px;
+    padding: 5px 9px 4px;
+    transition: color 180ms, border-color 180ms, background 180ms;
+  }
+  .lab-btn:hover { color: #423a2a; border-color: #a89a78; background: #f1ead8; }
+  .takehome {
+    margin: 14px 0 0 2px;
+    font-size: 12.5px; font-style: italic;
+    color: rgba(236,209,148,.78);
+    border-bottom: 1px dotted rgba(236,209,148,.5);
+    padding-bottom: 1px;
+    transition: color 180ms, border-color 180ms;
+  }
+  .takehome:hover { color: var(--brass-hi); border-bottom-color: var(--brass-hi); }
+
+  /* ── Fixed chrome (outside the scaling scene) ── */
+  .badge {
+    position: fixed; left: 16px; bottom: 14px; z-index: 60;
+    text-decoration: none;
+    font-size: 10.5px; letter-spacing: .2em; text-transform: uppercase;
+    color: rgba(236,209,148,.85);
+    background: rgba(16,6,8,.72);
+    border: 1px solid rgba(201,160,80,.45);
+    border-radius: 3px;
+    padding: 7px 11px 6px;
+    backdrop-filter: blur(4px);
+    transition: color 180ms, border-color 180ms, background 180ms;
+  }
+  .badge:hover { color: var(--brass-hi); border-color: var(--brass); background: rgba(26,10,12,.85); }
+
+  .drophint {
+    position: fixed; inset: 22px; z-index: 70;
+    display: grid; place-items: center;
+    border: 1.5px dashed rgba(236,209,148,.75);
+    border-radius: 6px;
+    background: rgba(8,3,4,.6);
+    font-style: italic; font-size: 20px; color: #f0dcad;
+    opacity: 0; transition: opacity 200ms ease;
+    pointer-events: none;
+  }
+  body.drop-hover .drophint { opacity: 1; }
+
+  /* ── Mobile: one column, parallax handled in JS ── */
+  @media (max-width: 719px) {
+    .hall {
+      flex-direction: column;
+      gap: 30px;
+      padding: 7vh 18px 22vh;
+    }
+    .glass { width: min(48vh, 74vw); height: 38vh; }
+    .mat { padding: 18px; }
+    .frame-wood { padding: 11px; }
+    .plaque { margin-top: 18px; padding: 9px 26px 10px; }
+    .plaque-title { font-size: 14.5px; }
+    .labelcol { align-items: center; }
+    .label-card { width: min(320px, 86vw); }
+    .roomtag { top: 18px; left: 18px; letter-spacing: .2em; }
+    .spot { width: 120vh; height: 100vh; }
+  }
+</style>
+</head>
+<body data-stance="room">
+  <div class="scene" id="scene">
+    <div class="room">
+      <div class="wall"></div>
+      <div class="spot" id="spot"></div>
+      <div class="wainscot"></div>
+      <div class="floor"><div class="planks"></div></div>
+      <div class="pool" id="pool"></div>
+      <div class="vignette"></div>
+    </div>
+    <div class="roomtag">Room VIII · Recursion</div>
+    <div class="dim" id="dim"></div>
+
+    <main class="hall">
+      <div class="exhibit">
+        <figure class="artwork" id="artwork" title="step closer">
+          <div class="frame-wood">
+            <div class="frame-gilt">
+              <div class="mat">
+                <div class="glass" id="glass">
+                  <canvas id="art"></canvas>
+                  <div class="veil show" id="veil"><span id="veilMsg">the print is being hung&hellip;</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </figure>
+        <div class="plaque">
+          <div class="plaque-title" id="plaqueTitle" contenteditable="true" spellcheck="false"
+               data-placeholder="name your piece">Untitled (after Prentententoonstelling)</div>
+          <div class="plaque-sub">anonymous visitor &mdash; 2026</div>
+          <div class="plaque-fine">infinite loop &middot; pixels on glass</div>
+        </div>
+      </div>
+
+      <aside class="labelcol">
+        <div class="label-card">
+          <p class="lab-artist">Anonymous Visitor</p>
+          <p class="lab-title"><em id="labelTitle">Untitled (after Prentententoonstelling)</em>, 2026</p>
+          <p class="lab-medium">recursive photograph &middot; live computation on glass</p>
+          <p class="lab-body">The photograph hangs inside itself: each copy is reduced and
+            turned, so the picture recedes without ever reaching bottom. Escher bent the same
+            recursion into <em>Prentententoonstelling</em> (1956), leaving a blank spot where
+            the mathematics overwhelmed the hand. Here the blank is filled &mdash; the spiral
+            is computed live, behind glass, for as long as you care to watch.</p>
+          <p class="lab-meta" id="meta">shrink &times;&mdash; per copy &middot; turn per copy &mdash;&deg;</p>
+          <div class="lab-actions">
+            <button class="lab-link" id="stepBtn">step closer &rarr;</button>
+            <button class="lab-btn" id="hangBtn">hang your own</button>
+          </div>
+        </div>
+        <button class="takehome" id="saveBtn">take the print home &darr;</button>
+      </aside>
+    </main>
+  </div>
+
+  <div class="drophint">release to hang your photograph</div>
+  <a class="badge" href="./index.html">08 &middot; all experiments</a>
+  <input type="file" id="file" accept="image/*" hidden>
+
+  <script type="module" src="/src/experiments/wall.ts"></script>
+</body>
+</html>

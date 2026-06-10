@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex" />
+<title>tententoon · UX experiments</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<style>
+  :root {
+    --bg: #faf7f0;
+    --ink: #211c16;
+    --ink-2: #4a463f;
+    --muted: #8c8474;
+    --accent: #d94f2c;
+    --accent-deep: #a83a1d;
+    --rule: #e7e0d2;
+    --panel: #fffdf8;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    font-size: 18px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .sans { font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 880px; margin: 0 auto; padding: 56px 24px 96px; }
+  h1 { font-size: 34px; line-height: 1.2; margin: 0 0 8px; font-weight: 600; }
+  .sub { color: var(--ink-2); margin: 0 0 6px; }
+  .note {
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 13px;
+    color: var(--muted);
+    border: 1px solid var(--rule);
+    background: var(--panel);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin: 22px 0 40px;
+  }
+  .note b { color: var(--ink-2); }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  @media (max-width: 700px) { .grid { grid-template-columns: 1fr; } }
+  a.card {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: 20px 22px 18px;
+    transition: border-color 120ms, transform 120ms, box-shadow 120ms;
+  }
+  a.card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(33, 28, 22, 0.08);
+  }
+  .num {
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    color: var(--accent-deep);
+    text-transform: uppercase;
+  }
+  .card h2 { font-size: 22px; margin: 6px 0 2px; font-weight: 600; }
+  .frame {
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 12px;
+    color: var(--muted);
+    margin: 0 0 10px;
+  }
+  .hyp { font-size: 15.5px; color: var(--ink-2); margin: 0 0 10px; }
+  .try {
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 12.5px;
+    color: var(--muted);
+    margin: 0;
+  }
+  .try b { color: var(--ink-2); font-weight: 600; }
+  footer {
+    margin-top: 48px;
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  footer a { color: var(--accent-deep); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Eight frames for the same machine</h1>
+  <p class="sub">UX experiments for <a href="../" style="color:var(--accent-deep)">tententoon</a> — the engine is identical in all of them
+  (the project's real GPU pipeline, demo photo preloaded); only the <em>frame</em> around it changes.</p>
+  <p class="sub">Each card states the hypothesis the prototype is testing. They are sketches, not products:
+  judge the framing, not the polish.</p>
+
+  <div class="note sans">
+    <b>For review.</b> This page is unlisted and unlinked from the app.
+    Every prototype accepts your own photo (drag &amp; drop, paste, or a picker where shown).
+    The current production app — top bar, tool rail, editor + preview split, bottom timeline — is at
+    <a href="../" style="color:var(--accent-deep)">/</a> for comparison.
+  </div>
+
+  <div class="grid">
+    <a class="card" href="zen.html">
+      <div class="num">01 · zen</div>
+      <h2>The Loop Is the Hero</h2>
+      <p class="frame">instant gratification · zero chrome</p>
+      <p class="hyp">The app greets you with an empty tool and asks for work before showing any magic.
+      Flip it: open <em>inside</em> the finished spiral, full-bleed; the UI exists only when summoned.</p>
+      <p class="try"><b>Try:</b> do nothing for 5 s · move the mouse · drop a photo anywhere.</p>
+    </a>
+
+    <a class="card" href="steps.html">
+      <div class="num">02 · steps</div>
+      <h2>Three Steps</h2>
+      <p class="frame">guided wizard · one decision per screen</p>
+      <p class="hyp">The pro-tool layout shows ~20 controls at once for a flow with exactly three decisions.
+      A full-screen wizard — photo, frame, loop — should get a first-timer to a result without thinking.</p>
+      <p class="try"><b>Try:</b> complete it on a phone · skip with the demo photo · go back a step.</p>
+    </a>
+
+    <a class="card" href="lens.html">
+      <div class="num">03 · lens</div>
+      <h2>The Lens</h2>
+      <p class="frame">direct manipulation · single surface</p>
+      <p class="hyp">The split view forces eye ping-pong between cause (rect) and effect (spiral).
+      Keep one surface: the photo fills the screen and a floating spiral lens shows the result
+      where you're already looking.</p>
+      <p class="try"><b>Try:</b> drag the frame and watch the lens react · move/resize the lens itself.</p>
+    </a>
+
+    <a class="card" href="dial.html">
+      <div class="num">04 · dial</div>
+      <h2>One Knob</h2>
+      <p class="frame">single parameter · playable poster</p>
+      <p class="hyp">Buried in the current UI is the one number that makes this tool special:
+      degrees of twist per copy. Make it the entire interface — a giant dial from straight
+      Droste fall (0°) through Escher's spiral.</p>
+      <p class="try"><b>Try:</b> sweep the dial slowly through 0° · flick it and let it settle.</p>
+    </a>
+
+    <a class="card" href="scroll.html">
+      <div class="num">05 · scroll</div>
+      <h2>The Scroll</h2>
+      <p class="frame">scrollytelling · explanation as onboarding</p>
+      <p class="hyp">The tool and its explainer are two separate pages today. Merge them:
+      scrolling <em>is</em> the timeline — the photo nests, unrolls into the log strip, leans,
+      and rolls back up into the spiral as you read.</p>
+      <p class="try"><b>Try:</b> scrub up and down slowly · read it top to bottom on a phone.</p>
+    </a>
+
+    <a class="card" href="film.html">
+      <div class="num">06 · film</div>
+      <h2>Darkroom</h2>
+      <p class="frame">camera metaphor · familiar mental model</p>
+      <p class="hyp">Nobody knows what "set the nest rectangle" means; everybody knows how to aim
+      a camera. Frame the gesture as a viewfinder with a shutter, two lenses
+      (DROSTE / TENTENTOON), and a filmstrip of developed shots.</p>
+      <p class="try"><b>Try:</b> aim, shoot, develop · switch lenses · reshoot from a filmstrip frame.</p>
+    </a>
+
+    <a class="card" href="twin.html">
+      <div class="num">07 · twin</div>
+      <h2>Twin Infinities</h2>
+      <p class="frame">comparison · the concept is the home screen</p>
+      <p class="hyp">The product's core idea — same recursion, two geometries — is invisible in the
+      app (views hide behind a toggle). Show both infinities zooming in lockstep, with one
+      slider morphing straight fall into spiral.</p>
+      <p class="try"><b>Try:</b> drag the morph slider mid-zoom · tap a side to focus it.</p>
+    </a>
+
+    <a class="card" href="wall.html">
+      <div class="num">08 · wall</div>
+      <h2>The Print Gallery</h2>
+      <p class="frame">museum frame · output as artwork</p>
+      <p class="hyp">A file you export from a tool is a throwaway; a print hanging lit on a gallery
+      wall is something you made. Present the result as the exhibition Escher named the
+      trick after — wall text, brass plaque and all.</p>
+      <p class="try"><b>Try:</b> step closer · read the plaque · hang your own photo.</p>
+    </a>
+  </div>
+
+  <footer>
+    Production app: <a href="../">tententoon</a> · the math behind all of this: <a href="../explain.html">what is a tententoon?</a><br>
+    Every experiment runs entirely in your browser — no uploads, same as the app.
+  </footer>
+</main>
+</body>
+</html>

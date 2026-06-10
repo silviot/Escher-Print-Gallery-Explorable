@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex" />
+<title>The Scroll · how a picture swallows itself — tententoon experiment</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<style>
+  :root {
+    --bg: #faf7f0;
+    --ink: #211c16;
+    --ink-2: #4a463f;
+    --muted: #8c8474;
+    --accent: #d94f2c;
+    --accent-deep: #a83a1d;
+    --rule: #e7e0d2;
+    --panel: #fffdf8;
+    --frame: #2a261f;
+    --sans: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* ── progress hairline ───────────────────────────────────────────── */
+  .progress {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 2px;
+    background: var(--accent);
+    transform-origin: 0 50%;
+    transform: scaleX(0);
+    z-index: 30;
+    pointer-events: none;
+  }
+
+  /* ── scroll track + sticky stage ─────────────────────────────────── */
+  .track { position: relative; height: 800vh; }
+  .stage {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    height: 100svh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    z-index: 1;
+  }
+  .plate {
+    position: relative;
+    z-index: 1;
+    background: #efe9da;
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    will-change: transform;
+    transition: background-color 400ms ease, border-color 400ms ease, box-shadow 400ms ease;
+  }
+  .plate.ready {
+    background: #16120d;
+    border-color: rgba(42, 38, 31, 0.9);
+    box-shadow: 0 30px 70px rgba(33, 28, 22, 0.20), 0 4px 14px rgba(33, 28, 22, 0.10);
+  }
+  .plate canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    border-radius: 2px;
+  }
+  #flat { z-index: 1; }
+  #spiral { z-index: 2; opacity: 0; }
+  .loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font: 500 11px/1 var(--sans);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .plate.ready .loading { display: none; }
+  .glfail {
+    position: absolute;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 3;
+    width: min(320px, 86%);
+    background: rgba(255, 253, 248, 0.96);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 16px 18px;
+    font: 400 13.5px/1.55 var(--sans);
+    color: var(--ink-2);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .glfail b { color: var(--accent-deep); }
+  /* paper scrim behind the title, lifts as you scroll */
+  .scrim {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    background: linear-gradient(180deg,
+      #faf7f0 10%,
+      rgba(250, 247, 240, 0.94) 36%,
+      rgba(250, 247, 240, 0) 70%);
+    pointer-events: none;
+  }
+
+  /* ── title beat ──────────────────────────────────────────────────── */
+  .title {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 100vh;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 11vh 24px 0;
+    text-align: center;
+    pointer-events: none;
+  }
+  .title h1 {
+    margin: 0;
+    font-size: clamp(42px, 7vw, 76px);
+    line-height: 1.02;
+    letter-spacing: -0.025em;
+    font-weight: 600;
+    max-width: 14ch;
+    text-wrap: balance;
+  }
+  .title .sub {
+    margin: 26px 0 0;
+    font: 500 12px/1 var(--sans);
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+  }
+  .title .chev {
+    margin-top: 14px;
+    color: var(--accent);
+    font-size: 17px;
+    animation: bob 2.4s ease-in-out infinite;
+  }
+  @keyframes bob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(7px); }
+  }
+
+  /* ── floating cards ──────────────────────────────────────────────── */
+  .card {
+    position: absolute;
+    z-index: 4;
+    width: min(340px, calc(100vw - 40px));
+    top: calc(var(--pc) * 700vh + 50vh);
+    transform: translateY(-50%);
+  }
+  .card.left  { left:  clamp(20px, 5vw, 84px); }
+  .card.right { right: clamp(20px, 5vw, 84px); }
+  .card .inner {
+    background: rgba(255, 253, 248, 0.92);
+    backdrop-filter: blur(10px) saturate(1.05);
+    -webkit-backdrop-filter: blur(10px) saturate(1.05);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 20px 22px 18px;
+    box-shadow: 0 14px 40px rgba(33, 28, 22, 0.13);
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 550ms cubic-bezier(0.22, 0.61, 0.36, 1),
+                transform 550ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+  .card.in .inner { opacity: 1; transform: none; }
+  .kick {
+    margin: 0 0 10px;
+    font: 600 10px/1 var(--sans);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent-deep);
+  }
+  .card p { margin: 0; font-size: 17.5px; line-height: 1.52; }
+  .card p.more {
+    margin-top: 9px;
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--ink-2);
+  }
+  .card .beta {
+    color: var(--accent-deep);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  /* The finale lives inside the sticky stage: it does not travel with the
+     scroll — p only fades it in over the last beat. */
+  .card.final {
+    position: absolute;
+    left: 50%;
+    right: auto;
+    top: auto;
+    bottom: 6.5vh;
+    width: min(400px, calc(100vw - 32px));
+    transform: translateX(-50%);
+    text-align: center;
+    z-index: 5;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .card.final.live { pointer-events: auto; }
+  .card.final .inner { padding: 24px 26px 20px; opacity: 1; transform: none; }
+  .btn {
+    margin-top: 16px;
+    display: inline-block;
+    font: 600 13.5px/1 var(--sans);
+    letter-spacing: 0.01em;
+    color: #fff;
+    background: var(--accent);
+    border: 0;
+    border-radius: 999px;
+    padding: 12px 18px;
+    cursor: pointer;
+    transition: background-color 150ms ease, transform 150ms ease;
+  }
+  .btn:hover { background: var(--accent-deep); transform: translateY(-1px); }
+  .btn:active { transform: translateY(0); }
+  .hint {
+    margin-top: 9px !important;
+    font: 400 11.5px/1.5 var(--sans) !important;
+    color: var(--muted) !important;
+  }
+  .linkrow {
+    margin-top: 13px !important;
+    padding-top: 12px;
+    border-top: 1px solid var(--rule);
+    font: 400 12.5px/1.6 var(--sans) !important;
+    color: var(--muted) !important;
+  }
+  .linkrow a {
+    color: var(--accent-deep);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(168, 58, 29, 0.28);
+    transition: border-color 120ms;
+  }
+  .linkrow a:hover { border-bottom-color: var(--accent-deep); }
+
+  /* ── badge ───────────────────────────────────────────────────────── */
+  .badge {
+    position: fixed;
+    left: 16px;
+    bottom: 14px;
+    z-index: 3; /* under the floating cards: they pass over it */
+    font: 600 10.5px/1 var(--sans);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+    text-decoration: none;
+    background: rgba(255, 253, 248, 0.85);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    padding: 8px 13px;
+    transition: color 140ms ease, border-color 140ms ease;
+  }
+  .badge:hover { color: var(--accent-deep); border-color: var(--accent); }
+
+  /* ── drop affordance ─────────────────────────────────────────────── */
+  body::after {
+    content: "drop the picture";
+    position: fixed;
+    inset: 10px;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font: 600 14px/1 var(--sans);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent-deep);
+    background: rgba(250, 247, 240, 0.84);
+    border: 2px dashed var(--accent);
+    border-radius: 12px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 140ms ease;
+  }
+  body.drop-hover::after { opacity: 1; }
+
+  /* ── mobile: full-width, bottom-anchored cards ───────────────────── */
+  @media (max-width: 700px) {
+    .card, .card.left, .card.right {
+      left: 12px;
+      right: 12px;
+      width: auto;
+      top: calc(var(--pc) * 700vh + 91vh);
+      transform: translateY(-100%);
+    }
+    .card.final {
+      left: 50%;
+      right: auto;
+      top: auto;
+      bottom: 64px;
+      width: min(400px, calc(100vw - 24px));
+      transform: translateX(-50%);
+    }
+    .card .inner { padding: 16px 18px 15px; }
+    .card p { font-size: 16px; }
+    .card p.more { font-size: 14px; }
+    .title { padding-top: 13vh; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .title .chev { animation: none; }
+    .card .inner { transition: opacity 250ms ease; transform: none; }
+  }
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+
+<div class="track" id="track">
+  <div class="stage" id="stage">
+    <div class="plate" id="plate">
+      <canvas id="flat"></canvas>
+      <canvas id="spiral"></canvas>
+      <div class="glfail" id="glfail">
+        <b>WebGL2 is unavailable here,</b> so the strip-and-spiral half of the
+        story can't render. The first beats still work — and the full story
+        lives at <a href="../explain.html">the explainer</a>.
+      </div>
+      <div class="loading">loading the picture</div>
+    </div>
+    <div class="scrim" id="scrim"></div>
+
+    <article class="card final" id="finale">
+      <div class="inner">
+        <p class="kick">VI · the spiral</p>
+        <p>— and the fall becomes the spiral Escher drew.</p>
+        <p class="more">Now scroll back up to watch it come apart, or bring your
+        own picture.</p>
+        <button class="btn" id="pick" type="button">Bring your own picture</button>
+        <p class="hint">or drop / paste an image anywhere on this page</p>
+        <p class="linkrow">
+          <a href="../">open the app</a>
+          &nbsp;·&nbsp;
+          <a href="./index.html">all experiments</a>
+        </p>
+      </div>
+    </article>
+  </div>
+
+  <header class="title" id="title">
+    <h1>How a picture swallows itself</h1>
+    <p class="sub">scroll slowly</p>
+    <div class="chev">↓</div>
+  </header>
+
+  <article class="card left" style="--pc: 0.095">
+    <div class="inner">
+      <p class="kick">I · the picture</p>
+      <p>This picture holds a copy of itself.</p>
+      <p class="more">Look closely — inside the marked frame the whole scene
+      appears again, a little smaller.</p>
+    </div>
+  </article>
+
+  <article class="card right" style="--pc: 0.23">
+    <div class="inner">
+      <p class="kick">II · the fall</p>
+      <p>Zoom in. It repeats forever — every copy dropping straight down.</p>
+      <p class="more">The classic Droste effect: a rigid, endless fall toward
+      the centre.</p>
+    </div>
+  </article>
+
+  <article class="card left" style="--pc: 0.41">
+    <div class="inner">
+      <p class="kick">III · the logarithm</p>
+      <p>Take the logarithm and the endless fall flattens into a strip that
+      merely repeats.</p>
+      <p class="more">Each tile is one level of the fall — diving just slides
+      the wallpaper along.</p>
+    </div>
+  </article>
+
+  <article class="card right" style="--pc: 0.59">
+    <div class="inner">
+      <p class="kick">IV · the lean</p>
+      <p>Tilt the strip by one precise angle — the angle that makes one repeat
+      meet the next.</p>
+      <p class="more">For this picture it is <span class="beta" id="beta">≈ 7.0°</span>,
+      set by how much the copy shrinks.</p>
+    </div>
+  </article>
+
+  <article class="card left" style="--pc: 0.77">
+    <div class="inner">
+      <p class="kick">V · the roll</p>
+      <p>Roll it back up. The tilt becomes a twist —</p>
+      <p class="more">watch the strip curl around the blank centre.</p>
+    </div>
+  </article>
+
+</div>
+
+<a class="badge" href="./index.html">05 · all experiments</a>
+
+<script type="module" src="/src/experiments/scroll.ts"></script>
+</body>
+</html>

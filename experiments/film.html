@@ -1,0 +1,570 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex" />
+<title>Darkroom · tententoon experiment</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<style>
+  :root {
+    --body: #1a1a1c;
+    --panel-hi: #28282c;
+    --panel-lo: #1d1d20;
+    --screen: #0a0a0c;
+    --line: #2e2e33;
+    --label: #9a9aa0;
+    --dim: #6c6c74;
+    --bright: #e8e8ec;
+    --red: #d92b25;
+    --red-hi: #ff4d42;
+    --amber: #b98a45;
+    --mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    --fw: 156px;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background-color: var(--body);
+    background-image: radial-gradient(rgba(255, 255, 255, 0.016) 1px, transparent 1.4px);
+    background-size: 4px 4px;
+    color: var(--bright);
+    font-family: var(--mono);
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+  .label {
+    font: 10px/1 var(--mono);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--label);
+  }
+  #app { height: 100%; display: flex; flex-direction: column; }
+
+  /* ── header ─────────────────────────────────────────────────────── */
+  header {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 9px 18px;
+    background: linear-gradient(180deg, var(--panel-hi), var(--panel-lo));
+    border-bottom: 1px solid #000;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+  #badge {
+    flex: none;
+    font: 10px/1 var(--mono);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--label);
+    text-decoration: none;
+    padding: 7px 11px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: linear-gradient(180deg, #232327, #19191c);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    transition: color 150ms ease, border-color 150ms ease;
+  }
+  #badge:hover { color: var(--bright); border-color: #50505a; }
+  .wordmark {
+    font: 13px/1 var(--mono);
+    letter-spacing: 0.34em;
+    color: var(--bright);
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    white-space: nowrap;
+  }
+  .wordsub {
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--dim);
+    text-transform: uppercase;
+  }
+  header .hint {
+    margin-left: auto;
+    font: 9.5px/1.6 var(--mono);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--dim);
+    text-align: right;
+  }
+
+  /* ── main: viewfinder + deck ────────────────────────────────────── */
+  main { flex: 1; min-height: 0; display: flex; }
+  #vfWrap { flex: 1; min-width: 0; padding: 18px; display: flex; }
+  .bezel {
+    flex: 1;
+    min-width: 0;
+    padding: 10px;
+    border-radius: 16px;
+    background: linear-gradient(165deg, #2d2d32, #1b1b1e 55%, #232328);
+    border: 1px solid #000;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 12px 32px rgba(0, 0, 0, 0.45);
+    display: flex;
+  }
+  #vf {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    border-radius: 9px;
+    overflow: hidden;
+    background: var(--screen);
+    box-shadow: inset 0 0 0 1px #000, inset 0 0 48px rgba(0, 0, 0, 0.55);
+    touch-action: none;
+    cursor: crosshair;
+  }
+  #vfCanvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .hud {
+    position: absolute;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 11px 15px;
+    pointer-events: none;
+    font: 10px/1 var(--mono);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--label);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+  }
+  .hud-top { top: 0; }
+  .hud-bottom { bottom: 0; }
+  #loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #5b5b63;
+    font: 11px var(--mono);
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    transition: opacity 0.3s ease;
+  }
+  #loading.gone { opacity: 0; pointer-events: none; }
+
+  /* ── control deck ───────────────────────────────────────────────── */
+  #deck {
+    flex: none;
+    width: 226px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 24px 18px 18px;
+    background:
+      linear-gradient(90deg, rgba(255, 255, 255, 0.045), transparent 7%),
+      linear-gradient(180deg, #232327, #1a1a1d);
+    border-left: 1px solid #000;
+    box-shadow: inset 1px 0 0 rgba(255, 255, 255, 0.05);
+  }
+  .deck-block { width: 100%; display: flex; flex-direction: column; gap: 9px; align-items: center; }
+  .lens-switch {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+    height: 38px;
+    padding: 3px;
+    border-radius: 8px;
+    border: 1px solid #000;
+    background: linear-gradient(180deg, #0f0f11, #151518);
+    box-shadow: inset 0 2px 7px rgba(0, 0, 0, 0.7), inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+  }
+  .lens-switch .knob {
+    position: absolute;
+    top: 3px;
+    bottom: 3px;
+    left: 3px;
+    width: calc(50% - 3px);
+    border-radius: 6px;
+    background: linear-gradient(180deg, #3c3c43, #222226);
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.65);
+    transition: transform 150ms cubic-bezier(0.34, 1.4, 0.46, 1);
+  }
+  .lens-switch[data-mode="tententoon"] .knob { transform: translateX(100%); }
+  .lens-switch .pos {
+    position: relative;
+    z-index: 1;
+    border: 0;
+    background: none;
+    padding: 0;
+    cursor: pointer;
+    font: 9px/1 var(--mono);
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: var(--dim);
+    transition: color 150ms ease;
+  }
+  .lens-switch[data-mode="droste"] .pos[data-mode="droste"],
+  .lens-switch[data-mode="tententoon"] .pos[data-mode="tententoon"] { color: var(--bright); }
+  .lens-switch.locked .pos[data-mode="tententoon"] { color: #3c3c42; cursor: not-allowed; }
+  .lens-switch .pos:focus-visible { outline: 1px solid #50505a; outline-offset: -1px; border-radius: 6px; }
+
+  #shutterGroup { margin: auto 0; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  #shutter {
+    position: relative;
+    width: 76px;
+    height: 76px;
+    flex: none;
+    padding: 0;
+    border-radius: 50%;
+    border: 1px solid #000;
+    cursor: pointer;
+    background: radial-gradient(circle at 35% 28%, #41414a, #18181b 72%);
+    box-shadow: 0 9px 20px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    transition: transform 90ms ease;
+  }
+  #shutter .ring {
+    position: absolute;
+    inset: 6px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(217, 43, 37, 0.75);
+    pointer-events: none;
+  }
+  #shutter .disc {
+    position: absolute;
+    inset: 12px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 36% 28%, var(--red-hi), var(--red) 58%, #7e110c);
+    box-shadow:
+      inset 0 -4px 9px rgba(0, 0, 0, 0.4),
+      inset 0 2px 3px rgba(255, 255, 255, 0.3),
+      0 0 16px rgba(217, 43, 37, 0.25);
+    transition: filter 120ms ease;
+    pointer-events: none;
+  }
+  #shutter:hover .disc { filter: brightness(1.12); }
+  #shutter:active, #shutter.pressed { transform: scale(0.96); }
+  #shutter:active .disc, #shutter.pressed .disc { filter: brightness(0.82); }
+  #shutter:focus-visible { outline: 2px solid #50505a; outline-offset: 4px; }
+
+  #counterWin {
+    display: flex;
+    align-items: baseline;
+    gap: 9px;
+    padding: 7px 15px;
+    border-radius: 6px;
+    border: 1px solid #000;
+    background: #0c0c0e;
+    box-shadow: inset 0 2px 7px rgba(0, 0, 0, 0.85), inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+  }
+  #counter { font: 19px/1 var(--mono); letter-spacing: 0.12em; color: #e4dfd2; }
+  #counterWin .exp { font: 9px/1 var(--mono); letter-spacing: 0.18em; color: var(--dim); }
+
+  #glWarn {
+    display: none;
+    width: 100%;
+    padding: 9px 11px;
+    border: 1px solid #3a2f1e;
+    border-radius: 6px;
+    background: #221c12;
+    color: var(--amber);
+    font: 9px/1.7 var(--mono);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-align: center;
+  }
+  #glWarn.show { display: block; }
+  .deck-hint {
+    margin-top: auto;
+    font: 9px/1.8 var(--mono);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #58585f;
+    text-align: center;
+  }
+
+  /* ── filmstrip ──────────────────────────────────────────────────── */
+  #filmstrip {
+    flex: none;
+    padding: 7px 0;
+    background: linear-gradient(180deg, #1c1c1f, #131316);
+    border-top: 1px solid #000;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+  .sprockets {
+    height: 13px;
+    margin: 3px 16px;
+    background-image:
+      radial-gradient(ellipse 5.5px 4px at 11px calc(50% + 1.5px), rgba(255, 255, 255, 0.12) 0 62%, transparent 70%),
+      radial-gradient(ellipse 5.5px 4px at 11px 50%, #000 0 66%, transparent 74%);
+    background-size: 22px 13px;
+  }
+  #strip {
+    display: flex;
+    gap: 10px;
+    padding: 4px 16px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: #2e2e33 transparent;
+  }
+  #strip::-webkit-scrollbar { height: 6px; }
+  #strip::-webkit-scrollbar-thumb { background: #2e2e33; border-radius: 3px; }
+  #stripEmpty {
+    flex: 1;
+    min-height: calc(var(--fw) * 2 / 3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #54545c;
+    font: 10px var(--mono);
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+  }
+  #stripEmpty.gone { display: none; }
+  .frame {
+    position: relative;
+    flex: none;
+    width: var(--fw);
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    border-radius: 3px;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(16px) scale(0.94);
+    transition:
+      opacity 0.3s ease,
+      transform 0.4s cubic-bezier(0.2, 1.3, 0.4, 1),
+      width 0.35s ease,
+      margin 0.35s ease;
+  }
+  .frame.in { opacity: 1; transform: none; }
+  .frame.out { width: 0; margin-left: -10px; opacity: 0; pointer-events: none; }
+  .frame canvas {
+    display: block;
+    width: var(--fw);
+    height: calc(var(--fw) * 2 / 3);
+    border-radius: 3px;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+    filter: sepia(1) saturate(0.5) brightness(0.72) contrast(1.1);
+    transition: filter 0.6s ease 0.12s;
+  }
+  .frame.in canvas { filter: none; }
+  .frame:hover canvas, .frame:focus-visible canvas { box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.45); }
+  .frame:focus-visible { outline: none; }
+  .frame .fno {
+    position: absolute;
+    right: 7px;
+    bottom: 6px;
+    font: 9px/1 var(--mono);
+    letter-spacing: 0.14em;
+    color: var(--amber);
+    text-shadow: 0 1px 2px #000;
+    pointer-events: none;
+  }
+
+  /* ── flash + drop hint ──────────────────────────────────────────── */
+  #flash {
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    background: #fff;
+    opacity: 0;
+    pointer-events: none;
+  }
+  #flash.fire { animation: flashAnim 240ms ease-out; }
+  @keyframes flashAnim {
+    0% { opacity: 0; }
+    12% { opacity: 1; }
+    45% { opacity: 0.95; }
+    100% { opacity: 0; }
+  }
+  #dropHint {
+    position: fixed;
+    inset: 14px;
+    z-index: 70;
+    pointer-events: none;
+    border: 2px dashed #50505a;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(10, 10, 12, 0.6);
+    color: var(--bright);
+    font: 12px var(--mono);
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+  }
+  body.drop-hover #dropHint { opacity: 1; }
+
+  /* ── lightbox ───────────────────────────────────────────────────── */
+  #lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    padding: 20px;
+    background: rgba(6, 6, 8, 0.95);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.22s ease;
+  }
+  #lightbox.open { opacity: 1; pointer-events: auto; }
+  #lbStage {
+    position: relative;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #000;
+    box-shadow: 0 26px 90px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.07);
+    transform: scale(0.965);
+    transition: transform 0.26s cubic-bezier(0.2, 1, 0.3, 1);
+  }
+  #lightbox.open #lbStage { transform: none; }
+  #lbStage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  #lbCaption {
+    font: 11px/1 var(--mono);
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #c4c4cb;
+  }
+  #lbActions { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+  .lbBtn {
+    font: 10px/1 var(--mono);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--bright);
+    background: linear-gradient(180deg, #2b2b30, #1b1b1f);
+    border: 1px solid #000;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.09);
+    border-radius: 6px;
+    padding: 10px 16px;
+    cursor: pointer;
+    transition: filter 0.15s ease, transform 0.1s ease;
+  }
+  .lbBtn:hover { filter: brightness(1.3); }
+  .lbBtn:active { transform: translateY(1px); }
+  .lbBtn .kbd { color: var(--dim); }
+
+  /* ── mobile ─────────────────────────────────────────────────────── */
+  @media (max-width: 760px) {
+    :root { --fw: 124px; }
+    header { gap: 12px; padding: 8px 12px; }
+    header .hint, .wordsub { display: none; }
+    .wordmark { letter-spacing: 0.26em; font-size: 12px; }
+    main { flex-direction: column; }
+    #vfWrap { padding: 12px 12px 8px; }
+    #deck {
+      width: auto;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      padding: 12px 16px;
+      border-left: 0;
+      border-top: 1px solid #000;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+    .deck-block { width: auto; flex: 1; max-width: 190px; gap: 6px; }
+    #shutterGroup { margin: 0; flex-direction: row; gap: 16px; }
+    #shutter { width: 64px; height: 64px; }
+    #shutter .ring { inset: 5px; }
+    #shutter .disc { inset: 10px; }
+    .shutter-label, .deck-hint, #glWarn { display: none; }
+    #glWarn.show { display: block; position: fixed; left: 12px; right: 12px; top: 52px; z-index: 30; width: auto; }
+    #counterWin { padding: 6px 10px; gap: 6px; }
+    #counter { font-size: 15px; }
+    .hud { padding: 9px 11px; font-size: 9px; letter-spacing: 0.1em; }
+    #lightbox { gap: 14px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition-duration: 0ms !important; animation-duration: 0ms !important; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <a id="badge" href="./index.html">06 · all experiments</a>
+    <div class="wordmark">DARKROOM<span class="wordsub">aim · shoot · develop</span></div>
+    <div class="hint">drag the brackets to aim · space fires the shutter<br />drop or paste a photo for a new roll</div>
+  </header>
+
+  <main>
+    <section id="vfWrap" aria-label="Viewfinder">
+      <div class="bezel">
+        <div id="vf">
+          <canvas id="vfCanvas"></canvas>
+          <div class="hud hud-top">
+            <span id="hudDims">— × — px</span>
+            <span id="hudS">S —</span>
+            <span id="hudBeta">β —</span>
+          </div>
+          <div class="hud hud-bottom">
+            <span id="hudLens">LENS · TENTENTOON</span>
+            <span id="hudExp">EXP 00</span>
+          </div>
+          <div id="loading">loading roll…</div>
+        </div>
+      </div>
+    </section>
+
+    <aside id="deck" aria-label="Camera controls">
+      <div class="deck-block">
+        <div class="label">lens</div>
+        <div id="lensSwitch" class="lens-switch" data-mode="tententoon" role="radiogroup" aria-label="Lens">
+          <div class="knob"></div>
+          <button class="pos" type="button" data-mode="droste" role="radio" aria-checked="false">Droste</button>
+          <button class="pos" type="button" data-mode="tententoon" role="radio" aria-checked="true">Tententoon</button>
+        </div>
+      </div>
+
+      <div id="shutterGroup">
+        <button id="shutter" type="button" aria-label="Shutter — take the shot">
+          <span class="ring"></span>
+          <span class="disc"></span>
+        </button>
+        <div id="counterWin" aria-label="Exposure counter">
+          <span id="counter">00</span><span class="exp">exp</span>
+        </div>
+      </div>
+
+      <div id="glWarn">webgl2 unavailable<br />droste lens only</div>
+      <div class="deck-hint">drop · paste a photo<br />for a new roll</div>
+    </aside>
+  </main>
+
+  <footer id="filmstrip" aria-label="Filmstrip of developed shots">
+    <div class="sprockets" aria-hidden="true"></div>
+    <div id="strip">
+      <div id="stripEmpty">undeveloped roll — press the shutter</div>
+    </div>
+    <div class="sprockets" aria-hidden="true"></div>
+  </footer>
+</div>
+
+<div id="flash" aria-hidden="true"></div>
+<div id="dropHint" aria-hidden="true">new roll — drop to load</div>
+
+<div id="lightbox" role="dialog" aria-modal="true" aria-label="Developed shot">
+  <div id="lbStage">
+    <canvas id="lbGl"></canvas>
+    <canvas id="lb2d"></canvas>
+  </div>
+  <div id="lbCaption">shot — lens</div>
+  <div id="lbActions">
+    <button id="lbSave" class="lbBtn" type="button">save png</button>
+    <button id="lbReshoot" class="lbBtn" type="button">reshoot</button>
+    <button id="lbClose" class="lbBtn" type="button">close <span class="kbd">· esc</span></button>
+  </div>
+</div>
+
+<script type="module" src="/src/experiments/film.ts"></script>
+</body>
+</html>

@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex" />
+<title>Twin Infinities · tententoon experiment</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<style>
+  :root {
+    --bg: #0e0e10;
+    --rule: #2a2a2e;
+    --rule-soft: #1d1d21;
+    --caption: #8a8a92;
+    --ink: #e8e8ea;
+    --ink-dim: #b6b6bc;
+    --brass: #b89a6a;
+    --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto auto;
+    height: 100dvh;
+    overflow: hidden;
+  }
+  .smallcaps {
+    font-variant-caps: all-small-caps;
+    letter-spacing: 0.14em;
+    font-feature-settings: "c2sc", "smcp";
+  }
+  /* keyboard focus: a quiet brass hairline instead of the UA ring */
+  #morph:focus-visible,
+  #scrub:focus-visible {
+    outline: 1px solid var(--brass);
+    outline-offset: 6px;
+    border-radius: 2px;
+  }
+  #play:focus-visible,
+  .chip:focus-visible,
+  #badge:focus-visible {
+    outline: 1px solid var(--brass);
+    outline-offset: 3px;
+  }
+
+  /* ── header ─────────────────────────────────────────────── */
+  header {
+    text-align: center;
+    padding: 26px 16px 14px;
+  }
+  header .overline {
+    font-size: 11px;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: var(--caption);
+    margin-bottom: 7px;
+  }
+  header h1 {
+    margin: 0;
+    font-family: Palatino, "Palatino Linotype", "Iowan Old Style", Georgia, serif;
+    font-weight: 500;
+    font-size: clamp(22px, 3.2vw, 30px);
+    letter-spacing: 0.04em;
+    color: var(--ink);
+  }
+
+  /* ── diptych ────────────────────────────────────────────── */
+  #diptych {
+    display: flex;
+    flex-direction: row;
+    min-height: 0;
+    min-width: 0;
+    padding: 6px clamp(14px, 3vw, 40px) 0;
+    gap: 0;
+  }
+  .pane {
+    flex: 50 1 0%;
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    transition: flex-grow 400ms var(--ease), flex-basis 400ms var(--ease);
+    cursor: pointer;
+  }
+  .divider {
+    flex: 0 0 1px;
+    background: var(--rule);
+    margin: 8px clamp(10px, 2.4vw, 30px);
+  }
+  .pane-label {
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--caption);
+    text-align: center;
+    height: 33px;
+    padding: 6px 8px 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: opacity 320ms var(--ease), height 400ms var(--ease), padding 400ms var(--ease);
+  }
+  .pane-label b { color: var(--ink-dim); font-weight: 600; }
+  .stage {
+    position: relative;
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .stage canvas {
+    display: block;
+    outline: 1px solid var(--rule-soft);
+    opacity: 0;
+    transition: opacity 600ms var(--ease);
+    background: #131316;
+  }
+  body.ready .stage canvas { opacity: 1; }
+  .stage .hanging {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #55555c;
+    animation: breathe 1.6s ease-in-out infinite;
+    pointer-events: none;
+    transition: opacity 400ms var(--ease);
+  }
+  body.ready .stage .hanging { opacity: 0; animation: none; }
+  @keyframes breathe { 0%, 100% { opacity: 0.45; } 50% { opacity: 1; } }
+
+  .caption {
+    position: relative;
+    height: 38px;
+    text-align: center;
+    font-size: 13.5px;
+    color: var(--caption);
+    font-variant-caps: all-small-caps;
+    letter-spacing: 0.09em;
+    padding-top: 12px;
+    transition: opacity 320ms var(--ease), height 400ms var(--ease), padding 400ms var(--ease);
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .caption .alt {
+    position: absolute;
+    inset: 12px 0 0;
+    opacity: 0;
+    transition: opacity 450ms var(--ease);
+  }
+  .caption .base { transition: opacity 450ms var(--ease); display: inline-block; }
+  .caption.identical .alt { opacity: 1; }
+  .caption.identical .base { opacity: 0; }
+  .caption .deg { color: var(--brass); font-variant-caps: normal; font-size: 12.5px; letter-spacing: 0.02em; }
+
+  /* focus states */
+  #diptych.focus-left  #pane-left  { flex-grow: 78; }
+  #diptych.focus-left  #pane-right { flex-grow: 22; }
+  #diptych.focus-right #pane-right { flex-grow: 78; }
+  #diptych.focus-right #pane-left  { flex-grow: 22; }
+  .pane.sliver .pane-label,
+  .pane.sliver .caption { opacity: 0; height: 0; padding-top: 0; padding-bottom: 0; }
+  .pane.focused { cursor: zoom-out; }
+  .pane.sliver { cursor: zoom-in; }
+
+  .chip {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    appearance: none;
+    border: 1px solid var(--rule);
+    background: rgba(14, 14, 16, 0.82);
+    color: var(--ink-dim);
+    font: inherit;
+    font-size: 11.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    padding: 7px 13px;
+    border-radius: 999px;
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(-4px);
+    pointer-events: none;
+    transition: opacity 320ms var(--ease), transform 320ms var(--ease),
+                color 160ms, border-color 160ms;
+  }
+  .pane.focused .chip {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+    transition-delay: 240ms;
+  }
+  .chip:hover { color: var(--ink); border-color: #45454c; }
+
+  /* ── morph control ──────────────────────────────────────── */
+  #morph-block {
+    width: min(560px, 88vw);
+    min-width: min(320px, 88vw);
+    margin: 0 auto;
+    padding: 18px 0 6px;
+  }
+  #morph-words {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--caption);
+    padding: 0 2px 10px;
+  }
+  #morph-words .arrow { color: #55555c; letter-spacing: 0; font-size: 13px; }
+  #morph-words .lit { color: var(--brass); transition: color 300ms; }
+  #morph-words span { transition: color 300ms; }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    display: block;
+    width: 100%;
+    margin: 0;
+    background: transparent;
+    cursor: pointer;
+    touch-action: none;
+  }
+  #morph {
+    height: 28px;
+    --fill: 100%;
+  }
+  #morph::-webkit-slider-runnable-track {
+    height: 2px;
+    border-radius: 1px;
+    background: linear-gradient(to right, var(--brass) var(--fill), var(--rule) var(--fill));
+  }
+  #morph::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--ink);
+    border: none;
+    margin-top: -7px;
+    box-shadow: 0 0 0 4px rgba(14, 14, 16, 1), 0 1px 6px rgba(0, 0, 0, 0.6);
+    transition: transform 150ms var(--ease);
+  }
+  #morph:active::-webkit-slider-thumb { transform: scale(1.25); }
+  #morph::-moz-range-track {
+    height: 2px;
+    border-radius: 1px;
+    background: linear-gradient(to right, var(--brass) var(--fill), var(--rule) var(--fill));
+  }
+  #morph::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--ink);
+    border: none;
+    box-shadow: 0 0 0 4px rgba(14, 14, 16, 1), 0 1px 6px rgba(0, 0, 0, 0.6);
+  }
+
+  /* ── transport ──────────────────────────────────────────── */
+  #transport {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px clamp(14px, 3vw, 40px) 18px;
+  }
+  #play {
+    appearance: none;
+    flex: 0 0 auto;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid var(--rule);
+    background: transparent;
+    color: var(--ink-dim);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: color 160ms, border-color 160ms, transform 160ms var(--ease);
+  }
+  #play:hover { color: var(--ink); border-color: #45454c; }
+  #play:active { transform: scale(0.92); }
+  #play svg { display: block; }
+  #play .icon-pause { display: none; }
+  #play.playing .icon-pause { display: block; }
+  #play.playing .icon-play { display: none; }
+
+  #scrub {
+    flex: 1 1 auto;
+    height: 28px;
+    --fill: 0%;
+  }
+  #scrub::-webkit-slider-runnable-track {
+    height: 2px;
+    border-radius: 1px;
+    background: linear-gradient(to right, #5e5e66 var(--fill), var(--rule) var(--fill));
+  }
+  #scrub::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--ink-dim);
+    border: none;
+    margin-top: -4px;
+    transition: transform 150ms var(--ease), background 150ms;
+  }
+  #scrub:hover::-webkit-slider-thumb,
+  #scrub:active::-webkit-slider-thumb { transform: scale(1.4); background: var(--ink); }
+  #scrub::-moz-range-track {
+    height: 2px;
+    border-radius: 1px;
+    background: linear-gradient(to right, #5e5e66 var(--fill), var(--rule) var(--fill));
+  }
+  #scrub::-moz-range-thumb {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--ink-dim);
+    border: none;
+  }
+
+  /* ── badge ──────────────────────────────────────────────── */
+  #badge {
+    position: fixed;
+    top: 14px;
+    left: 14px;
+    z-index: 30;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--caption);
+    border: 1px solid var(--rule);
+    background: rgba(14, 14, 16, 0.78);
+    backdrop-filter: blur(6px);
+    padding: 6px 11px;
+    border-radius: 999px;
+    transition: color 160ms, border-color 160ms;
+  }
+  #badge:hover { color: var(--ink); border-color: #45454c; }
+
+  /* ── drop overlay ───────────────────────────────────────── */
+  #drop-overlay {
+    position: fixed;
+    inset: 12px;
+    z-index: 40;
+    border: 1px dashed #55555c;
+    border-radius: 10px;
+    background: rgba(14, 14, 16, 0.86);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 220ms var(--ease);
+  }
+  body.drop-hover #drop-overlay { opacity: 1; }
+
+  /* ── webgl failure ──────────────────────────────────────── */
+  #gl-fail {
+    display: none;
+    grid-row: 2;
+    align-self: center;
+    justify-self: center;
+    max-width: 420px;
+    text-align: center;
+    color: var(--ink-dim);
+    font-size: 14.5px;
+    line-height: 1.7;
+    padding: 24px;
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+  }
+  body.gl-failed #gl-fail { display: block; }
+  body.gl-failed #diptych,
+  body.gl-failed #morph-block,
+  body.gl-failed #transport { display: none; }
+
+  /* ── portrait / mobile: stack vertically ────────────────── */
+  @media (max-width: 720px), (orientation: portrait) {
+    #diptych {
+      flex-direction: column;
+      padding: 0 16px;
+      transition: padding-top 400ms var(--ease);
+    }
+    .divider { margin: 2px clamp(20px, 14vw, 80px); }
+    /* focused pane should command the screen (~78vh): the sliver
+       becomes a fixed thin strip and the header bows out, ceding
+       its height to the focused stage */
+    #diptych.focus-left  #pane-right,
+    #diptych.focus-right #pane-left { flex: 0 1 64px; }
+    /* left-focused: its label tops the page — clear the fixed badge */
+    body.focus-mode #diptych.focus-left { padding-top: 46px; }
+    /* focused pane hangs the print like a museum wall: stage pinned to
+       the photo (JS sets flex-basis), placard snug underneath, the
+       whole group centred in the pane's negative space */
+    .pane.focused { justify-content: center; }
+    .pane.focused .stage { transition: flex-basis 250ms var(--ease); }
+    header {
+      max-height: 140px;
+      overflow: hidden;
+      transition: max-height 400ms var(--ease), opacity 280ms var(--ease),
+                  padding 400ms var(--ease);
+    }
+    body.focus-mode header {
+      max-height: 0;
+      opacity: 0;
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+    header { padding: 20px 56px 8px; }
+    .pane-label { padding: 4px 8px 8px; }
+    .caption {
+      height: 30px;
+      padding-top: 8px;
+      font-size: 11.5px;
+      letter-spacing: 0.05em;
+      text-overflow: ellipsis;
+    }
+    .caption .deg { font-size: 11px; }
+    #morph-block { padding-top: 12px; }
+    #transport { padding-bottom: 14px; }
+  }
+  @media (max-width: 560px) {
+    /* the badge already says "07" — drop the overline and clear the badge */
+    header .overline { display: none; }
+    header { padding: 42px 16px 6px; }
+    header h1 { font-size: 20px; }
+  }
+</style>
+</head>
+<body>
+  <a id="badge" href="./index.html">07 · all experiments</a>
+
+  <header>
+    <div class="overline">experiment 07 — comparative diptych</div>
+    <h1>Twin Infinities</h1>
+  </header>
+
+  <main id="diptych">
+    <section class="pane" id="pane-left" aria-label="Droste pane">
+      <div class="pane-label"><b>droste</b> — falls straight</div>
+      <div class="stage" id="stage-left">
+        <canvas id="canvas-left"></canvas>
+        <div class="hanging">hanging the print…</div>
+        <button class="chip" id="save-left">save png</button>
+      </div>
+      <div class="caption" id="caption-left">
+        <span class="base">every copy drops straight in — the fall is the only motion</span>
+      </div>
+    </section>
+
+    <div class="divider" role="presentation"></div>
+
+    <section class="pane" id="pane-right" aria-label="Tententoon pane">
+      <div class="pane-label"><b>tententoon</b> — turns as it falls</div>
+      <div class="stage" id="stage-right">
+        <canvas id="canvas-right"></canvas>
+        <div class="hanging">hanging the print…</div>
+        <button class="chip" id="save-right">save png</button>
+      </div>
+      <div class="caption" id="caption-right">
+        <span class="base">same copies, same fall — plus <span class="deg" id="deg">7.1°</span> of turn per step</span>
+        <span class="alt">…identical — until you add the twist</span>
+      </div>
+    </section>
+  </main>
+
+  <div id="gl-fail">
+    <strong>WebGL2 is unavailable.</strong><br />
+    Both infinities here are drawn by the GPU log-polar pipeline,
+    so this diptych needs a browser with WebGL2 enabled.
+  </div>
+
+  <div id="morph-block">
+    <div id="morph-words">
+      <span id="word-straight">straight</span>
+      <span class="arrow">⟶</span>
+      <span id="word-twisted" class="lit">twisted</span>
+    </div>
+    <input id="morph" type="range" min="0" max="1000" step="1" value="1000"
+           aria-label="morph: straight to twisted" />
+  </div>
+
+  <footer id="transport">
+    <button id="play" class="playing" aria-label="pause">
+      <svg class="icon-play" width="13" height="14" viewBox="0 0 13 14" fill="currentColor" aria-hidden="true">
+        <path d="M1.5 1.2 L11.8 7 L1.5 12.8 Z" />
+      </svg>
+      <svg class="icon-pause" width="12" height="13" viewBox="0 0 12 13" fill="currentColor" aria-hidden="true">
+        <rect x="1" y="0.5" width="3.4" height="12" rx="0.8" />
+        <rect x="7.6" y="0.5" width="3.4" height="12" rx="0.8" />
+      </svg>
+    </button>
+    <input id="scrub" type="range" min="0" max="1000" step="1" value="0"
+           aria-label="loop position" />
+  </footer>
+
+  <div id="drop-overlay">drop a photo — both infinities swap together</div>
+
+  <script type="module" src="/src/experiments/twin.ts"></script>
+</body>
+</html>

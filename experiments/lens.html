@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex" />
+<title>The Lens · tententoon experiment</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<style>
+  :root {
+    --bg: #16161a;
+    --ink: #e9e9ee;
+    --muted: #9b9ba6;
+    --faint: #6e6e7a;
+    --accent: #e8643c;
+    --panel: rgba(23, 23, 29, 0.72);
+    --hairline: rgba(255, 255, 255, 0.09);
+    --sans: Inter, -apple-system, "Segoe UI", system-ui, "Helvetica Neue", sans-serif;
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    height: 100%;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── photo surface ─────────────────────────────────────────────── */
+  #stage {
+    position: fixed;
+    inset: 0;
+    touch-action: none;
+    cursor: crosshair;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  #photo { display: block; width: 100%; height: 100%; }
+
+  /* ── header ────────────────────────────────────────────────────── */
+  #scrim-top {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 150px;
+    background: linear-gradient(rgba(13, 13, 17, 0.82), rgba(13, 13, 17, 0));
+    pointer-events: none;
+    z-index: 2;
+  }
+  header {
+    position: fixed;
+    top: 22px;
+    left: 26px;
+    z-index: 3;
+    pointer-events: none;
+    max-width: 380px;
+  }
+  .kicker {
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 6px;
+  }
+  h1 {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 500;
+    font-size: 30px;
+    line-height: 1;
+    margin: 0 0 9px;
+    color: var(--ink);
+    text-shadow: 0 1px 12px rgba(0, 0, 0, 0.6);
+  }
+  .hint {
+    margin: 0;
+    font-size: 12.5px;
+    line-height: 1.65;
+    color: var(--muted);
+    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.7);
+  }
+  .hint b { color: var(--accent); font-weight: 600; }
+  .hint .dim { color: var(--faint); }
+
+  /* ── the lens ──────────────────────────────────────────────────── */
+  #lens {
+    position: fixed;
+    left: 0; top: 0;
+    z-index: 5;
+    border-radius: 50%;
+    padding: 10px;
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    background:
+      radial-gradient(circle at 30% 24%, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0) 58%),
+      conic-gradient(from 230deg,
+        #564328, #8a6f45 9%, #e3c489 17%, #9c7d4e 27%, #5b482e 39%,
+        #84653d 51%, #dcbc80 61%, #6c5638 73%, #483a24 85%, #564328);
+    box-shadow:
+      0 0 0 1px rgba(0, 0, 0, 0.65),
+      0 34px 80px rgba(0, 0, 0, 0.62),
+      0 10px 26px rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+  #lens.ready { opacity: 1; }
+  #lens.dragging { cursor: grabbing; }
+  #glass {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #0c0c10;
+    transform: translateZ(0);
+  }
+  #glass canvas {
+    position: absolute;
+    left: -7%; top: -7%;
+    width: 114%; height: 114%;
+  }
+  #glare {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 2;
+    background: radial-gradient(circle at 33% 25%,
+      rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.035) 27%, rgba(255, 255, 255, 0) 46%);
+    box-shadow:
+      inset 0 0 0 2px rgba(0, 0, 0, 0.62),
+      inset 0 3px 16px rgba(0, 0, 0, 0.5),
+      inset 0 -12px 28px rgba(0, 0, 0, 0.36);
+  }
+  .glnote {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 18%;
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--muted);
+  }
+  #size-ctl {
+    position: absolute;
+    left: 50%;
+    bottom: 16px;
+    transform: translateX(-50%);
+    display: none;
+    gap: 30px;
+    z-index: 3;
+  }
+  .size-btn {
+    appearance: none;
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: rgba(16, 16, 20, 0.78);
+    color: var(--ink);
+    font: 400 19px/1 var(--sans);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    touch-action: none;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+  }
+  .size-btn:active { background: rgba(255, 255, 255, 0.14); }
+  @media (pointer: coarse), (max-width: 720px) {
+    #size-ctl { display: flex; }
+  }
+
+  /* ── toolbar ───────────────────────────────────────────────────── */
+  #toolbar {
+    position: fixed;
+    left: 50%;
+    bottom: 18px;
+    transform: translateX(-50%);
+    z-index: 8;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 6px;
+    border-radius: 999px;
+    background: var(--panel);
+    border: 1px solid var(--hairline);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.45);
+    white-space: nowrap;
+  }
+  .tb {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    color: #c9c9d3;
+    font: 500 12.5px/1 var(--sans);
+    letter-spacing: 0.02em;
+    padding: 9px 13px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    cursor: pointer;
+    transition: background 0.18s ease, color 0.18s ease, transform 0.12s ease;
+  }
+  .tb:hover { background: rgba(255, 255, 255, 0.08); color: #fff; }
+  .tb:active { transform: scale(0.95); }
+  .tb svg { width: 14px; height: 14px; flex: none; }
+  svg[hidden] { display: none; }
+  #btn-play {
+    width: 36px; height: 36px;
+    padding: 0;
+    justify-content: center;
+    color: var(--accent);
+    background: rgba(232, 100, 60, 0.14);
+  }
+  #btn-play:hover { background: rgba(232, 100, 60, 0.26); color: #ff7c50; }
+  .seg {
+    display: flex;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 999px;
+    padding: 2px;
+  }
+  .seg .tb { padding: 7px 11px; color: var(--muted); }
+  .seg .tb.active {
+    background: #2c2c35;
+    color: #fff;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4);
+  }
+  .sep {
+    width: 1px;
+    height: 18px;
+    background: var(--hairline);
+    margin: 0 5px;
+    flex: none;
+  }
+
+  /* ── badge ─────────────────────────────────────────────────────── */
+  #badge {
+    position: fixed;
+    left: 16px;
+    bottom: 18px;
+    z-index: 8;
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #8e8e99;
+    text-decoration: none;
+    padding: 8px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--hairline);
+    background: rgba(22, 22, 26, 0.66);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    transition: color 0.18s ease, border-color 0.18s ease;
+  }
+  #badge:hover { color: var(--ink); border-color: rgba(232, 100, 60, 0.6); }
+
+  /* ── boot / drop veil ──────────────────────────────────────────── */
+  #boot {
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    transition: opacity 0.45s ease;
+  }
+  #boot.done { opacity: 0; pointer-events: none; }
+  #boot .ring {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.13);
+    border-top-color: var(--accent);
+    animation: spin 0.9s linear infinite;
+  }
+  #boot .bl { font-size: 12.5px; letter-spacing: 0.06em; color: var(--muted); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #veil {
+    position: fixed;
+    inset: 12px;
+    z-index: 30;
+    border: 2px dashed rgba(232, 100, 60, 0.85);
+    border-radius: 18px;
+    background: rgba(18, 18, 22, 0.62);
+    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(3px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    color: var(--ink);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+  body.drop-hover #veil { opacity: 1; }
+
+  /* ── small screens ─────────────────────────────────────────────── */
+  @media (max-width: 640px) {
+    header { top: 14px; left: 16px; right: 16px; max-width: none; }
+    h1 { font-size: 24px; margin-bottom: 6px; }
+    .hint { font-size: 11.5px; }
+    .hint .desk-only { display: none; }
+    #toolbar { bottom: 54px; padding: 5px; }
+    .tb { padding: 8px 10px; font-size: 11.5px; }
+    #badge {
+      left: 50%;
+      bottom: 12px;
+      transform: translateX(-50%);
+    }
+  }
+</style>
+</head>
+<body>
+  <div id="stage"><canvas id="photo"></canvas></div>
+
+  <div id="scrim-top"></div>
+  <header>
+    <p class="kicker">Experiment 03 · one surface</p>
+    <h1>The Lens</h1>
+    <p class="hint">Drag the <b>orange frame</b> to choose what nests — the loupe answers in the
+    same frame.<span class="desk-only"> Move the loupe by its rim<span class="dim"> · </span>scroll over it
+    to resize.</span></p>
+  </header>
+
+  <div id="lens">
+    <div id="glass">
+      <canvas id="loupe"></canvas>
+      <div id="glare"></div>
+    </div>
+    <div id="size-ctl">
+      <button class="size-btn" id="btn-minus" aria-label="shrink the lens">−</button>
+      <button class="size-btn" id="btn-plus" aria-label="grow the lens">+</button>
+    </div>
+  </div>
+
+  <div id="toolbar">
+    <button id="btn-play" class="tb" aria-label="pause">
+      <svg id="ic-pause" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+        <rect x="3.2" y="2.6" width="3.3" height="10.8" rx="1.1"/>
+        <rect x="9.5" y="2.6" width="3.3" height="10.8" rx="1.1"/>
+      </svg>
+      <svg id="ic-play" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" hidden>
+        <path d="M4.4 2.8v10.4c0 .85.93 1.37 1.65.92l8.2-5.2a1.1 1.1 0 0 0 0-1.84l-8.2-5.2c-.72-.45-1.65.07-1.65.92z"/>
+      </svg>
+    </button>
+    <span class="sep"></span>
+    <div class="seg" role="group" aria-label="loop length">
+      <button id="btn-4s" class="tb">4 s</button>
+      <button id="btn-8s" class="tb active">8 s</button>
+    </div>
+    <span class="sep"></span>
+    <button id="btn-save" class="tb">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M8 2v7.2M5 6.6 8 9.6l3-3"/><path d="M2.5 11v1.6a1.4 1.4 0 0 0 1.4 1.4h8.2a1.4 1.4 0 0 0 1.4-1.4V11"/>
+      </svg>save print</button>
+    <button id="btn-photo" class="tb">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="2" y="2.8" width="12" height="10.4" rx="1.6"/>
+        <circle cx="5.6" cy="6.3" r="1.1" fill="currentColor" stroke="none"/>
+        <path d="M14 10.4 10.8 7.2 4.4 13.2"/>
+      </svg>your photo</button>
+  </div>
+  <input type="file" id="file" accept="image/*" hidden />
+
+  <a id="badge" href="./index.html">03 · all experiments</a>
+
+  <div id="veil">drop the photo — it loads instantly</div>
+  <div id="boot"><div class="ring"></div><div class="bl">developing the print…</div></div>
+
+  <script type="module" src="/src/experiments/lens.ts"></script>
+</body>
+</html>

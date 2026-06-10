@@ -137,7 +137,19 @@ export default defineConfig({
         // src/explain/main.ts). Two HTML entry points → dist/index.html and
         // dist/explain.html, each with its own bundled module.
         main: resolve(process.cwd(), 'index.html'),
-        explain: resolve(process.cwd(), 'explain.html')
+        explain: resolve(process.cwd(), 'explain.html'),
+        // Unlinked UX-experiment prototypes (see experiments/index.html).
+        // Each is a standalone page over src/experiments/kit.ts; they ship
+        // to dist/experiments/*.html, reachable but not referenced by the app.
+        experiments: resolve(process.cwd(), 'experiments/index.html'),
+        exp_zen: resolve(process.cwd(), 'experiments/zen.html'),
+        exp_steps: resolve(process.cwd(), 'experiments/steps.html'),
+        exp_lens: resolve(process.cwd(), 'experiments/lens.html'),
+        exp_dial: resolve(process.cwd(), 'experiments/dial.html'),
+        exp_scroll: resolve(process.cwd(), 'experiments/scroll.html'),
+        exp_film: resolve(process.cwd(), 'experiments/film.html'),
+        exp_twin: resolve(process.cwd(), 'experiments/twin.html'),
+        exp_wall: resolve(process.cwd(), 'experiments/wall.html')
       }
     }
   },
