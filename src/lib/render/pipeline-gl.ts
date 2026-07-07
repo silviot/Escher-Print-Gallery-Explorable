@@ -114,7 +114,8 @@ export class PipelinePanelGLRenderer {
       u_rot: input.rot ?? Math.atan2(droste.logS, 2 * Math.PI),
       u_kTwist: input.kTwist ?? droste.logS / (2 * Math.PI),
       u_pan: [input.panU ?? 0, input.panV ?? 0],
-      u_morph: input.morph ?? 0
+      u_morph: input.morph ?? 0,
+      u_shape: droste.shape === 'ellipse' ? 1 : 0
     });
     twgl.drawBufferInfo(gl, quad, gl.TRIANGLE_STRIP);
   }

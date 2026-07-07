@@ -123,14 +123,36 @@ export type DrosteCtx = {
    * `sampleScale` together.
    */
   sampleScale: number;
+  /**
+   * Shape of the self-similar frame (default 'rect'). This picks the
+   * fold's fundamental domain — i.e. WHICH self-similar plane we fake:
+   *   rect    — fold into the working rectangle [0,W)×[0,H); the plane
+   *             is tiled by nested rectangular copies (classic Droste).
+   *   ellipse — fold into the ellipse inscribed in the working rect; the
+   *             plane is tiled by nested elliptical rings, using only the
+   *             image content between the crop-inscribed ellipse and the
+   *             selection ellipse (the fundamental annulus). The crop's
+   *             corner pixels are not part of this plane.
+   */
+  shape?: 'rect' | 'ellipse';
 };
 
 /**
  * Sample the (faked) Droste tiling. The candidate (sx, sy) is in working
  * coords. We scale (sx − c, sy − c) by S^n until the result lands inside
- * the working rectangle [0, W)×[0, H), then translate to original-image
- * coords for the actual bilinear read. Among valid n we pick the one with
- * the largest radius — the outermost, sharpest equivalent copy.
+ * the fold's fundamental domain, then translate to original-image coords
+ * for the actual bilinear read. Among valid n we pick the one with the
+ * largest radius — the outermost, sharpest equivalent copy.
+ *
+ * Fundamental domain by ctx.shape:
+ *   rect    — the working rectangle [0, W-1]×[0, H-1].
+ *   ellipse — the ellipse E₀ inscribed in the working rectangle. Scanning
+ *             n from large to small, the FIRST hit inside E₀ is
+ *             automatically outside the next-level ellipse E₁ = f(E₀)
+ *             (if it were inside E₁, the previous — one-step-larger —
+ *             candidate would already have been inside E₀). So a plain
+ *             E₀ test yields exactly the fundamental annulus E₀ \ E₁,
+ *             and the faked plane is tiled by elliptical rings.
  */
 export function sampleDroste(
   src: Pixels,
@@ -146,8 +168,12 @@ export function sampleDroste(
     out[0] = 0; out[1] = 0; out[2] = 0; out[3] = 0;
     return false;
   }
+  const ellipse = ctx.shape === 'ellipse';
+  // E₀ inscribed in [0, W-1]×[0, H-1] (matching the rect test's bounds).
+  const ex = (ctx.W - 1) / 2;
+  const ey = (ctx.H - 1) / 2;
   // Largest n with r·exp(n·logS) ≤ rMax. Walk inward from there until the
-  // scaled point lands inside the working rectangle. The 10-step cap is
+  // scaled point lands inside the fundamental domain. The 10-step cap is
   // generous: dn > 1 only kicks in when one working dimension is much
   // shorter than the other, so the inner ring spills outside it. Falling
   // off the cap leaves the pixel transparent (the only reasonable thing).
@@ -157,7 +183,10 @@ export function sampleDroste(
     const scale = Math.exp(n * ctx.logS);
     const tx = ctx.cx + dx * scale;
     const ty = ctx.cy + dy * scale;
-    if (tx >= 0 && ty >= 0 && tx <= ctx.W - 1 && ty <= ctx.H - 1) {
+    const inside = ellipse
+      ? ((tx - ex) / ex) * ((tx - ex) / ex) + ((ty - ey) / ey) * ((ty - ey) / ey) <= 1
+      : tx >= 0 && ty >= 0 && tx <= ctx.W - 1 && ty <= ctx.H - 1;
+    if (inside) {
       const ss = ctx.sampleScale;
       sample(src, (tx + ctx.cropX) * ss, (ty + ctx.cropY) * ss, out);
       return true;

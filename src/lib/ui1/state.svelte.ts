@@ -43,10 +43,14 @@ export type Rect = { x: number; y: number; w: number; h: number };
 /**
  * Shape of the self-similar frame the user picks. 'rect' is the classic
  * rectangular nest; 'ellipse' inscribes an ellipse (a circle when the box
- * is square) in the same drag box — same handles, same bounding-box math,
- * only the mask/outline changes. The spiral map is defined purely by the
- * box's scale + limit point, so the shape governs the *frame* (source
- * overlay + nested-Droste windows), not how the infinite plane is sampled.
+ * is square) in the same drag box — same handles, same bounding-box math.
+ *
+ * The shape decides WHICH infinitely-zoomable self-similar plane we build
+ * from the image (the fold's fundamental domain — see DrosteCtx.shape):
+ * rectangular tiles, or elliptical rings that use only the content between
+ * the crop-inscribed ellipse and the selection ellipse. Every view (Droste
+ * zoom, spiral, pipeline) then looks at that plane through its usual
+ * rectangular window; the windowing itself never changes.
  */
 export type Shape = 'rect' | 'ellipse';
 

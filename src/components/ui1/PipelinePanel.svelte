@@ -67,7 +67,7 @@
 
   const geom = $derived.by(() => {
     if (!active || !doc.image || !hasRect || !doc.crop) return null;
-    return buildPanelGeometry(doc.rect, doc.crop);
+    return buildPanelGeometry(doc.rect, doc.crop, doc.shape);
   });
 
   // Nest nearly fills its frame (S ≈ 1): no Droste structure to show, and the

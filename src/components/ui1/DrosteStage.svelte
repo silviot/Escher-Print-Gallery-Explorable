@@ -148,20 +148,6 @@
     // image-coords → target-coords affine transform.
     const ax = tw / camW;
     const ay = th / camH;
-
-    // Circular mode: clip to a STATIC vignette — the ellipse inscribed in the
-    // (crop-aspect) canvas. Applied in canvas space, before the camera
-    // transform, so the round outer frame and its black corners stay put while
-    // the content zooms (no "breathing" as copies hand off). This is the outer
-    // circle the user selected.
-    const ellipseMode = doc.shape === 'ellipse';
-    if (ellipseMode) {
-      ctx.save();
-      ctx.beginPath();
-      ctx.ellipse(tw / 2, th / 2, tw / 2, th / 2, 0, 0, Math.PI * 2);
-      ctx.clip();
-    }
-
     ctx.setTransform(ax, 0, 0, ay, -camX * ax, -camY * ay);
 
     // Stop painting when the next level would be sub-pixel on the
@@ -177,17 +163,22 @@
     // dimensions are sub-pixel), then cap at a sane absolute limit.
     const nMax = Math.min(Math.max(nMaxFromSx, nMaxFromSy) + 1, 60);
 
-    if (ellipseMode) {
-      // Circular Droste. Every copy is a *window*: the ellipse inscribed in
-      // its own frame (the circular nesting). Inside the static vignette the
-      // zoom must be seamless, so the interior has to stay filled edge-to-edge
-      // with no gaps — otherwise the loop breathes. We therefore paint from
-      // the outermost copy that still COVERS the frame (it fills the vignette
-      // interior) inward to sub-pixel, each clipped to its own ellipse.
-      // Painting outer → inner, the innermost copy containing a pixel wins —
-      // the nested-window look. The vignette clip keeps the corners black.
-      // (Replaces the old level-0-as-unclipped-rectangle path — the "outer
-      // rectangle that flipped to a circle".)
+    if (doc.shape === 'ellipse') {
+      // Circular Droste: the viewport stays a RECTANGULAR window onto an
+      // infinite self-similar plane — what changes is the plane itself. It
+      // is tiled by nested elliptical rings: each level shows the image
+      // content between its frame-inscribed ellipse and the next level's
+      // ellipse, at every scale (the crop's corner pixels are not part of
+      // this plane). Matches the spiral renderer's ellipse fold
+      // (sampleDroste / shader.frag.glsl).
+      //
+      // Paint outermost → innermost, each level clipped to its OWN inscribed
+      // ellipse; the next level overpaints its interior, leaving exactly the
+      // ring visible. The outermost painted level is the first (walking
+      // outward, n < 0 = 1/S larger each step) whose ellipse covers the whole
+      // viewport, so the window is filled edge-to-edge at every t and the
+      // loop is seamless — the plane is scale-invariant, so the view at t=1
+      // is exactly the view at t=0.
       const levelRect = (n: number) => {
         const pw = Math.pow(sx, n);
         const ph = Math.pow(sy, n);
@@ -202,7 +193,6 @@
         [camX, camY], [camX + camW, camY],
         [camX, camY + camH], [camX + camW, camY + camH]
       ];
-      // Does level n's ellipse cover the whole viewport (→ fills the vignette)?
       const covers = (r: { x: number; y: number; w: number; h: number }): boolean => {
         const ex = r.x + r.w / 2, ey = r.y + r.h / 2, rx = r.w / 2, ry = r.h / 2;
         return corners.every(([px, py]) => {
@@ -210,10 +200,8 @@
           return dx * dx + dy * dy <= 1;
         });
       };
-      // Outermost copy to paint: the first one (walking outward) whose ellipse
-      // covers the viewport, so the vignette interior is always fully filled.
-      // Floor-capped for extreme off-centre nests (whose corners then stay
-      // black — inherent to a round frame).
+      // Floor-capped for extreme off-centre nests where no ancestor ellipse
+      // ever covers the viewport; the uncovered sliver stays black then.
       const OUTER_FLOOR = -48;
       let nLo = 0;
       while (nLo > OUTER_FLOOR && !covers(levelRect(nLo))) nLo--;
@@ -254,7 +242,6 @@
       }
     }
 
-    if (ellipseMode) ctx.restore(); // release the static vignette clip
     ctx.setTransform(1, 0, 0, 1, 0, 0);
   }
 

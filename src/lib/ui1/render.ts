@@ -61,7 +61,10 @@ export function buildRenderInputs(
     H: crop.h,
     cropX: crop.x,
     cropY: crop.y,
-    sampleScale: 1
+    sampleScale: 1,
+    // The frame shape picks which self-similar plane the fold fakes:
+    // rectangular tiles or elliptical rings. See DrosteCtx.shape.
+    shape: doc.shape
   };
   const R0 = droste.rMax / Math.sqrt(droste.S);
   const scaleW = canvasW / crop.w;

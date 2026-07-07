@@ -44,6 +44,7 @@ uniform float u_rot;          // rotated-log rotation angle (canonical: atan(log
 uniform float u_kTwist;       // tententoon twist k (canonical: logS/2π = tan(u_rot))
 uniform vec2  u_pan;          // log-space pan (δu, δv) applied to all panels
 uniform float u_morph;        // unroll: 1 = spiral, 0 = rotated-log strip
+uniform float u_shape;        // fold domain: 0 = working rect, 1 = inscribed ellipse
 
 out vec4 fragColor;
 
@@ -135,13 +136,20 @@ void main() {
   float n0 = floor((log(u_rMax) - log(r2)) / u_logS);
 
   vec4 col = vec4(0.0);
+  // Ellipse fold domain: E₀ inscribed in the working rect (first hit in E₀
+  // lands in the fundamental annulus — see sampleDroste in transforms.ts).
+  vec2 eRad = (u_workingSize - 1.0) * 0.5;
   for (int dn = 0; dn <= 10; dn++) {
     float n = n0 - float(dn);
     float s = exp(n * u_logS);
     vec2 tcoord = u_c + sd * s;
-    if (tcoord.x >= 0.0 && tcoord.y >= 0.0 &&
+    vec2 e = (tcoord - eRad) / eRad;
+    bool inside = u_shape > 0.5
+      ? dot(e, e) <= 1.0
+      : tcoord.x >= 0.0 && tcoord.y >= 0.0 &&
         tcoord.x <= u_workingSize.x - 1.0 &&
-        tcoord.y <= u_workingSize.y - 1.0) {
+        tcoord.y <= u_workingSize.y - 1.0;
+    if (inside) {
       float footprint = footA * s;
       float lod = max(0.0, log2(footprint));
       vec2 uv = (tcoord + u_crop) * u_sampleScale / u_texSize;
