@@ -40,6 +40,16 @@ export type ViewMode = 'split' | 'preview' | 'droste' | 'pipeline' | 'playground
 
 export type Rect = { x: number; y: number; w: number; h: number };
 
+/**
+ * Shape of the self-similar frame the user picks. 'rect' is the classic
+ * rectangular nest; 'ellipse' inscribes an ellipse (a circle when the box
+ * is square) in the same drag box — same handles, same bounding-box math,
+ * only the mask/outline changes. The spiral map is defined purely by the
+ * box's scale + limit point, so the shape governs the *frame* (source
+ * overlay + nested-Droste windows), not how the infinite plane is sampled.
+ */
+export type Shape = 'rect' | 'ellipse';
+
 export const ui = $state<{
   tool: Tool;
   view: ViewMode;
@@ -70,11 +80,14 @@ export const doc = $state<{
    * marquee draw, or on image change; nulled when no rect is set.
    */
   crop: Rect | null;
+  /** Frame shape: rectangle (classic) or inscribed ellipse. See {@link Shape}. */
+  shape: Shape;
 }>({
   image: null,
   imageName: '',
   rect: { x: 0, y: 0, w: 0, h: 0 },
-  crop: null
+  crop: null,
+  shape: 'rect'
 });
 
 export const playback = $state<{

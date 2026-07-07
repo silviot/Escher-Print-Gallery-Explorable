@@ -109,6 +109,7 @@
     if (canvas.width !== w) canvas.width = w;
     if (canvas.height !== h) canvas.height = h;
     void playback.t;
+    void doc.shape;
     drawFrame(canvas, playback.t);
   });
 
@@ -169,9 +170,22 @@
     //   x_n = Rx * (1 - sx^n) / (1 - sx) = Rx * sum_{k=0..n-1} sx^k
     let xn = 0;
     let yn = 0;
+    // Ellipse ("circular Droste") mode: each nested copy is seen through
+    // the ellipse inscribed in its own frame. The windows nest but aren't
+    // concentric — an off-centre nest can push an inner ellipse past its
+    // parent near the corners — so we accumulate clips: every ctx.clip()
+    // intersects the previous region, giving level n the intersection of
+    // windows 1..n. Level 0 (the full image) is drawn unclipped.
+    const ellipse = doc.shape === 'ellipse';
+    if (ellipse) ctx.save();
     for (let n = 0; n <= nMax; n++) {
       const rw = W * pxw;
       const rh = H * pyw;
+      if (ellipse && n >= 1) {
+        ctx.beginPath();
+        ctx.ellipse(xn + rw / 2, yn + rh / 2, rw / 2, rh / 2, 0, 0, Math.PI * 2);
+        ctx.clip();
+      }
       // Skip levels that fall entirely outside the camera viewport.
       // (Common when the rect is well off-centre and very deep levels
       // sit far from the camera centre.)
@@ -183,6 +197,7 @@
       pxw *= sx;
       pyw *= sy;
     }
+    if (ellipse) ctx.restore();
 
     ctx.setTransform(1, 0, 0, 1, 0, 0);
   }

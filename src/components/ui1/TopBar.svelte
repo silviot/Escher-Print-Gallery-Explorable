@@ -16,7 +16,8 @@
     currentTententoon,
     renameTententoon,
     performUndo,
-    performRedo
+    performRedo,
+    markGestureEnd
   } from '../../lib/ui1/tententoon.svelte';
   import { undoState } from '../../lib/ui1/undo.svelte';
   import { putBlob } from '../../lib/ui1/persistence';
@@ -45,6 +46,15 @@
     // Zero rect → commitNewRect also nulls doc.crop so the working
     // frame returns to "none" alongside the rect.
     commitNewRect({ x: 0, y: 0, w: 0, h: 0 });
+  }
+
+  // Toggle the frame shape between rectangle and inscribed ellipse. The
+  // drag box + handles are identical either way; only the mask/outline and
+  // the nested-Droste windows change. markGestureEnd persists + records an
+  // undo step (shape is part of the tententoon snapshot).
+  function toggleShape() {
+    doc.shape = doc.shape === 'rect' ? 'ellipse' : 'rect';
+    markGestureEnd();
   }
 
   async function replace() {
@@ -160,6 +170,15 @@
     aria-label="Redo"
   >
     <Icon name="redo" size={14} />
+  </button>
+  <button
+    class="btn ghost icon-only"
+    onclick={toggleShape}
+    disabled={!doc.image}
+    title={doc.shape === 'ellipse' ? 'Shape: ellipse — click for rectangle' : 'Shape: rectangle — click for ellipse'}
+    aria-label="Toggle selection shape"
+  >
+    <Icon name={doc.shape === 'ellipse' ? 'ellipse' : 'rect'} size={14} />
   </button>
   <button class="btn ghost compactable" onclick={reset} disabled={!doc.image} title="Reset rectangle" aria-label="Reset rectangle">
     <Icon name="reset" size={14} /><span class="lbl">Reset</span>

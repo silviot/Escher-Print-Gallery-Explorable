@@ -1,4 +1,4 @@
-import type { Rect, ViewMode } from '../state.svelte';
+import type { Rect, Shape, ViewMode } from '../state.svelte';
 
 /**
  * Reference to the source image. URL-backed sources are kept by URL so we
@@ -22,6 +22,11 @@ export type TtState = {
   source: SourceRef | null;
   rect: Rect;
   crop: Rect | null;
+  /**
+   * Frame shape. Optional for backward compat: snapshots written before
+   * the shape feature have no field and are read as 'rect'.
+   */
+  shape?: Shape;
   imageName: string;
   playback: {
     speed: 0.5 | 1 | 2 | 4;

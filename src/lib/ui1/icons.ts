@@ -7,6 +7,7 @@
 export const ICON = {
   cursor: '<path d="M5 3l13 7-6 1-2 7L5 3z"/>',
   rect: '<rect x="4" y="6" width="16" height="12" rx="1"/>',
+  ellipse: '<ellipse cx="12" cy="12" rx="9" ry="6.5"/>',
   hand:
     '<path d="M7 13V6a2 2 0 014 0v6m0-2a2 2 0 014 0v3m0-1a2 2 0 014 0v4a6 6 0 01-6 6h-1a6 6 0 01-6-6v-1l-2-3a1.5 1.5 0 012.5-2L7 13z"/>',
   play: '<polygon points="6 4 20 12 6 20 6 4" fill="currentColor" stroke="none"/>',

@@ -181,6 +181,7 @@ export function applySnapshot(snap: TtState): void {
   try {
     doc.rect = { ...snap.rect };
     doc.crop = snap.crop ? { ...snap.crop } : null;
+    doc.shape = snap.shape ?? 'rect';
   } finally {
     queueMicrotask(() => {
       isApplying.value = false;
@@ -193,6 +194,7 @@ function cloneState(s: TtState): TtState {
     source: s.source ? { ...s.source } : null,
     rect: { ...s.rect },
     crop: s.crop ? { ...s.crop } : null,
+    shape: s.shape ?? 'rect',
     imageName: s.imageName,
     playback: { ...s.playback },
     view: s.view
@@ -206,6 +208,7 @@ function rectsEqual(a: TtState, b: TtState): boolean {
     a.rect.y === b.rect.y &&
     a.rect.w === b.rect.w &&
     a.rect.h === b.rect.h &&
+    (a.shape ?? 'rect') === (b.shape ?? 'rect') &&
     cropEq(a.crop, b.crop)
   );
 }

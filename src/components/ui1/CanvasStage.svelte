@@ -626,13 +626,23 @@
           <defs>
             <mask id="ui1-mask">
               <rect width="100%" height="100%" fill="white" />
-              <rect
-                x={overlayRect.x}
-                y={overlayRect.y}
-                width={overlayRect.w}
-                height={overlayRect.h}
-                fill="black"
-              />
+              {#if doc.shape === 'ellipse'}
+                <ellipse
+                  cx={overlayRect.x + overlayRect.w / 2}
+                  cy={overlayRect.y + overlayRect.h / 2}
+                  rx={overlayRect.w / 2}
+                  ry={overlayRect.h / 2}
+                  fill="black"
+                />
+              {:else}
+                <rect
+                  x={overlayRect.x}
+                  y={overlayRect.y}
+                  width={overlayRect.w}
+                  height={overlayRect.h}
+                  fill="black"
+                />
+              {/if}
             </mask>
           </defs>
           <rect width="100%" height="100%" fill="rgba(0,0,0,0.32)" mask="url(#ui1-mask)" />
@@ -650,15 +660,27 @@
               stroke-dasharray="6 4"
             />
           {/if}
-          <rect
-            x={overlayRect.x + 0.5}
-            y={overlayRect.y + 0.5}
-            width={overlayRect.w - 1}
-            height={overlayRect.h - 1}
-            fill="none"
-            stroke="var(--accent)"
-            stroke-width="1.5"
-          />
+          {#if doc.shape === 'ellipse'}
+            <ellipse
+              cx={overlayRect.x + overlayRect.w / 2}
+              cy={overlayRect.y + overlayRect.h / 2}
+              rx={overlayRect.w / 2 - 0.75}
+              ry={overlayRect.h / 2 - 0.75}
+              fill="none"
+              stroke="var(--accent)"
+              stroke-width="1.5"
+            />
+          {:else}
+            <rect
+              x={overlayRect.x + 0.5}
+              y={overlayRect.y + 0.5}
+              width={overlayRect.w - 1}
+              height={overlayRect.h - 1}
+              fill="none"
+              stroke="var(--accent)"
+              stroke-width="1.5"
+            />
+          {/if}
           <!-- thirds grid -->
           <g opacity="0.5" stroke="white" stroke-width="1" stroke-dasharray="4 4">
             <line x1={overlayRect.x + overlayRect.w / 3} y1={overlayRect.y} x2={overlayRect.x + overlayRect.w / 3} y2={overlayRect.y + overlayRect.h} />

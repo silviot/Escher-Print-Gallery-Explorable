@@ -43,6 +43,7 @@ function snapshotState(source: SourceRef | null): TtState {
     source,
     rect: { x: doc.rect.x, y: doc.rect.y, w: doc.rect.w, h: doc.rect.h },
     crop: doc.crop ? { x: doc.crop.x, y: doc.crop.y, w: doc.crop.w, h: doc.crop.h } : null,
+    shape: doc.shape,
     imageName: doc.imageName,
     playback: {
       speed: playback.speed,
@@ -318,6 +319,7 @@ export async function load(id: string): Promise<boolean> {
     setImage(resolved.image, hydratedState.imageName);
     doc.rect = { ...hydratedState.rect };
     doc.crop = hydratedState.crop ? { ...hydratedState.crop } : null;
+    doc.shape = hydratedState.shape ?? 'rect';
     playback.speed = hydratedState.playback.speed;
     playback.direction = hydratedState.playback.direction;
     playback.loopLength = hydratedState.playback.loopLength;
