@@ -148,6 +148,20 @@
     // image-coords → target-coords affine transform.
     const ax = tw / camW;
     const ay = th / camH;
+
+    // Circular mode: clip to a STATIC vignette — the ellipse inscribed in the
+    // (crop-aspect) canvas. Applied in canvas space, before the camera
+    // transform, so the round outer frame and its black corners stay put while
+    // the content zooms (no "breathing" as copies hand off). This is the outer
+    // circle the user selected.
+    const ellipseMode = doc.shape === 'ellipse';
+    if (ellipseMode) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.ellipse(tw / 2, th / 2, tw / 2, th / 2, 0, 0, Math.PI * 2);
+      ctx.clip();
+    }
+
     ctx.setTransform(ax, 0, 0, ay, -camX * ax, -camY * ay);
 
     // Stop painting when the next level would be sub-pixel on the
@@ -163,42 +177,84 @@
     // dimensions are sub-pixel), then cap at a sane absolute limit.
     const nMax = Math.min(Math.max(nMaxFromSx, nMaxFromSy) + 1, 60);
 
-    // Power-table to avoid Math.pow per iteration.
-    let pxw = 1; // sx^n
-    let pyw = 1; // sy^n
-    // Accumulated geometric sums for the position formulas:
-    //   x_n = Rx * (1 - sx^n) / (1 - sx) = Rx * sum_{k=0..n-1} sx^k
-    let xn = 0;
-    let yn = 0;
-    // Ellipse ("circular Droste") mode: each nested copy is seen through
-    // the ellipse inscribed in its own frame. The windows nest but aren't
-    // concentric — an off-centre nest can push an inner ellipse past its
-    // parent near the corners — so we accumulate clips: every ctx.clip()
-    // intersects the previous region, giving level n the intersection of
-    // windows 1..n. Level 0 (the full image) is drawn unclipped.
-    const ellipse = doc.shape === 'ellipse';
-    if (ellipse) ctx.save();
-    for (let n = 0; n <= nMax; n++) {
-      const rw = W * pxw;
-      const rh = H * pyw;
-      if (ellipse && n >= 1) {
+    if (ellipseMode) {
+      // Circular Droste. Every copy is a *window*: the ellipse inscribed in
+      // its own frame (the circular nesting). Inside the static vignette the
+      // zoom must be seamless, so the interior has to stay filled edge-to-edge
+      // with no gaps — otherwise the loop breathes. We therefore paint from
+      // the outermost copy that still COVERS the frame (it fills the vignette
+      // interior) inward to sub-pixel, each clipped to its own ellipse.
+      // Painting outer → inner, the innermost copy containing a pixel wins —
+      // the nested-window look. The vignette clip keeps the corners black.
+      // (Replaces the old level-0-as-unclipped-rectangle path — the "outer
+      // rectangle that flipped to a circle".)
+      const levelRect = (n: number) => {
+        const pw = Math.pow(sx, n);
+        const ph = Math.pow(sy, n);
+        return {
+          x: (Rx * (1 - pw)) / (1 - sx),
+          y: (Ry * (1 - ph)) / (1 - sy),
+          w: W * pw,
+          h: H * ph
+        };
+      };
+      const corners: Array<[number, number]> = [
+        [camX, camY], [camX + camW, camY],
+        [camX, camY + camH], [camX + camW, camY + camH]
+      ];
+      // Does level n's ellipse cover the whole viewport (→ fills the vignette)?
+      const covers = (r: { x: number; y: number; w: number; h: number }): boolean => {
+        const ex = r.x + r.w / 2, ey = r.y + r.h / 2, rx = r.w / 2, ry = r.h / 2;
+        return corners.every(([px, py]) => {
+          const dx = (px - ex) / rx, dy = (py - ey) / ry;
+          return dx * dx + dy * dy <= 1;
+        });
+      };
+      // Outermost copy to paint: the first one (walking outward) whose ellipse
+      // covers the viewport, so the vignette interior is always fully filled.
+      // Floor-capped for extreme off-centre nests (whose corners then stay
+      // black — inherent to a round frame).
+      const OUTER_FLOOR = -48;
+      let nLo = 0;
+      while (nLo > OUTER_FLOOR && !covers(levelRect(nLo))) nLo--;
+      for (let n = nLo; n <= nMax; n++) {
+        const r = levelRect(n);
+        // Off-screen levels contribute nothing (cheap bbox reject).
+        if (r.x + r.w < camX || r.x > camX + camW || r.y + r.h < camY || r.y > camY + camH) {
+          continue;
+        }
+        ctx.save();
         ctx.beginPath();
-        ctx.ellipse(xn + rw / 2, yn + rh / 2, rw / 2, rh / 2, 0, 0, Math.PI * 2);
+        ctx.ellipse(r.x + r.w / 2, r.y + r.h / 2, r.w / 2, r.h / 2, 0, 0, Math.PI * 2);
         ctx.clip();
+        ctx.drawImage(doc.image, cropX, cropY, cropW, cropH, r.x, r.y, r.w, r.h);
+        ctx.restore();
       }
-      // Skip levels that fall entirely outside the camera viewport.
-      // (Common when the rect is well off-centre and very deep levels
-      // sit far from the camera centre.)
-      if (xn + rw >= camX && xn <= camX + camW && yn + rh >= camY && yn <= camY + camH) {
-        ctx.drawImage(doc.image, cropX, cropY, cropW, cropH, xn, yn, rw, rh);
+    } else {
+      // Rectangular Droste (fast path): level 0 is the full image and fills
+      // the frame, so only inward levels are needed. Power-table avoids a
+      // Math.pow per iteration.
+      let pxw = 1; // sx^n
+      let pyw = 1; // sy^n
+      // Accumulated geometric sums for the position formulas:
+      //   x_n = Rx * (1 - sx^n) / (1 - sx) = Rx * sum_{k=0..n-1} sx^k
+      let xn = 0;
+      let yn = 0;
+      for (let n = 0; n <= nMax; n++) {
+        const rw = W * pxw;
+        const rh = H * pyw;
+        // Skip levels that fall entirely outside the camera viewport.
+        if (xn + rw >= camX && xn <= camX + camW && yn + rh >= camY && yn <= camY + camH) {
+          ctx.drawImage(doc.image, cropX, cropY, cropW, cropH, xn, yn, rw, rh);
+        }
+        xn += Rx * pxw;
+        yn += Ry * pyw;
+        pxw *= sx;
+        pyw *= sy;
       }
-      xn += Rx * pxw;
-      yn += Ry * pyw;
-      pxw *= sx;
-      pyw *= sy;
     }
-    if (ellipse) ctx.restore();
 
+    if (ellipseMode) ctx.restore(); // release the static vignette clip
     ctx.setTransform(1, 0, 0, 1, 0, 0);
   }
 
