@@ -25,6 +25,7 @@
       <div class="title-wrap">
         <h2 id="info-title">About <span class="name">tententoon</span></h2>
         <p class="sub human-written">A toy for re-creating the Droste effect from Escher's Print&nbsp;Gallery.</p>
+        <a class="home-link" href="/">&larr;&nbsp;What is a tententoon?</a>
       </div>
       <button class="x" onclick={onClose} aria-label="Close">
         <Icon name="close" size={16} />
@@ -145,6 +146,17 @@
     font-size: 12px;
     color: var(--muted);
   }
+  /* Link back to the explainer (the site root). The tool lives at /tool;
+     this is the way home to the illustrated story. */
+  .home-link {
+    display: inline-block;
+    margin-top: 7px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--accent);
+    text-decoration: none;
+  }
+  .home-link:hover { text-decoration: underline; }
   .x {
     width: 28px;
     height: 28px;
