@@ -14,7 +14,7 @@
  * a fresh history step.
  */
 
-import { doc } from './state.svelte';
+import { doc, snapShapeMorph } from './state.svelte';
 import type { TtState } from './persistence';
 
 /**
@@ -182,6 +182,7 @@ export function applySnapshot(snap: TtState): void {
     doc.rect = { ...snap.rect };
     doc.crop = snap.crop ? { ...snap.crop } : null;
     doc.shape = snap.shape ?? 'rect';
+    snapShapeMorph(); // undo/redo jumps, no morph animation
   } finally {
     queueMicrotask(() => {
       isApplying.value = false;

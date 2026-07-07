@@ -124,17 +124,15 @@ export type DrosteCtx = {
    */
   sampleScale: number;
   /**
-   * Shape of the self-similar frame (default 'rect'). This picks the
-   * fold's fundamental domain — i.e. WHICH self-similar plane we fake:
-   *   rect    — fold into the working rectangle [0,W)×[0,H); the plane
-   *             is tiled by nested rectangular copies (classic Droste).
-   *   ellipse — fold into the ellipse inscribed in the working rect; the
-   *             plane is tiled by nested elliptical rings, using only the
-   *             image content between the crop-inscribed ellipse and the
-   *             selection ellipse (the fundamental annulus). The crop's
-   *             corner pixels are not part of this plane.
+   * Frame-shape morph picking the fold's fundamental domain — i.e. WHICH
+   * self-similar plane we fake. 0 = ellipse inscribed in the working rect
+   * (plane tiled by elliptical rings, using only the content between the
+   * crop-inscribed ellipse and the selection ellipse); 1 = the working
+   * rectangle itself (classic nested rectangular copies). Values in between
+   * blend the L2 and L∞ gauges (see ../ui1/shape.ts) so the plane morphs
+   * continuously. Optional; omitted = 1 (rectangle) for backward compat.
    */
-  shape?: 'rect' | 'ellipse';
+  shapeMorph?: number;
 };
 
 /**
@@ -144,15 +142,15 @@ export type DrosteCtx = {
  * for the actual bilinear read. Among valid n we pick the one with the
  * largest radius — the outermost, sharpest equivalent copy.
  *
- * Fundamental domain by ctx.shape:
- *   rect    — the working rectangle [0, W-1]×[0, H-1].
- *   ellipse — the ellipse E₀ inscribed in the working rectangle. Scanning
- *             n from large to small, the FIRST hit inside E₀ is
- *             automatically outside the next-level ellipse E₁ = f(E₀)
- *             (if it were inside E₁, the previous — one-step-larger —
- *             candidate would already have been inside E₀). So a plain
- *             E₀ test yields exactly the fundamental annulus E₀ \ E₁,
- *             and the faked plane is tiled by elliptical rings.
+ * Fundamental domain by ctx.shapeMorph (0 = ellipse, 1 = rect; blend
+ * between). The domain is the gauge ball {(1−m)‖v‖₂ + m‖v‖∞ ≤ 1} of
+ * v = ((tx−ex)/ex, (ty−ey)/ey), inscribed in [0, W-1]×[0, H-1]. At m = 1
+ * this is exactly the rect test tx∈[0,W-1], ty∈[0,H-1]; at m = 0 the
+ * inscribed ellipse. Scanning n from large to small, the FIRST hit inside
+ * the ball is automatically outside its one-step-smaller copy f(ball) —
+ * the gauge is degree-1 homogeneous, so this holds at every m — hence the
+ * fold yields exactly the fundamental annulus, tiling the plane with the
+ * chosen shape.
  */
 export function sampleDroste(
   src: Pixels,
@@ -168,8 +166,8 @@ export function sampleDroste(
     out[0] = 0; out[1] = 0; out[2] = 0; out[3] = 0;
     return false;
   }
-  const ellipse = ctx.shape === 'ellipse';
-  // E₀ inscribed in [0, W-1]×[0, H-1] (matching the rect test's bounds).
+  const m = ctx.shapeMorph ?? 1;
+  // Gauge ball inscribed in [0, W-1]×[0, H-1] (m=1 ⇒ that exact rect).
   const ex = (ctx.W - 1) / 2;
   const ey = (ctx.H - 1) / 2;
   // Largest n with r·exp(n·logS) ≤ rMax. Walk inward from there until the
@@ -183,9 +181,9 @@ export function sampleDroste(
     const scale = Math.exp(n * ctx.logS);
     const tx = ctx.cx + dx * scale;
     const ty = ctx.cy + dy * scale;
-    const inside = ellipse
-      ? ((tx - ex) / ex) * ((tx - ex) / ex) + ((ty - ey) / ey) * ((ty - ey) / ey) <= 1
-      : tx >= 0 && ty >= 0 && tx <= ctx.W - 1 && ty <= ctx.H - 1;
+    const nx = (tx - ex) / ex;
+    const ny = (ty - ey) / ey;
+    const inside = (1 - m) * Math.hypot(nx, ny) + m * Math.max(Math.abs(nx), Math.abs(ny)) <= 1;
     if (inside) {
       const ss = ctx.sampleScale;
       sample(src, (tx + ctx.cropX) * ss, (ty + ctx.cropY) * ss, out);

@@ -45,8 +45,9 @@
    * — anything smaller would alias.
    */
 
-  import { doc, playback } from '../../lib/ui1/state.svelte';
+  import { doc, playback, shapeAnim } from '../../lib/ui1/state.svelte';
   import { buildDrosteFrameParams, workingCrop } from '../../lib/ui1/droste-frame';
+  import { insideGauge, shapePath2D } from '../../lib/ui1/shape';
 
   type Props = {
     bindRenderFrame?: (fn: (off: HTMLCanvasElement, t: number) => Promise<void>) => void;
@@ -109,7 +110,7 @@
     if (canvas.width !== w) canvas.width = w;
     if (canvas.height !== h) canvas.height = h;
     void playback.t;
-    void doc.shape;
+    void shapeAnim.morph;
     drawFrame(canvas, playback.t);
   });
 
@@ -121,6 +122,8 @@
   function drawFrame(target: HTMLCanvasElement, t: number): void {
     if (!params || !doc.image) return;
     const { W, H, sx, sy, Rx, Ry, cropX, cropY, cropW, cropH } = params;
+    // Shape morph: 0 = ellipse rings … 1 = rectangular tiles (fast path).
+    const m = shapeAnim.morph;
     const effT = playback.direction === 'in' ? t : 1 - t;
     const scaleX = Math.pow(sx, effT);
     const scaleY = Math.pow(sy, effT);
@@ -163,22 +166,19 @@
     // dimensions are sub-pixel), then cap at a sane absolute limit.
     const nMax = Math.min(Math.max(nMaxFromSx, nMaxFromSy) + 1, 60);
 
-    if (doc.shape === 'ellipse') {
-      // Circular Droste: the viewport stays a RECTANGULAR window onto an
-      // infinite self-similar plane — what changes is the plane itself. It
-      // is tiled by nested elliptical rings: each level shows the image
-      // content between its frame-inscribed ellipse and the next level's
-      // ellipse, at every scale (the crop's corner pixels are not part of
-      // this plane). Matches the spiral renderer's ellipse fold
-      // (sampleDroste / shader.frag.glsl).
+    if (m < 1) {
+      // Circular / morphing Droste: the viewport stays a RECTANGULAR window
+      // onto an infinite self-similar plane — what changes is the plane. It
+      // is tiled by nested rings of the chosen shape (ellipse at m=0, blending
+      // to rectangle at m=1): each level shows the content between its
+      // frame-inscribed shape and the next level's, at every scale. Matches
+      // the spiral fold (sampleDroste / shader.frag.glsl).
       //
       // Paint outermost → innermost, each level clipped to its OWN inscribed
-      // ellipse; the next level overpaints its interior, leaving exactly the
-      // ring visible. The outermost painted level is the first (walking
-      // outward, n < 0 = 1/S larger each step) whose ellipse covers the whole
-      // viewport, so the window is filled edge-to-edge at every t and the
-      // loop is seamless — the plane is scale-invariant, so the view at t=1
-      // is exactly the view at t=0.
+      // shape; the next level overpaints its interior, leaving the ring. The
+      // outermost painted level is the first (walking outward, n < 0 = 1/S
+      // larger each step) whose shape covers the whole viewport, so the window
+      // is filled edge-to-edge at every t and the loop is seamless.
       const levelRect = (n: number) => {
         const pw = Math.pow(sx, n);
         const ph = Math.pow(sy, n);
@@ -195,12 +195,9 @@
       ];
       const covers = (r: { x: number; y: number; w: number; h: number }): boolean => {
         const ex = r.x + r.w / 2, ey = r.y + r.h / 2, rx = r.w / 2, ry = r.h / 2;
-        return corners.every(([px, py]) => {
-          const dx = (px - ex) / rx, dy = (py - ey) / ry;
-          return dx * dx + dy * dy <= 1;
-        });
+        return corners.every(([px, py]) => insideGauge((px - ex) / rx, (py - ey) / ry, m));
       };
-      // Floor-capped for extreme off-centre nests where no ancestor ellipse
+      // Floor-capped for extreme off-centre nests where no ancestor shape
       // ever covers the viewport; the uncovered sliver stays black then.
       const OUTER_FLOOR = -48;
       let nLo = 0;
@@ -212,9 +209,7 @@
           continue;
         }
         ctx.save();
-        ctx.beginPath();
-        ctx.ellipse(r.x + r.w / 2, r.y + r.h / 2, r.w / 2, r.h / 2, 0, 0, Math.PI * 2);
-        ctx.clip();
+        ctx.clip(shapePath2D(r.x + r.w / 2, r.y + r.h / 2, r.w / 2, r.h / 2, m));
         ctx.drawImage(doc.image, cropX, cropY, cropW, cropH, r.x, r.y, r.w, r.h);
         ctx.restore();
       }

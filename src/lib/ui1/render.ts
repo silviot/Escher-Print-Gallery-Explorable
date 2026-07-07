@@ -14,7 +14,7 @@
 
 import { drosteGeometry, type Rect as DrosteRect } from '../math/droste';
 import type { DrosteCtx } from '../math/transforms';
-import { doc, playback } from './state.svelte';
+import { doc, playback, shapeAnim } from './state.svelte';
 
 export type RenderInputs = {
   pixels: ImageData;
@@ -63,8 +63,9 @@ export function buildRenderInputs(
     cropY: crop.y,
     sampleScale: 1,
     // The frame shape picks which self-similar plane the fold fakes:
-    // rectangular tiles or elliptical rings. See DrosteCtx.shape.
-    shape: doc.shape
+    // rectangular tiles ↔ elliptical rings, morphing continuously. Reading
+    // the animated value here makes the spiral morph with the toggle.
+    shapeMorph: shapeAnim.morph
   };
   const R0 = droste.rMax / Math.sqrt(droste.S);
   const scaleW = canvasW / crop.w;

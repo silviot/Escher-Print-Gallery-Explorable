@@ -106,7 +106,7 @@ export class WebGL2EscherZoomRenderer implements EscherZoomRenderer {
       u_sampleScale: droste.sampleScale,
       u_texSize: [pixels.width, pixels.height],
       u_t: t,
-      u_shape: droste.shape === 'ellipse' ? 1 : 0
+      u_shapeMorph: droste.shapeMorph ?? 1
     });
     twgl.drawBufferInfo(gl, quad, gl.TRIANGLE_STRIP);
   }

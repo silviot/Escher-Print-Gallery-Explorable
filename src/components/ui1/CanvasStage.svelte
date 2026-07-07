@@ -33,12 +33,14 @@
   import {
     doc,
     ui,
+    shapeAnim,
     commitNewRect,
     commitTranslate,
     commitResize,
     commitCropTranslate,
     type Rect
   } from '../../lib/ui1/state.svelte';
+  import { shapeBoundary, pathD } from '../../lib/ui1/shape';
   import { snapRectToAspect, phase } from '../../lib/ui1/render';
   import { markGestureEnd } from '../../lib/ui1/tententoon.svelte';
 
@@ -597,6 +599,26 @@
     const tl = imgToCss(c.x, c.y);
     return { x: tl.x, y: tl.y, w: c.w * dispFit.scale, h: c.h * dispFit.scale };
   });
+
+  // Morph-shape outlines as SVG paths (ellipse ⇄ rectangle via shapeAnim.morph),
+  // so the selection, its dim-mask cutout, and the working-frame outline all
+  // animate together with the toggle. `inset` keeps a stroke inside its box.
+  function boxPath(box: { x: number; y: number; w: number; h: number }, inset: number, m: number): string {
+    return pathD(
+      shapeBoundary(
+        box.x + box.w / 2,
+        box.y + box.h / 2,
+        Math.max(0, box.w / 2 - inset),
+        Math.max(0, box.h / 2 - inset),
+        m
+      )
+    );
+  }
+  // Pass shapeAnim.morph explicitly so the read happens in each derived's own
+  // closure — the paths re-derive as the morph animates.
+  const selCutoutD = $derived(overlayRect ? boxPath(overlayRect, 0, shapeAnim.morph) : '');
+  const selOutlineD = $derived(overlayRect ? boxPath(overlayRect, 0.75, shapeAnim.morph) : '');
+  const cropOutlineD = $derived(overlayCrop ? boxPath(overlayCrop, 0.5, shapeAnim.morph) : '');
 </script>
 
 <section class="stage" class:has-image={!!doc.image}>
@@ -626,77 +648,23 @@
           <defs>
             <mask id="ui1-mask">
               <rect width="100%" height="100%" fill="white" />
-              {#if doc.shape === 'ellipse'}
-                <ellipse
-                  cx={overlayRect.x + overlayRect.w / 2}
-                  cy={overlayRect.y + overlayRect.h / 2}
-                  rx={overlayRect.w / 2}
-                  ry={overlayRect.h / 2}
-                  fill="black"
-                />
-              {:else}
-                <rect
-                  x={overlayRect.x}
-                  y={overlayRect.y}
-                  width={overlayRect.w}
-                  height={overlayRect.h}
-                  fill="black"
-                />
-              {/if}
+              <path d={selCutoutD} fill="black" />
             </mask>
           </defs>
           <rect width="100%" height="100%" fill="rgba(0,0,0,0.32)" mask="url(#ui1-mask)" />
           {#if overlayCrop}
             <!-- working frame: dashed faded outline of what the renderer
-                 actually samples. In ellipse mode the fold's fundamental
-                 domain is the ellipse inscribed in the crop, so draw that
-                 (the outer ring of the circular self-similar plane); in
-                 rect mode it's the crop rectangle. -->
-            {#if doc.shape === 'ellipse'}
-              <ellipse
-                cx={overlayCrop.x + overlayCrop.w / 2}
-                cy={overlayCrop.y + overlayCrop.h / 2}
-                rx={overlayCrop.w / 2 - 0.5}
-                ry={overlayCrop.h / 2 - 0.5}
-                fill="none"
-                stroke="rgba(255,255,255,0.55)"
-                stroke-width="1"
-                stroke-dasharray="6 4"
-              />
-            {:else}
-              <rect
-                x={overlayCrop.x + 0.5}
-                y={overlayCrop.y + 0.5}
-                width={overlayCrop.w - 1}
-                height={overlayCrop.h - 1}
-                fill="none"
-                stroke="rgba(255,255,255,0.55)"
-                stroke-width="1"
-                stroke-dasharray="6 4"
-              />
-            {/if}
-          {/if}
-          {#if doc.shape === 'ellipse'}
-            <ellipse
-              cx={overlayRect.x + overlayRect.w / 2}
-              cy={overlayRect.y + overlayRect.h / 2}
-              rx={overlayRect.w / 2 - 0.75}
-              ry={overlayRect.h / 2 - 0.75}
+                 actually samples — the morph shape inscribed in the crop
+                 (the outer ring of the self-similar plane). -->
+            <path
+              d={cropOutlineD}
               fill="none"
-              stroke="var(--accent)"
-              stroke-width="1.5"
-            />
-          {:else}
-            <rect
-              x={overlayRect.x + 0.5}
-              y={overlayRect.y + 0.5}
-              width={overlayRect.w - 1}
-              height={overlayRect.h - 1}
-              fill="none"
-              stroke="var(--accent)"
-              stroke-width="1.5"
+              stroke="rgba(255,255,255,0.55)"
+              stroke-width="1"
+              stroke-dasharray="6 4"
             />
           {/if}
+          <path d={selOutlineD} fill="none" stroke="var(--accent)" stroke-width="1.5" />
           <!-- thirds grid -->
           <g opacity="0.5" stroke="white" stroke-width="1" stroke-dasharray="4 4">
             <line x1={overlayRect.x + overlayRect.w / 3} y1={overlayRect.y} x2={overlayRect.x + overlayRect.w / 3} y2={overlayRect.y + overlayRect.h} />

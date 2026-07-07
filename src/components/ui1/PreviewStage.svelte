@@ -15,7 +15,7 @@
    * without re-implementing the renderer plumbing.
    */
 
-  import { doc, playback, ui } from '../../lib/ui1/state.svelte';
+  import { doc, playback, ui, shapeAnim } from '../../lib/ui1/state.svelte';
   import { createEscherZoomRenderer } from '../../lib/render/escher-zoom';
   import { buildRenderInputs, extractPixels } from '../../lib/ui1/render';
 
@@ -97,6 +97,7 @@
     const w = Math.max(1, Math.round(fit.w * dpr));
     const h = Math.max(1, Math.round(fit.h * dpr));
     void playback.t;
+    void shapeAnim.morph; // re-render as the shape morphs (also read inside buildRenderInputs)
     const inputs = buildRenderInputs(pixels, doc.rect, doc.crop, w, h);
     if (!inputs) return;
     renderer.render(inputs);

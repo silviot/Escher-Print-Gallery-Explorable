@@ -112,6 +112,64 @@ export const playback = $state<{
   exporting: false
 });
 
+// --- Shape morph animation ---------------------------------------------
+//
+// doc.shape is the discrete, persisted choice; shapeAnim.morph is the live,
+// animated value the renderers actually read (0 = ellipse, 1 = rectangle).
+// Toggling the shape eases morph toward the new target; loading/undo snap it
+// so only a deliberate toggle animates.
+
+export const shapeAnim = $state<{ morph: number }>({
+  morph: 1 // matches doc.shape default 'rect'
+});
+
+/** The morph value doc.shape resolves to. */
+export function targetMorph(): number {
+  return doc.shape === 'ellipse' ? 0 : 1;
+}
+
+/** Jump the morph to match doc.shape immediately (no animation). */
+export function snapShapeMorph(): void {
+  cancelMorphAnim();
+  shapeAnim.morph = targetMorph();
+}
+
+let morphRaf = 0;
+function cancelMorphAnim(): void {
+  if (morphRaf && typeof cancelAnimationFrame !== 'undefined') cancelAnimationFrame(morphRaf);
+  morphRaf = 0;
+}
+
+const easeInOutCubic = (t: number): number =>
+  t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+/**
+ * Animate shapeAnim.morph toward the current doc.shape target. Safe to call
+ * on every toggle — it re-targets in flight. No-op off the DOM (tests/SSR).
+ */
+export function animateShapeMorph(durationMs = 380): void {
+  const to = targetMorph();
+  const from = shapeAnim.morph;
+  if (from === to) return;
+  if (typeof requestAnimationFrame === 'undefined' || typeof performance === 'undefined') {
+    shapeAnim.morph = to;
+    return;
+  }
+  cancelMorphAnim();
+  const start = performance.now();
+  const tick = (now: number): void => {
+    const t = Math.min(1, (now - start) / durationMs);
+    shapeAnim.morph = from + (to - from) * easeInOutCubic(t);
+    if (t < 1) {
+      morphRaf = requestAnimationFrame(tick);
+    } else {
+      shapeAnim.morph = to;
+      morphRaf = 0;
+    }
+  };
+  morphRaf = requestAnimationFrame(tick);
+}
+
 /** Replace the working image and clear the rect + crop. */
 export function setImage(image: ImageBitmap | null, name = ''): void {
   doc.image?.close?.();
@@ -121,6 +179,10 @@ export function setImage(image: ImageBitmap | null, name = ''): void {
   doc.crop = null;
   playback.playing = false;
   playback.t = 0;
+  // Cancel any in-flight morph and snap it to the current shape so a fresh
+  // image never renders mid-animation. (load() re-snaps after restoring the
+  // saved shape.)
+  snapShapeMorph();
   // A new image has fresh geometry; clear any stashed geometry-lab pan/angle
   // so the pipeline view doesn't open with a surprising transform.
   resetExperiment();

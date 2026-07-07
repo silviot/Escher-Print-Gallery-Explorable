@@ -12,7 +12,7 @@
  * that race in from the loading code are suppressed.
  */
 
-import { doc, playback, ui, setImage } from './state.svelte';
+import { doc, playback, ui, setImage, snapShapeMorph } from './state.svelte';
 import * as persistence from './persistence';
 import type { SourceRef, TtState, IndexEntry } from './persistence';
 import {
@@ -320,6 +320,7 @@ export async function load(id: string): Promise<boolean> {
     doc.rect = { ...hydratedState.rect };
     doc.crop = hydratedState.crop ? { ...hydratedState.crop } : null;
     doc.shape = hydratedState.shape ?? 'rect';
+    snapShapeMorph(); // loading a tententoon jumps to its shape, no morph
     playback.speed = hydratedState.playback.speed;
     playback.direction = hydratedState.playback.direction;
     playback.loopLength = hydratedState.playback.loopLength;

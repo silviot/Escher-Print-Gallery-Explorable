@@ -6,7 +6,7 @@
   import Gallery from './Gallery.svelte';
   import RenameModal from './RenameModal.svelte';
   import {
-    ui, doc, setImage, commitNewRect,
+    ui, doc, setImage, commitNewRect, animateShapeMorph,
     setThemeOverride, readThemeOverride, systemTheme
   } from '../../lib/ui1/state.svelte';
   import { loadFile } from '../../lib/ui1/file';
@@ -54,6 +54,7 @@
   // undo step (shape is part of the tententoon snapshot).
   function toggleShape() {
     doc.shape = doc.shape === 'rect' ? 'ellipse' : 'rect';
+    animateShapeMorph(); // ease the circle↔rectangle morph instead of jumping
     markGestureEnd();
   }
 

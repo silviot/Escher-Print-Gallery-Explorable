@@ -135,7 +135,7 @@ export type PanelGeometry = {
 export function buildPanelGeometry(
   rect: Rect,
   crop: Rect,
-  shape: 'rect' | 'ellipse' = 'rect'
+  shapeMorph = 1
 ): PanelGeometry | null {
   if (rect.w <= 0 || rect.h <= 0 || crop.w <= 0 || crop.h <= 0) return null;
   const localRect: Rect = {
@@ -155,7 +155,7 @@ export function buildPanelGeometry(
     cropX: crop.x,
     cropY: crop.y,
     sampleScale: 1,
-    shape
+    shapeMorph
   };
   return { ctx, R0: g.rMax / Math.sqrt(g.S), S: g.S };
 }

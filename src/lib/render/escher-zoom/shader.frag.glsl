@@ -29,7 +29,7 @@ uniform vec2  u_crop;         // crop offset (cropX, cropY)
 uniform float u_sampleScale;  // 1 for raw source, > 1 for HQ
 uniform vec2  u_texSize;      // texture pixel dims (after sampleScale)
 uniform float u_t;            // animation phase
-uniform float u_shape;        // fold domain: 0 = working rect, 1 = inscribed ellipse
+uniform float u_shapeMorph;   // fold domain: 0 = inscribed ellipse … 1 = working rect
 
 out vec4 fragColor;
 
@@ -57,10 +57,10 @@ void main() {
   float n0 = floor((log(u_rMax) - log(r2)) / u_logS);
 
   vec4 col = vec4(0.0);
-  // Ellipse fold domain: E₀ inscribed in the working rect. First hit in E₀
-  // (scanning n large→small) is automatically outside E₁ = f(E₀), so this
-  // folds into the fundamental annulus — the circular self-similar plane.
-  // See sampleDroste in math/transforms.ts.
+  // Fold domain = gauge ball inscribed in the working rect, blending the L2
+  // (ellipse) and L∞ (rect) gauges by u_shapeMorph. First hit (scanning n
+  // large→small) lands in the fundamental annulus at every morph value.
+  // See sampleDroste in math/transforms.ts and ui1/shape.ts.
   vec2 eRad = (u_workingSize - 1.0) * 0.5;
   // 11 iterations matches the JS sampleDroste cap. GLSL ES 3.00 allows
   // dynamic break; Mesa, ANGLE, and Apple all handle this fine.
@@ -68,13 +68,9 @@ void main() {
     float n = n0 - float(dn);
     float s = exp(n * u_logS);
     vec2  tcoord = u_c + sd * s;
-    vec2  e = (tcoord - eRad) / eRad;
-    bool inside = u_shape > 0.5
-      ? dot(e, e) <= 1.0
-      : tcoord.x >= 0.0 && tcoord.y >= 0.0 &&
-        tcoord.x <= u_workingSize.x - 1.0 &&
-        tcoord.y <= u_workingSize.y - 1.0;
-    if (inside) {
+    vec2  e = abs(tcoord - eRad) / eRad;
+    float gauge = mix(length(e), max(e.x, e.y), u_shapeMorph);
+    if (gauge <= 1.0) {
       // Source-pixels-per-output-pixel = |α|·exp(k·Φ + n·logS) / canvasScale.
       // Sampling with `texture()` here would let the GPU pick mipmap LOD
       // from neighbouring fragments' uv gradients, but neighbours often
