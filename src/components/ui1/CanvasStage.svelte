@@ -647,18 +647,34 @@
           </defs>
           <rect width="100%" height="100%" fill="rgba(0,0,0,0.32)" mask="url(#ui1-mask)" />
           {#if overlayCrop}
-            <!-- working-image crop: dashed faded outline so the user
-                 sees what the renderer is actually sampling. -->
-            <rect
-              x={overlayCrop.x + 0.5}
-              y={overlayCrop.y + 0.5}
-              width={overlayCrop.w - 1}
-              height={overlayCrop.h - 1}
-              fill="none"
-              stroke="rgba(255,255,255,0.55)"
-              stroke-width="1"
-              stroke-dasharray="6 4"
-            />
+            <!-- working frame: dashed faded outline of what the renderer
+                 actually samples. In ellipse mode the fold's fundamental
+                 domain is the ellipse inscribed in the crop, so draw that
+                 (the outer ring of the circular self-similar plane); in
+                 rect mode it's the crop rectangle. -->
+            {#if doc.shape === 'ellipse'}
+              <ellipse
+                cx={overlayCrop.x + overlayCrop.w / 2}
+                cy={overlayCrop.y + overlayCrop.h / 2}
+                rx={overlayCrop.w / 2 - 0.5}
+                ry={overlayCrop.h / 2 - 0.5}
+                fill="none"
+                stroke="rgba(255,255,255,0.55)"
+                stroke-width="1"
+                stroke-dasharray="6 4"
+              />
+            {:else}
+              <rect
+                x={overlayCrop.x + 0.5}
+                y={overlayCrop.y + 0.5}
+                width={overlayCrop.w - 1}
+                height={overlayCrop.h - 1}
+                fill="none"
+                stroke="rgba(255,255,255,0.55)"
+                stroke-width="1"
+                stroke-dasharray="6 4"
+              />
+            {/if}
           {/if}
           {#if doc.shape === 'ellipse'}
             <ellipse
