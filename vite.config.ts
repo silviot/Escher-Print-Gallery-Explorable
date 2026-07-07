@@ -7,9 +7,10 @@ import { resolve } from 'node:path';
 /**
  * Generate per-variant index.html files (dist/ui1/index.html, etc.) so that
  * static hosts without SPA fallback (e.g. GitHub Pages) can serve the
- * pathname routes directly. We start from the built dist/index.html and
- * rewrite its relative `./assets/...` references to `../assets/...` so the
- * one-level-deep variant page still finds the same bundle.
+ * pathname routes directly. We start from the built dist/tool.html (the
+ * generator app) and rewrite its relative `./assets/...` references to
+ * `../assets/...` so the one-level-deep variant page still finds the same
+ * bundle. This keeps the legacy /ui1 route serving the tool.
  *
  * Add new variants here as they're added to App.svelte's route switch.
  */
@@ -20,12 +21,12 @@ function generateVariantPages(): Plugin {
     apply: 'build',
     closeBundle() {
       const outDir = resolve(process.cwd(), 'dist');
-      const indexPath = resolve(outDir, 'index.html');
+      const toolPath = resolve(outDir, 'tool.html');
       let indexHtml: string;
       try {
-        indexHtml = readFileSync(indexPath, 'utf-8');
+        indexHtml = readFileSync(toolPath, 'utf-8');
       } catch {
-        return; // no index.html — nothing to mirror
+        return; // no tool.html — nothing to mirror
       }
       const rewritten = indexHtml
         .replace(/(\s(?:href|src)=")\.\//g, '$1../')
@@ -133,11 +134,12 @@ export default defineConfig({
   build: {
     rollupOptions: {
       input: {
-        // The app, and the standalone explorable explainer (explain.html +
-        // src/explain/main.ts). Two HTML entry points → dist/index.html and
-        // dist/explain.html, each with its own bundled module.
+        // Site root is the explorable explainer (index.html + src/explain/
+        // main.ts); the generator app lives at /tool (tool.html + src/main.ts).
+        // Two HTML entry points → dist/index.html and dist/tool.html, each with
+        // its own bundled module.
         main: resolve(process.cwd(), 'index.html'),
-        explain: resolve(process.cwd(), 'explain.html'),
+        tool: resolve(process.cwd(), 'tool.html'),
         // Unlinked UX-experiment prototypes (see experiments/index.html).
         // Each is a standalone page over src/experiments/kit.ts; they ship
         // to dist/experiments/*.html, reachable but not referenced by the app.

@@ -1,5 +1,5 @@
 /**
- * Source content for the explain.html explorable.
+ * Source content for the explainer explorable (index.html).
  *
  * Four modes feed the same pipeline so you can watch the Droste→Escher map act
  * on different things:

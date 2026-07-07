@@ -1,5 +1,5 @@
 /**
- * Live engine for explain.html — every panel rendered by the app's own GPU
+ * Live engine for the explainer page (index.html) — every panel rendered by the app's own GPU
  * pipeline (PipelinePanelGLRenderer), so there is no duplicated map math.
  *
  * The page's spine is one pipeline, shown as three connected panels that all

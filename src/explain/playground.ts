@@ -1,5 +1,5 @@
 /**
- * Function playground for explain.html — a free, self-contained complex-function
+ * Function playground for the explainer page (index.html) — a free, self-contained complex-function
  * explorer that runs *before* the tententoon construction.
  *
  * The point is to teach the language the rest of the page speaks: a function is

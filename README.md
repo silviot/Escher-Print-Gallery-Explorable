@@ -33,7 +33,7 @@ A **tententoon** asks one stranger question — *what if each copy also turns as
 
 The trick is a single move — **take the logarithm.** Shrinking-and-repeating is multiplication, and logarithms turn multiplication into addition, so "shrink, then repeat" becomes "slide over, then repeat" — a plain, evenly-spaced grid. Add rotation and that grid simply *tilts*; roll it back up and the tilt is a spiral. The loop is seamless because, in log-space, one full turn is just a shift by exactly one step — landing you on an identical picture.
 
-**→ The whole story — why it spirals, and why it never tears:** [tententoon.codemyriad.io/explain.html](https://tententoon.codemyriad.io/explain.html)
+**→ The whole story — why it spirals, and why it never tears:** [tententoon.codemyriad.io](https://tententoon.codemyriad.io/)
 
 ## Where the name comes from
 
@@ -43,7 +43,7 @@ Escher drew *Print Gallery* by hand in 1956 and left a white blot at its centre 
 
 Drop in any photo, draw the rectangle where the next copy should sit, and flip between the two infinities — the straight Droste fall or the tententoon spiral. Export the loop as a PNG, GIF, or video. Everything runs in your browser: no upload, no account, no server.
 
-**Live:** [tententoon.codemyriad.io](https://tententoon.codemyriad.io/)
+**Live:** [tententoon.codemyriad.io/tool](https://tententoon.codemyriad.io/tool)
 
 ---
 

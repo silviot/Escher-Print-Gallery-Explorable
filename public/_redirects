@@ -1,0 +1,4 @@
+# The explainer used to live at /explain(.html); it is now the site root.
+# Keep old shared links working. (Cloudflare Pages _redirects, first match wins.)
+/explain.html   /   301
+/explain        /   301
