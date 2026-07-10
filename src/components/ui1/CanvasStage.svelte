@@ -696,6 +696,11 @@
           <div class="hud-br mono">{Math.round(doc.rect.x)}, {Math.round(doc.rect.y)} · {Math.round(doc.rect.w)}×{Math.round(doc.rect.h)}</div>
         {/if}
       {/if}
+      {#if !hasRect}
+        <div class="draw-hint">
+          <span>Drag a rectangle on your photo — that's the part that spirals into itself.</span>
+        </div>
+      {/if}
     {/if}
   </div>
 </section>
@@ -723,6 +728,28 @@
   .stage:not(.has-image) .viewport { box-shadow: none; }
   .layer { position: absolute; display: block; }
   .overlay { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  /* Cold-start prompt: shown over the photo until the first rectangle is drawn. */
+  .draw-hint {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    padding: 16px;
+  }
+  .draw-hint span {
+    background: var(--ink);
+    color: var(--bg);
+    opacity: 0.92;
+    padding: 9px 15px;
+    border-radius: 999px;
+    font-size: 13px;
+    line-height: 1.35;
+    max-width: 24em;
+    text-align: center;
+    box-shadow: var(--shadow);
+  }
   .badge {
     position: absolute;
     background: var(--accent);

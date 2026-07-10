@@ -46,8 +46,8 @@
   <button
     class="tool"
     class:active={ui.view === 'pipeline'}
-    title="Pipeline (log · rotated log · tententoon)"
-    aria-label="Pipeline view"
+    title="See how the spiral is built — log it, bend it, spiral it"
+    aria-label="See how the spiral is built"
     onclick={() => setView('pipeline')}
   >
     <Icon name="viewPipeline" />
@@ -55,8 +55,8 @@
   <button
     class="tool"
     class:active={ui.view === 'playground'}
-    title="Complex playground (f(z) explorer)"
-    aria-label="Complex playground"
+    title="Playground — bend any image with a complex function"
+    aria-label="Playground — bend an image with a complex function"
     onclick={() => setView('playground')}
   >
     <Icon name="viewPlayground" />

@@ -228,12 +228,12 @@
       <div class="backdrop" onclick={close}></div>
       <div class="menu" role="menu">
         <div class="header">SHARE AS</div>
-        {#if cap.image}
-          <button class="item" disabled={busy} onclick={doShareImage}>
-            <span class="ic"><Icon name="image" size={14} /></span>
+        {#if cap.gif}
+          <button class="item" disabled={busy} onclick={doShareGif}>
+            <span class="ic"><Icon name="gif" size={14} /></span>
             <span class="text">
-              <span class="t">Image</span>
-              <span class="s">A tententoon of your picture</span>
+              <span class="t">Looping GIF</span>
+              <span class="s">The seamless infinite zoom — made to share.</span>
             </span>
           </button>
         {/if}
@@ -241,17 +241,17 @@
           <button class="item" disabled={busy} onclick={doShareVideo}>
             <span class="ic"><Icon name="film" size={14} /></span>
             <span class="text">
-              <span class="t">Video</span>
-              <span class="s">A {playback.loopLength.toFixed(0)}s looping zoom</span>
+              <span class="t">Video (MP4)</span>
+              <span class="s">The same loop, crisper and smaller.</span>
             </span>
           </button>
         {/if}
-        {#if cap.gif}
-          <button class="item" disabled={busy} onclick={doShareGif}>
-            <span class="ic"><Icon name="gif" size={14} /></span>
+        {#if cap.image}
+          <button class="item" disabled={busy} onclick={doShareImage}>
+            <span class="ic"><Icon name="image" size={14} /></span>
             <span class="text">
-              <span class="t">Looping GIF</span>
-              <span class="s">{playback.loopLength.toFixed(0)}s · 480px · 25fps</span>
+              <span class="t">Still image (PNG)</span>
+              <span class="s">A single moment, not the loop.</span>
             </span>
           </button>
         {/if}
