@@ -7,6 +7,9 @@
    */
   import Icon from './Icon.svelte';
   import GalleryTile from './GalleryTile.svelte';
+  import RestorePhotos, { type RestoreAttempt } from './RestorePhotos.svelte';
+  import { findMissingPhotos, type MissingPhoto } from '../../lib/ui1/persistence/restore';
+  import { scheduleThumb } from '../../lib/ui1/thumb.svelte';
   import RenameModal from './RenameModal.svelte';
   import DeleteConfirm from './DeleteConfirm.svelte';
   import { list, type IndexEntry } from '../../lib/ui1/persistence';
@@ -22,6 +25,9 @@
   let { open, onClose }: Props = $props();
 
   let entries = $state<IndexEntry[]>([]);
+  let missingPhotos = $state<MissingPhoto[]>([]);
+  let restoreAttempts = $state<RestoreAttempt[]>([]);
+  let scanVersion = 0;
   let pendingId = $state<string | null>(null);
   let loadError = $state<string | null>(null);
 
@@ -33,10 +39,26 @@
   // without a page reload. Reading localStorage is sync + cheap.
   $effect(() => {
     if (open) refresh();
+    else scanVersion++;
   });
 
   function refresh() {
-    entries = list();
+    const all = list();
+    entries = all;
+    const version = ++scanVersion;
+    void findMissingPhotos(all).then(missing => {
+      if (version === scanVersion) missingPhotos = missing;
+    }).catch(() => {
+      if (version === scanVersion) loadError = 'Could not check saved photos. Close and reopen the gallery to try again.';
+    });
+  }
+
+  function onRestored(ids: string[]) {
+    scanVersion++;
+    const restored = new Set(ids);
+    missingPhotos = missingPhotos.filter(photo => !restored.has(photo.id));
+    for (const id of ids) scheduleThumb(id);
+    loadError = null;
   }
 
   async function onPick(id: string) {
@@ -46,7 +68,12 @@
     try {
       const ok = await load(id);
       if (ok) onClose();
-      else loadError = 'Picture data is missing for that saved tententoon.';
+      else {
+        loadError = 'Picture data is missing or unreadable for that saved tententoon.';
+        refresh();
+      }
+    } catch {
+      loadError = 'Could not read this saved photo from your browser. Please try again.';
     } finally {
       pendingId = null;
     }
@@ -114,13 +141,14 @@
     </header>
 
     <div class="body">
+      <RestorePhotos missing={missingPhotos} {onRestored} bind:attempts={restoreAttempts} />
       {#if loadError}
         <p class="error" role="status">{loadError}</p>
       {/if}
       {#if entries.length === 0}
         <div class="empty">
           <Icon name="image" size={32} />
-          <p>Upload an image to make your first tententoon.</p>
+          <p>Choose a photo to make your first tententoon.</p>
         </div>
       {:else}
         <div class="grid">
@@ -128,6 +156,7 @@
             <GalleryTile
               {entry}
               isCurrent={entry.id === currentTententoon.id}
+              missing={missingPhotos.some(photo => photo.id === entry.id)}
               onPick={onPick}
               onRename={onRename}
               onDelete={onDelete}

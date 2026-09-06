@@ -151,7 +151,11 @@ export default defineConfig({
         exp_scroll: resolve(process.cwd(), 'experiments/scroll.html'),
         exp_film: resolve(process.cwd(), 'experiments/film.html'),
         exp_twin: resolve(process.cwd(), 'experiments/twin.html'),
-        exp_wall: resolve(process.cwd(), 'experiments/wall.html')
+        exp_wall: resolve(process.cwd(), 'experiments/wall.html'),
+        experiments_2: resolve(process.cwd(), 'experiments-2/index.html'),
+        exp2_essay: resolve(process.cwd(), 'experiments-2/essay.html'),
+        exp2_inside: resolve(process.cwd(), 'experiments-2/inside.html'),
+        exp2_play: resolve(process.cwd(), 'experiments-2/play.html')
       }
     }
   },

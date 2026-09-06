@@ -4,7 +4,7 @@
   import { loadFile, loadUrl } from '../../lib/ui1/file';
   import { addToHistory } from '../../lib/ui1/history.svelte';
   import { markSourceLoaded } from '../../lib/ui1/tententoon.svelte';
-  import { putBlob } from '../../lib/ui1/persistence';
+  import { putBlob, requestPersistentStorage } from '../../lib/ui1/persistence';
   import { publicAssetUrl } from '../../lib/asset-url';
   import { makeTestPattern, patternNest, type PatternKind } from '../../lib/ui1/test-patterns';
 
@@ -17,14 +17,18 @@
     const file = files[0];
     const r = await loadFile(file);
     if (r.ok) {
-      setImage(r.image, r.name);
-      void addToHistory(file, r.image, r.name);
-      const hash = await putBlob(file);
-      // DropZone shows when there's no source. If the user arrived here
-      // via gallery "New", markSourceLoaded fills the empty tententoon
-      // instead of creating a parallel one.
-      markSourceLoaded({ kind: 'blob', hash });
-      errorMsg = null;
+      void requestPersistentStorage();
+      try {
+        const hash = await putBlob(file);
+        setImage(r.image, r.name);
+        // Gallery "New" entries are filled in place.
+        markSourceLoaded({ kind: 'blob', hash });
+        void addToHistory(file, r.image, r.name);
+        errorMsg = null;
+      } catch {
+        if (doc.image !== r.image) r.image.close();
+        errorMsg = 'Could not save this photo in your browser. Free some device space and try again.';
+      }
     } else {
       errorMsg = r.reason;
     }
@@ -99,7 +103,7 @@
   <div class="s">or paste from clipboard · click to choose · JPG, PNG, WebP up to 20 MB</div>
   <div class="actions">
     <button class="btn primary" onclick={() => input.click()}>
-      <Icon name="upload" size={14} />Choose file
+      <Icon name="upload" size={14} />Choose photo
     </button>
     <button class="btn ghost" onclick={trySample}>Try with sample</button>
   </div>
@@ -108,7 +112,7 @@
     <button class="btn chip" onclick={() => tryPattern('polar')}>Polar grid</button>
     <button class="btn chip" onclick={() => tryPattern('grid')}>Cartesian grid</button>
   </div>
-  <span class="footnote mono">Stays in your browser. Nothing uploaded.</span>
+  <span class="footnote mono">Your photos stay in this browser.</span>
   {#if errorMsg}
     <span class="error mono">· {errorMsg}</span>
   {/if}

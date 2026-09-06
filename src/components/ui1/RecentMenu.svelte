@@ -7,7 +7,7 @@
    * the very first session.
    */
   import Icon from './Icon.svelte';
-  import { setImage } from '../../lib/ui1/state.svelte';
+  import { ui, setImage } from '../../lib/ui1/state.svelte';
   import {
     historyState,
     loadFromHistory,
@@ -15,7 +15,7 @@
     type HistoryEntry
   } from '../../lib/ui1/history.svelte';
   import { markCreate } from '../../lib/ui1/tententoon.svelte';
-  import { putBlob } from '../../lib/ui1/persistence';
+  import { putBlob, requestPersistentStorage } from '../../lib/ui1/persistence';
 
   let open = $state(false);
   let loading = $state<string | null>(null);
@@ -31,11 +31,20 @@
     try {
       const r = await loadFromHistory(entry.id);
       if (r) {
+        void requestPersistentStorage();
+        let hash: string;
+        try {
+          hash = await putBlob(r.blob);
+        } catch (error) {
+          r.image.close();
+          throw error;
+        }
         setImage(r.image, r.name);
-        const hash = await putBlob(r.blob);
         markCreate({ kind: 'blob', hash });
       }
       open = false;
+    } catch {
+      ui.exportToast = 'Could not open and save this photo in your browser. Please try again.';
     } finally {
       loading = null;
     }

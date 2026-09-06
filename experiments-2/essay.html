@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="A small, hands-on explanation of how a picture inside itself becomes an infinite spiral." />
+    <title>A picture, inside itself. — tententoon</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body>
+    <a class="skip" href="#story">Skip to the explanation</a>
+    <header class="site-header">
+      <a class="wordmark" href="./">tententoon<span aria-hidden="true">↳</span></a>
+      <nav aria-label="Experiments"><a href="./inside.html">Inside</a><a href="./essay.html" aria-current="page">Essay</a><a href="./play.html">Play</a><a class="tool-link" href="../tool.html">Make your own <span aria-hidden="true">↗</span></a></nav>
+    </header>
+
+    <main>
+      <section class="opening" aria-labelledby="title">
+        <p class="eyebrow">An explanation you can touch</p>
+        <h1 id="title">A picture,<br /><em>inside itself.</em></h1>
+        <p class="intro">A photograph can contain an endless fall.<br class="desktop-break" /> A small change turns that fall into a spiral.</p>
+
+        <figure class="hero-figure" id="hero-figure">
+          <div class="comparison">
+            <div class="picture"><span class="image-label">Nested copies</span><canvas id="hero-original" role="img" aria-label="A photograph repeating inside its own frame. The zoom slider moves into the nested frames."></canvas></div>
+            <span class="between" aria-hidden="true">↝</span>
+            <div class="picture"><span class="image-label">A continuous spiral</span><canvas id="hero-spiral" role="img" aria-label="The same photograph transformed into a continuous inward spiral."></canvas></div>
+          </div>
+          <div class="figure-controls hero-controls">
+            <button id="hero-play" class="play-button" type="button" aria-pressed="false"><span aria-hidden="true">▶</span> Play the zoom</button>
+            <div class="range-control"><label for="hero-zoom">Follow one copy inward <output id="hero-output" for="hero-zoom">0%</output></label><input id="hero-zoom" type="range" min="0" max="100" value="0" step="0.1" /></div>
+          </div>
+          <figcaption>Move the slider. Both pictures travel one level deeper, then arrive where they began.</figcaption>
+          <p class="load-status" id="load-status" role="status">Preparing the photographs…</p>
+        </figure>
+        <div class="reading-paths"><a class="read-on" href="#story">Here is how it works <span aria-hidden="true">↓</span></a><a class="jump-ahead" href="#wrap-heading">Know the idea? Go straight to the transformation.</a></div>
+      </section>
+
+      <article id="story">
+        <section class="chapter" aria-labelledby="copies-heading">
+          <div class="prose"><p class="chapter-number">01 / A simple rule</p><h2 id="copies-heading">Put the whole picture in the frame.</h2><p>Start with a person holding an empty frame. Fill that frame with a smaller copy of the photograph. The smaller photograph has a frame too.</p><p>You can probably see where this is going.</p></div>
+          <figure class="experiment copies-figure" id="copies-figure">
+            <canvas id="copies" role="img" aria-label="A photograph with a controllable number of copies nested in its frame."></canvas>
+            <div class="figure-controls"><div class="range-control"><label for="copy-count">How many copies? <output id="copies-output" for="copy-count">3 copies</output></label><input id="copy-count" type="range" min="0" max="8" value="3" step="1" /><div class="range-ends"><span>Empty frame</span><span>Keep going</span></div></div></div>
+            <figcaption>Each new copy goes inside the last. After a few, the next one is too small to see.</figcaption>
+          </figure>
+          <div class="prose"><p>This is the <em>Droste effect</em>. There is no last picture in the mathematical version: each copy has another inside it. The copies approach a single point.</p><p>The spiral at the top follows the same repeating rule. To make it, we first need a different way to measure distance.</p></div>
+        </section>
+
+        <section class="chapter" aria-labelledby="ruler-heading">
+          <div class="prose"><p class="chapter-number">02 / Change the ruler</p><h2 id="ruler-heading">Smaller. Smaller. Same step.</h2><p>Every copy is about <strong id="shrink-fraction">46%</strong> as wide as the one before it. On an ordinary ruler, those distances crowd together.</p><p>A <em>logarithmic</em> ruler treats the same proportion as the same step. Shrinking becomes sliding.</p></div>
+          <figure class="experiment ruler-figure" id="ruler-figure">
+            <svg id="ruler" viewBox="0 0 720 280" role="img" aria-labelledby="ruler-title ruler-desc"><title id="ruler-title">From shrinking distances to evenly spaced steps</title><desc id="ruler-desc">Five successive levels are crowded on an ordinary ruler. Move the slider to a logarithmic ruler and they become equally spaced.</desc><g id="ruler-drawing"></g></svg>
+            <div class="figure-controls"><div class="range-control"><label for="ruler-change">Change the ruler <output id="ruler-output" for="ruler-change">Ordinary distance</output></label><input id="ruler-change" type="range" min="0" max="100" value="0" step="1" /><div class="range-ends"><span>Distance</span><span>Logarithm of distance</span></div></div></div>
+            <figcaption id="ruler-caption">The dots mark the same feature in five successive copies. Notice how they bunch up.</figcaption>
+          </figure>
+          <div class="prose"><p>Do this in every direction around the center. Distance from the center goes along one axis; angle around it goes along the other. Our nested picture opens into a repeating strip.</p><p class="equation"><span>multiply distance by <i>S</i></span><span aria-hidden="true">→</span><span>add <i>ln S</i> on the new ruler</span></p></div>
+        </section>
+
+        <section class="chapter last-chapter" aria-labelledby="wrap-heading">
+          <div class="prose"><p class="chapter-number">03 / A small tilt</p><h2 id="wrap-heading">Let one repeat meet the next.</h2><p>The flat picture repeats in two directions: around the center, and from one copy to the next. Tilt the strip so that going around also takes us one repeat across.</p><p>Now wrap it back up. The frames no longer sit inside one another. They flow into one another.</p></div>
+          <figure class="experiment wrap-figure" id="wrap-figure">
+            <div class="process-stages" aria-label="Choose a transformation stage"><button class="active" type="button" data-stage="0" aria-pressed="true">1. The flat picture</button><span aria-hidden="true">→</span><button type="button" data-stage="30" aria-pressed="false">2. Tilt</button><span aria-hidden="true">→</span><button type="button" data-stage="100" aria-pressed="false">3. Wrap</button></div>
+            <canvas id="wrap" role="img" aria-label="The photograph unrolled into a flat strip, tilted, then wrapped into a spiral. Use the transformation slider or the three stage buttons."></canvas>
+            <div class="figure-controls"><div class="range-control"><label for="transformation">Tilt, then wrap <output id="wrap-output" for="transformation">Flat picture</output></label><input id="transformation" type="range" min="0" max="100" value="0" step="1" /><div class="range-ends"><span>Unrolled</span><span>A spiral</span></div></div><button id="wrap-play" class="play-button" type="button" aria-pressed="false"><span aria-hidden="true">▶</span> Let it move</button></div>
+            <figcaption id="wrap-caption">The photograph becomes a repeating map of distance and angle. Take the slider slowly to the right.</figcaption>
+          </figure>
+          <div class="prose"><p>The tilt is small: <strong id="tilt-value">about 7°</strong> for this photograph. It comes from the size of the frame: <span class="inline-math">tan β = ln(S) / 2π</span>. This particular angle connects neighboring repeats; an arbitrary tilt would not make the same join.</p><p>That spiral is what we call a <em>tententoon</em>. One photograph, repeated. A different ruler. A slight tilt. An endless spiral.</p></div>
+        </section>
+
+        <section class="outro prose" aria-labelledby="outro-heading"><span class="end-mark" aria-hidden="true">↳</span><h2 id="outro-heading">Your picture can do this, too.</h2><p>Choose an image. Mark the frame where its smaller self belongs. Then see what happens.</p><a class="make-button" href="../tool.html">Make a picture inside itself <span aria-hidden="true">↗</span></a><p class="more-directions">Or explore another way in: <a href="./inside.html">the guided journey</a> · <a href="./play.html">the playground</a></p></section>
+      </article>
+    </main>
+    <footer><a href="./">tententoon / experiments 2</a><p>Photograph by <a href="https://commons.wikimedia.org/wiki/File:Droste_1260359-nevit.jpg">Nevit Dilmen</a>, <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>. Transformed and adapted here.</p></footer>
+    <noscript><p class="no-script">This essay’s interactive pictures need JavaScript. The written explanation is available above.</p></noscript>
+    <script type="module" src="/src/experiments-2/essay.ts"></script>
+  </body>
+</html>

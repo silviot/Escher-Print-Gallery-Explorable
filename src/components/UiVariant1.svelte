@@ -32,7 +32,6 @@
   import { loadHistory } from '../lib/ui1/history.svelte';
   import { phase } from '../lib/ui1/render';
   import { markGestureEnd, performUndo, performRedo } from '../lib/ui1/tententoon.svelte';
-  import { setPreviewCanvas } from '../lib/ui1/thumb.svelte';
 
   // Plumbing the live canvas + a render-frame fn up to the export menu in
   // the top bar.
@@ -44,12 +43,6 @@
   // (their bindings persist across view switches), so flipping between
   // them is just a $derived pick.
   let canvas = $state<HTMLCanvasElement | null>(null);
-  // Hand the preview canvas to the thumbnail module so the gallery
-  // can capture it after each autosave. The reactive read of `canvas`
-  // keeps this in sync if the canvas is rebuilt (theme change, etc).
-  $effect(() => {
-    setPreviewCanvas(canvas);
-  });
   const noopRender: (off: HTMLCanvasElement, t: number) => Promise<void> =
     async () => {};
   let previewRenderFrame = $state<(off: HTMLCanvasElement, t: number) => Promise<void>>(noopRender);

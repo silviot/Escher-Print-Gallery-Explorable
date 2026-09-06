@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#171b1b" />
+    <meta name="description" content="Put a picture inside itself. Unwrap it. Turn it. A hands-on journey into an endless spiral." />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>There is no last picture. — tententoon</title>
+  </head>
+  <body>
+    <a class="skip" href="#story">Skip to the explanation</a>
+    <header class="masthead">
+      <a class="wordmark" href="./" aria-label="tententoon, all new experiments">tententoon<span>↗</span></a>
+      <span class="edition">Studies in infinity / 02</span>
+      <a class="top-tool" href="../tool.html">Make a spiral <span aria-hidden="true">↗</span></a>
+    </header>
+
+    <main>
+      <section class="opening" aria-labelledby="page-title">
+        <div class="opening-copy">
+          <p class="eyebrow"><span class="small-sun" aria-hidden="true">✳</span> A picture. A smaller picture. A strange idea.</p>
+          <h1 id="page-title">There is no<br />last <em>picture.</em></h1>
+          <p class="opening-deck">Some pictures contain themselves.<br />Give that simple idea a turn, and<br class="desktop-break" /> something extraordinary happens.</p>
+          <a class="begin-link" href="#chapter-1">Take it apart <span aria-hidden="true">↓</span></a>
+          <a class="hero-shortcut" href="#chapter-3">Know the idea? Go straight to the twist ↗</a>
+        </div>
+        <figure class="opening-art" id="opening-art">
+          <div class="hero-canvas-wrap">
+            <canvas id="hero-canvas" role="img" aria-label="An illustrated gallery folded into an endless spiral"></canvas>
+            <div class="loading-note" id="hero-loading">Opening the gallery…</div>
+            <span class="corner corner-tl" aria-hidden="true"></span><span class="corner corner-br" aria-hidden="true"></span>
+          </div>
+          <figcaption><span>ONE ROOM / NO END</span><button class="quiet-button" id="hero-play" type="button" aria-pressed="false">Play the loop <span aria-hidden="true">▷</span></button></figcaption>
+        </figure>
+      </section>
+
+      <div class="story-intro" id="story"><span>THE PICTURE, TAKEN APART</span><p>Five small moves. You can touch every one.</p><span aria-hidden="true">↓</span></div>
+
+      <section class="story" aria-label="How the spiral works">
+        <div class="visual-column" id="visual-column">
+          <div class="visual-topline"><span id="stage-number">01 / 05</span><span id="stage-name">A picture inside a picture</span><span class="live-dot" aria-hidden="true"></span></div>
+          <div class="stage" id="stage">
+            <canvas id="flat-canvas" role="img" aria-label="A gallery illustration with copies placed inside its picture frame"></canvas>
+            <canvas id="transform-canvas" role="img" aria-label="The gallery image transformed into a logarithmic strip and spiral" hidden></canvas>
+            <div class="stage-mark" id="stage-mark" aria-hidden="true">SAME PICTURE<br />SMALLER FRAME <span>↘</span></div>
+            <div class="loading-note" id="stage-loading">Preparing the picture…</div>
+          </div>
+          <div class="stage-bottomline"><p id="stage-caption">The little frame is where the whole picture goes.</p><button type="button" class="quiet-button" id="stage-play" aria-pressed="false">Play zoom <span aria-hidden="true">▷</span></button></div>
+          <nav class="chapter-nav" aria-label="Jump to a chapter">
+            <a href="#chapter-1" aria-label="Chapter 1: put a picture inside itself" aria-current="step"><span>01</span><span class="chapter-short">Nest</span></a>
+            <a href="#chapter-2" aria-label="Chapter 2: unwrap the image"><span>02</span><span class="chapter-short">Unwrap</span></a>
+            <a href="#chapter-3" aria-label="Chapter 3: tilt the strip"><span>03</span><span class="chapter-short">Tilt</span></a>
+            <a href="#chapter-4" aria-label="Chapter 4: roll it up"><span>04</span><span class="chapter-short">Roll</span></a>
+            <a href="#chapter-5" aria-label="Chapter 5: explore the spiral"><span>05</span><span class="chapter-short">Repeat</span></a>
+          </nav>
+        </div>
+
+        <div class="chapters">
+          <article class="chapter" id="chapter-1" data-chapter="0">
+            <p class="chapter-kicker"><span>01</span> A SIMPLE RECIPE</p>
+            <h2>Put the room<br />inside the room.</h2>
+            <p>There’s an empty frame on the wall. Fill it with a smaller copy of this entire picture.</p>
+            <p>That copy has a frame, too. Put another copy there. And another. The rule can keep going forever, even when the copies become too small to see.</p>
+            <p class="aside">This is the <em>Droste effect</em>: a picture that contains a smaller version of itself.</p>
+            <div class="interaction">
+              <label for="copies">Put in another picture <output id="copies-value" for="copies">0 copies</output></label>
+              <input id="copies" type="range" min="0" max="8" step="1" value="0" />
+              <div class="range-ends"><span>Just the room</span><span>Eight rooms deep</span></div>
+            </div>
+          </article>
+
+          <article class="chapter" id="chapter-2" data-chapter="1">
+            <p class="chapter-kicker"><span>02</span> A DIFFERENT KIND OF DISTANCE</p>
+            <h2>Give every size<br />the same space.</h2>
+            <p>Each copy takes up less room than the last. To see the pattern, we need a different map.</p>
+            <p>Measure distance from the centre on a <em>logarithmic scale</em>: shrinking by the same factor now moves the same distance. Walk around the centre, and you move in the other direction.</p>
+            <p>As you scroll, the nested picture opens into a repeating strip. Zooming in becomes sliding along it.</p>
+            <div class="scale-note" aria-label="A logarithmic scale gives successive shrinking copies equal spacing"><span>100%</span><i></i><span>42%</span><i></i><span>18%</span><i></i><span>7%</span></div>
+            <p class="scale-caption">Equal steps in scale. Equal steps on the strip.</p>
+            <div class="interaction">
+              <label for="slide">Travel one repeat <output id="slide-value" for="slide">0%</output></label>
+              <input id="slide" type="range" min="0" max="100" step="0.1" value="0" />
+              <div class="range-ends"><span>This copy</span><span>The next copy</span></div>
+            </div>
+          </article>
+
+          <article class="chapter" id="chapter-3" data-chapter="2">
+            <p class="chapter-kicker"><span>03</span> THE SMALL MOVE THAT CHANGES EVERYTHING</p>
+            <h2>Let a turn<br />change the scale.</h2>
+            <p>In the original picture, going once around the centre brings you straight back to where you started.</p>
+            <p>Now tilt the strip. Arrange it so that one full turn also takes you to the next, smaller copy. Going around and going inward become part of the same journey.</p>
+            <p class="aside">The angle comes from the size of the inner frame. For this picture, it’s <strong id="beta">about 8°</strong>.</p>
+            <div class="interaction">
+              <label for="tilt">Tilt the strip <output id="tilt-value" for="tilt">0°</output></label>
+              <input id="tilt" type="range" min="0" max="100" step="0.1" value="0" />
+              <div class="range-ends"><span>No tilt</span><span>One copy per turn</span></div>
+            </div>
+          </article>
+
+          <article class="chapter" id="chapter-4" data-chapter="3">
+            <p class="chapter-kicker"><span>04</span> BACK INTO THE PICTURE</p>
+            <h2>Roll it back up.<br /><em>Keep the tilt.</em></h2>
+            <p>Return from the flat map to the picture. Positions around the strip become angles again; positions along it become distances from the centre.</p>
+            <p>But we’ve changed how those directions fit together. The picture now gets smaller as it turns.</p>
+            <p>That small tilt opens up into a spiral.</p>
+            <div class="interaction">
+              <label for="roll">Roll up the map <output id="roll-value" for="roll">0%</output></label>
+              <input id="roll" type="range" min="0" max="100" step="0.1" value="0" />
+              <div class="range-ends"><span>Flat strip</span><span>Spiral</span></div>
+            </div>
+          </article>
+
+          <article class="chapter" id="chapter-5" data-chapter="4">
+            <p class="chapter-kicker"><span>05</span> AN END THAT IS A BEGINNING</p>
+            <h2>You have been<br />here before.</h2>
+            <p>Follow the picture inward. The room appears again, smaller and turned. Keep going, and it appears again.</p>
+            <p>This is a <em>tententoon</em>: the same picture, with the same rule, spiralling through another scale.</p>
+            <p class="closing-line">There is no last picture.<br />Just another way in.</p>
+            <div class="interaction">
+              <label for="depth">Go a little deeper <output id="depth-value" for="depth">0%</output></label>
+              <input id="depth" type="range" min="0" max="100" step="0.1" value="0" />
+              <div class="range-ends"><span>Here</span><span>Here, again</span></div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="invitation" aria-labelledby="invitation-title">
+        <p class="eyebrow">NOW MAKE THE IDEA YOURS</p>
+        <h2 id="invitation-title">What’s inside<br /><em>your picture?</em></h2>
+        <div class="invitation-side"><p>Choose an image. Mark the frame where it should repeat. Watch it become something you couldn’t have drawn.</p><a class="tool-button" href="../tool.html">Make your own spiral <span aria-hidden="true">↗</span></a><p class="small">Free to explore. Right in your browser.</p></div>
+      </section>
+    </main>
+    <footer><a class="wordmark" href="./">tententoon<span>↗</span></a><nav aria-label="Other ways into the idea"><a href="./essay.html">Read the essay ↗</a><a href="./play.html">Play with the idea ↗</a><a href="./">All three attempts ↗</a></nav><span>A study in looking closer.</span></footer>
+    <script type="module" src="/src/experiments-2/inside.ts"></script>
+  </body>
+</html>

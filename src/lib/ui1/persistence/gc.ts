@@ -1,59 +1,86 @@
 /**
- * Orphan-blob garbage collector. Walks every persisted tententoon
- * state, collects the set of source hashes still referenced, then
- * deletes anything in the IDB `blobs` store that isn't on the list.
- *
- * Single pass, runs synchronously after a delete. Defensive against
- * a concurrent autosave dropping a referenced blob: the reference
- * set is read from localStorage BEFORE the IDB scan, so a blob
- * referenced by a state written after that read might still be
- * deleted. Acceptable: the next user gesture re-uploads the file's
- * blob via putBlob — content-hashed, idempotent.
+ * Reclaim unreferenced images only after taking the IDB write lock. Imports
+ * write their blob before publishing the localStorage reference, so a scan
+ * taken before the transaction can become stale while it waits for a writer.
+ * If any saved metadata cannot be read, retain the image bytes.
  */
-
-import { BLOBS_STORE, LS_INDEX, stateKey } from './schema';
-import type { IndexEntry, TtState } from './schema';
+import { BLOBS_STORE, UNDO_STORE, LS_INDEX, LS_STATE_PREFIX, stateKey } from './schema';
+import type { TtState } from './schema';
 import { dbAvailable, openTtDb, reqAsPromise, txDone } from './idb';
 
-function referencedHashes(): Set<string> {
-  const refs = new Set<string>();
-  let entries: IndexEntry[] = [];
-  try {
-    const raw = localStorage.getItem(LS_INDEX);
-    entries = raw ? (JSON.parse(raw) as IndexEntry[]) : [];
-  } catch {
-    return refs;
+function addSource(refs: Set<string>, state: TtState): void {
+  if (!state || typeof state !== 'object' || !('source' in state)) {
+    throw new Error('Unreadable saved state');
   }
-  for (const e of entries) {
-    try {
-      const raw = localStorage.getItem(stateKey(e.id));
-      if (!raw) continue;
-      const state = JSON.parse(raw) as TtState;
-      if (state.source?.kind === 'blob') refs.add(state.source.hash);
-    } catch {}
+  if (state.source === null) return;
+  if (state.source.kind === 'blob' && typeof state.source.hash === 'string') {
+    refs.add(state.source.hash);
+  } else if (state.source.kind !== 'url' || typeof state.source.url !== 'string') {
+    throw new Error('Unreadable saved source');
   }
-  return refs;
 }
 
-/** Drop every blob in IDB that isn't referenced by any current tententoon. */
+function referencedHashes(): Set<string> | null {
+  try {
+    const refs = new Set<string>();
+    const raw = localStorage.getItem(LS_INDEX);
+    const entries = raw ? JSON.parse(raw) : [];
+    if (!Array.isArray(entries)) return null;
+    const keys = new Set<string>();
+    for (const entry of entries) {
+      if (!entry || typeof entry.id !== 'string') return null;
+      keys.add(stateKey(entry.id));
+    }
+    // Keep states omitted by a partial/stale index, including another tab's.
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key?.startsWith(LS_STATE_PREFIX)) keys.add(key);
+    }
+    for (const key of keys) {
+      const saved = localStorage.getItem(key);
+      if (!saved) return null;
+      addSource(refs, JSON.parse(saved));
+    }
+    return refs;
+  } catch {
+    return null;
+  }
+}
+
 export async function gcOrphanBlobs(): Promise<number> {
   if (!dbAvailable()) return 0;
-  const refs = referencedHashes();
   const db = await openTtDb();
-  let dropped = 0;
   try {
-    const tx = db.transaction(BLOBS_STORE, 'readwrite');
-    const store = tx.objectStore(BLOBS_STORE);
-    const keys = (await reqAsPromise(store.getAllKeys())) as IDBValidKey[];
-    for (const k of keys) {
-      if (typeof k !== 'string') continue;
-      if (refs.has(k)) continue;
-      store.delete(k);
-      dropped++;
+    const tx = db.transaction([BLOBS_STORE, UNDO_STORE], 'readwrite');
+    const done = txDone(tx);
+    try {
+      const store = tx.objectStore(BLOBS_STORE);
+      const [keys, undo] = await Promise.all([
+        reqAsPromise(store.getAllKeys()),
+        reqAsPromise(tx.objectStore(UNDO_STORE).getAll())
+      ]);
+      const refs = referencedHashes();
+      if (!refs) { await done; return 0; }
+      // Undo can still need a source that the current snapshot doesn't use.
+      try {
+        for (const row of undo) addSource(refs, row.state);
+      } catch {
+        await done;
+        return 0;
+      }
+      let dropped = 0;
+      for (const key of keys) {
+        if (typeof key !== 'string' || refs.has(key)) continue;
+        store.delete(key);
+        dropped++;
+      }
+      await done;
+      return dropped;
+    } catch (error) {
+      await done.catch(() => {});
+      throw error;
     }
-    await txDone(tx);
   } finally {
     db.close();
   }
-  return dropped;
 }

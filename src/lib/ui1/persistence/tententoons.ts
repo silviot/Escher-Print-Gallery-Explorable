@@ -50,7 +50,7 @@ function upsertIndex(entry: IndexEntry): void {
 }
 
 export function list(): IndexEntry[] {
-  return readIndex().slice().sort((a, b) => b.updatedAt - a.updatedAt);
+  return readIndex().slice().sort((a, b) => b.createdAt - a.createdAt);
 }
 
 export function getCurrentId(): string | null {
@@ -88,7 +88,7 @@ export function writeState(id: string, state: TtState): void {
   if (entry) {
     entry.updatedAt = now;
     if (state.imageName && entry.name === '' /* never override a user-named entry */) {
-      // V3 introduces rename; until then names come from the upload filename.
+      // V3 introduces rename; until then names come from the import filename.
     }
     writeIndex(all);
   }
@@ -122,7 +122,7 @@ function uuid(): string {
 
 /**
  * Create a new tententoon. Sets it as the current id. Caller is
- * responsible for any blob upload — pass the resulting SourceRef in
+ * responsible for any blob import — pass the resulting SourceRef in
  * `state.source` (or leave null for an unbound tententoon).
  */
 export function create(state: TtState, name?: string): IndexEntry {
@@ -168,7 +168,7 @@ export function rename(id: string, name: string): void {
  * Remove a tententoon. Drops the per-id state and the index entry.
  * V3 stub for undo/thumb cleanup — both stores stay empty until V5
  * populates them, so nothing to remove here. Orphan blob GC also
- * lands in V5; uploads referenced only by this entry stay in the
+ * lands in V5; imports referenced only by this entry stay in the
  * `blobs` IDB store until then.
  */
 export function remove(id: string): void {

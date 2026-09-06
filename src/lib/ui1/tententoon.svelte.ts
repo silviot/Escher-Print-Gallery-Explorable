@@ -27,6 +27,7 @@ import {
   redo as redoStep
 } from './undo.svelte';
 import { scheduleThumb, dropThumb } from './thumb.svelte';
+import { resolveSourceImage } from './source-image';
 
 export const currentTententoon = $state<{
   id: string | null;
@@ -76,6 +77,7 @@ export function markGestureEnd(): void {
   const state = snapshotState(knownSource);
   if (!currentTententoon.id) return;
   const id = currentTententoon.id;
+  void persistence.requestPersistentStorage();
   persistence.writeState(id, state);
   if (isApplying.value) return;
   const r = pushUndo(state);
@@ -110,6 +112,7 @@ export function markCreate(source: SourceRef): IndexEntry {
   // Persist the baseline so reload can hydrate the stack even before
   // the user makes any edits.
   void persistence.appendUndo(entry.id, 0, state);
+  scheduleThumb(entry.id);
   return entry;
 }
 
@@ -117,7 +120,7 @@ export function markCreate(source: SourceRef): IndexEntry {
  * "Fill" the current tententoon's source if it's a fresh `null`-source
  * entry; otherwise create a new tententoon. Used by DropZone after a
  * user clicked "New" in the gallery — the empty entry exists, the next
- * upload should land in it, not stack a second one.
+ * import should land in it, not stack a second one.
  */
 export function markSourceLoaded(source: SourceRef): IndexEntry {
   if (currentTententoon.id && knownSource === null) {
@@ -133,6 +136,7 @@ export function markSourceLoaded(source: SourceRef): IndexEntry {
       await persistence.dropUndo(id);
       await persistence.appendUndo(id, 0, state);
     })();
+    scheduleThumb(id);
     return {
       id,
       name: currentTententoon.name,
@@ -146,7 +150,7 @@ export function markSourceLoaded(source: SourceRef): IndexEntry {
 /**
  * Create an empty tententoon (no source). Used by the gallery's "New"
  * button. Sets it as current so the editor renders the empty state and
- * the next upload fills the entry in place.
+ * the next import fills the entry in place.
  */
 export function createEmpty(): IndexEntry {
   knownSource = null;
@@ -236,66 +240,6 @@ export function performRedo(): void {
 
 export { canUndo, canRedo } from './undo.svelte';
 
-type ResolvedSource = {
-  image: ImageBitmap | null;
-  source: SourceRef | null;
-  missingRequiredSource: boolean;
-};
-
-async function decodeImage(blob: Blob): Promise<ImageBitmap | null> {
-  try {
-    return await createImageBitmap(blob);
-  } catch {
-    return null;
-  }
-}
-
-async function resolveSourceImage(state: TtState, names: string[]): Promise<ResolvedSource> {
-  if (state.source?.kind === 'url') {
-    try {
-      const res = await fetch(state.source.url);
-      if (!res.ok) {
-        return { image: null, source: state.source, missingRequiredSource: true };
-      }
-      const image = await decodeImage(await res.blob());
-      return {
-        image,
-        source: state.source,
-        missingRequiredSource: image === null
-      };
-    } catch {
-      return { image: null, source: state.source, missingRequiredSource: true };
-    }
-  }
-
-  if (state.source?.kind === 'blob') {
-    let blob = await persistence.getBlob(state.source.hash);
-    let source: SourceRef = state.source;
-    if (!blob) {
-      const recovered = await persistence.recoverSourceBlob(state.source, names);
-      if (recovered) {
-        blob = recovered.blob;
-        source = recovered.source;
-      }
-    }
-    const image = blob ? await decodeImage(blob) : null;
-    return {
-      image,
-      source,
-      missingRequiredSource: image === null
-    };
-  }
-
-  const recovered = await persistence.recoverSourceBlob(null, names);
-  if (recovered) {
-    const image = await decodeImage(recovered.blob);
-    if (image) {
-      return { image, source: recovered.source, missingRequiredSource: false };
-    }
-  }
-  return { image: null, source: null, missingRequiredSource: false };
-}
-
 /**
  * Load a tententoon by id. Resolves the source (URL or IDB blob), calls
  * setImage to update the editor, then writes rect/crop/playback from the
@@ -342,6 +286,7 @@ export async function load(id: string): Promise<boolean> {
     // falls back to the head.
     const rows = await persistence.readUndo(entry.id);
     hydrateUndo(rows, hydratedState);
+    scheduleThumb(id);
     return true;
   } finally {
     currentTententoon.hydrating = false;

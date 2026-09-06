@@ -1,8 +1,6 @@
 <script lang="ts">
   /**
-   * One tile in the Gallery grid. Placeholder thumbnail until V5 lands
-   * real ones — a 2-stop gradient seeded by the tententoon id so the
-   * placeholders are at least distinguishable from each other.
+   * One gallery tile, with a saved preview and creation date.
    *
    * Hovering the tile reveals two action buttons (rename, delete) in
    * the top-right corner. Clicking them stops propagation so the tile's
@@ -10,16 +8,17 @@
    */
   import Icon from './Icon.svelte';
   import type { IndexEntry } from '../../lib/ui1/persistence';
-  import { thumbCache, loadThumbInto } from '../../lib/ui1/thumb.svelte';
+  import { thumbCache, loadThumbInto, scheduleThumb } from '../../lib/ui1/thumb.svelte';
 
   type Props = {
     entry: IndexEntry;
     isCurrent: boolean;
+    missing?: boolean;
     onPick: (id: string) => void;
     onRename: (entry: IndexEntry) => void;
     onDelete: (entry: IndexEntry) => void;
   };
-  let { entry, isCurrent, onPick, onRename, onDelete }: Props = $props();
+  let { entry, isCurrent, missing = false, onPick, onRename, onDelete }: Props = $props();
 
   function seedHue(id: string): number {
     let h = 0;
@@ -37,7 +36,7 @@
   }
 
   const hue = $derived(seedHue(entry.id));
-  const stamp = $derived(relTime(entry.updatedAt));
+  const stamp = $derived(relTime(entry.createdAt));
   const thumbUrl = $derived(thumbCache[entry.id] ?? null);
 
   // Pull the thumb out of IDB on first mount. Subsequent autosave
@@ -67,7 +66,7 @@
   }}
 >
   {#if thumbUrl}
-    <img class="thumb thumb-img" src={thumbUrl} alt="" />
+    <img class="thumb thumb-img" src={thumbUrl} alt="" onerror={() => scheduleThumb(entry.id)} />
   {:else}
     <div
       class="thumb"
@@ -78,6 +77,7 @@
   <div class="meta">
     <span class="name" title={entry.name}>{entry.name}</span>
     <span class="when mono">{stamp}</span>
+    {#if missing}<span class="missing-photo">Photo missing</span>{/if}
   </div>
   {#if isCurrent}
     <span class="badge">Current</span>
@@ -103,6 +103,7 @@
 </div>
 
 <style>
+  .missing-photo { font-size: 11px; color: var(--danger, #c0392b); }
   .tile {
     position: relative;
     display: flex;

@@ -20,7 +20,7 @@
     markGestureEnd
   } from '../../lib/ui1/tententoon.svelte';
   import { undoState } from '../../lib/ui1/undo.svelte';
-  import { putBlob } from '../../lib/ui1/persistence';
+  import { putBlob, requestPersistentStorage } from '../../lib/ui1/persistence';
 
   type Props = {
     canvas: HTMLCanvasElement | null;
@@ -67,10 +67,16 @@
     const file = files[0];
     const r = await loadFile(file);
     if (r.ok) {
-      setImage(r.image, r.name);
-      void addToHistory(file, r.image, r.name);
-      const hash = await putBlob(file);
-      markCreate({ kind: 'blob', hash });
+      void requestPersistentStorage();
+      try {
+        const hash = await putBlob(file);
+        setImage(r.image, r.name);
+        markCreate({ kind: 'blob', hash });
+        void addToHistory(file, r.image, r.name);
+      } catch {
+        if (doc.image !== r.image) r.image.close();
+        ui.exportToast = 'Could not save this photo in your browser. Free some device space and try again.';
+      }
     } else {
       ui.exportToast = r.reason;
     }

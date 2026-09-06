@@ -41,7 +41,7 @@ Escher drew *Print Gallery* by hand in 1956 and left a white blot at its centre 
 
 ## Make one
 
-Drop in any photo, draw the rectangle where the next copy should sit, and flip between the two infinities — the straight Droste fall or the tententoon spiral. Export the loop as a PNG, GIF, or video. Everything runs in your browser: no upload, no account, no server.
+Drop in any photo, draw the rectangle where the next copy should sit, and flip between the two infinities — the straight Droste fall or the tententoon spiral. Export the loop as a PNG, GIF, or video. Everything runs in your browser. Your photos stay on your device; no account or server is needed.
 
 **Live:** [tententoon.codemyriad.io/tool](https://tententoon.codemyriad.io/tool)
 
@@ -60,6 +60,12 @@ npm run preview  # serve dist/ locally
 Svelte 5 (runes) + Vite. Rendering is WebGL via [twgl.js](https://twgljs.org/) with a CPU-worker fallback; exports use `<canvas>.toBlob` (PNG), `MediaRecorder` (MP4/WebM), and [`gifenc`](https://github.com/mattdesl/gifenc) (GIF). No backend by design.
 
 </details>
+
+## Explorable homepage studies
+
+[Experiments 2](https://silvio-tententoon.pgs.sh/experiments-2/) offers three alternative introductions: a quiet illustrated [essay](https://silvio-tententoon.pgs.sh/experiments-2/essay.html), a [scroll journey](https://silvio-tententoon.pgs.sh/experiments-2/inside.html), and a hands-on [instrument](https://silvio-tententoon.pgs.sh/experiments-2/play.html). Each works independently of the video and links to the generator.
+
+Sources live in `experiments-2/` and `src/experiments-2/`. They use the existing transform pipeline, a local canvas-drawn gallery, and a CPU fallback when WebGL is unavailable. `npm run build` includes every entry point. To deploy the built site to the preview host: `rsync -r dist/ pgs.sh:/tententoon/`.
 
 ## Credits & licence
 

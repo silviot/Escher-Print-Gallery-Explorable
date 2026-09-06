@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="A picture inside itself. A small tilt. An endless spiral. Pull it apart and put it together in this hands-on explorable." />
+    <title>One small twist. — tententoon</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body>
+    <a class="skip-link" href="#instrument">Skip to the explorable</a>
+    <header class="masthead">
+      <a class="wordmark" href="./">tententoon<span aria-hidden="true">↗</span></a>
+      <span class="edition">A little experiment in infinity</span>
+      <a class="masthead-tool" href="../tool.html">Make your own <span aria-hidden="true">↗</span></a>
+    </header>
+
+    <main>
+      <section class="playground" aria-labelledby="title">
+        <div class="opening">
+          <p class="eyebrow"><span class="red-dot" aria-hidden="true"></span> The picture is the explanation.</p>
+          <h1 id="title">One<span class="headline-space"> </span><br class="headline-first-break" />small<br /><span>twist.</span></h1>
+          <p class="intro">A picture inside itself goes on forever. Give that repetition a little tilt, and forever takes a turn.</p>
+          <a href="#instrument" class="try-link">Take it apart <span aria-hidden="true">↘</span></a>
+
+          <div class="step-note" aria-live="polite" aria-atomic="true">
+            <p class="note-kicker"><span id="note-number">04</span> / <span id="note-label">Return</span></p>
+            <h2 id="note-title">And round<br />we go.</h2>
+            <p id="note-copy">Roll the tilted strip back into a picture. Now a trip around the centre lands one copy deeper. A stack of pictures becomes one continuous spiral.</p>
+          </div>
+        </div>
+
+        <div class="instrument" id="instrument" tabindex="-1">
+          <div class="figure-heading">
+            <span id="figure-label">A picture with no last picture</span>
+            <span class="figure-index" aria-hidden="true">FIG. 04</span>
+          </div>
+          <div class="picture" id="picture" aria-busy="true">
+            <canvas id="spiral" role="img" aria-label="An illustrated gallery repeating in a continuous spiral"></canvas>
+            <canvas id="repeat" role="img" aria-label="The same illustrated gallery repeated inside smaller copies of itself" hidden></canvas>
+            <div class="load-state" id="load-state" role="status"><span aria-hidden="true">↻</span> Getting the picture…</div>
+            <span class="picture-signature" aria-hidden="true">LOOK CLOSER. THEN CLOSER.</span>
+          </div>
+
+          <div class="controls">
+            <div class="step-buttons" role="group" aria-label="Explore the four transformations">
+              <button type="button" data-step="repeat" aria-pressed="false"><span>01</span> Repeat</button>
+              <button type="button" data-step="unroll" aria-pressed="false"><span>02</span> Unroll</button>
+              <button type="button" data-step="tilt" aria-pressed="false"><span>03</span> Tilt</button>
+              <button type="button" data-step="return" aria-pressed="true"><span>04</span> Return</button>
+            </div>
+            <div class="slider-label">
+              <label for="amount" id="amount-label">Roll the picture back up</label>
+              <output id="amount-value" for="amount">100%</output>
+            </div>
+            <input type="range" id="amount" min="0" max="1000" value="1000" step="1" aria-describedby="slider-hint" />
+            <div class="slider-footer"><span id="range-start">Flat strip</span><span id="range-end">Endless spiral</span></div>
+            <div class="transport">
+              <button type="button" id="motion" aria-pressed="true"><span class="motion-icon" aria-hidden="true">Ⅱ</span><span class="motion-label">Pause the journey</span></button>
+              <button type="button" id="source" aria-pressed="false">Try a photograph <span aria-hidden="true">↗</span></button>
+            </div>
+            <p class="slider-hint" id="slider-hint">Drag the handle backwards to see where the spiral came from.</p>
+          </div>
+          <p class="source-credit" id="source-credit">An imaginary gallery. One picture. Infinitely many visits.</p>
+        </div>
+      </section>
+
+      <section class="afterword" aria-labelledby="afterword-title">
+        <span class="afterword-mark" aria-hidden="true">↻</span>
+        <div>
+          <p class="eyebrow">That’s the whole trick.</p>
+          <h2 id="afterword-title">One picture.<br />Another way to see it.</h2>
+        </div>
+        <div class="afterword-copy">
+          <p>Repeating the picture gives us the <em>Droste effect</em>. Unrolling it turns the nested copies into a repeating strip. Tilt that strip just enough to connect one level to the next, then roll it back up. The resulting spiral is a <em>tententoon</em>.</p>
+          <p>The angle isn’t a lucky guess. It comes from how much each copy shrinks. Here, it’s <strong id="angle-explanation">a few degrees</strong>.</p>
+          <a class="make-link" href="../tool.html">Put your picture in the loop <span aria-hidden="true">↗</span></a>
+          <p class="make-note">Open the tool, choose an image, and mark where the smaller copy belongs.</p>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <a href="./">← All three experiments</a>
+      <nav aria-label="Other explanations"><a href="./essay.html">Read the essay</a><a href="./inside.html">Go inside the picture</a></nav>
+      <span>Made for the curious.</span>
+    </footer>
+    <script type="module" src="/src/experiments-2/play.ts"></script>
+  </body>
+</html>

@@ -2,8 +2,8 @@ import type { Rect, Shape, ViewMode } from '../state.svelte';
 
 /**
  * Reference to the source image. URL-backed sources are kept by URL so we
- * never duplicate built-in assets; uploads land in IDB `blobs` keyed by
- * content hash so identical uploads share one stored Blob.
+ * never duplicate built-in assets; imports land in IDB `blobs` keyed by
+ * content hash so identical imports share one stored Blob.
  */
 export type SourceRef =
   | { kind: 'url'; url: string }

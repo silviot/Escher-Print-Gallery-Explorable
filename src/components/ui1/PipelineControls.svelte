@@ -6,7 +6,7 @@
    *     γ and the tententoon's twist becomes k = tan γ. Only at the canonical
    *     β does the spiral close up with the Droste scale.
    *   - reset the pan written by dragging the rotated-log panel (idea 2).
-   *   - load generated geometry test patterns (idea 1) without re-uploading.
+   *   - load generated geometry test patterns (idea 1) without reimporting.
    */
 
   import { doc, setImage, commitNewRect } from '../../lib/ui1/state.svelte';

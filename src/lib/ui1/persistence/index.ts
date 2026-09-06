@@ -19,6 +19,7 @@ export {
   trimUndo,
   dropUndo
 } from './undo-log';
-export { putThumb, getThumb, deleteThumb } from './thumbs';
+export { putThumb, getThumb, readThumb, deleteThumb } from './thumbs';
 export { gcOrphanBlobs } from './gc';
 export { recoverSourceBlob, type RecoveredSourceBlob } from './legacy-history';
+export { requestPersistentStorage } from './durability';

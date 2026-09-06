@@ -3,7 +3,7 @@
  * existing `tententoon`/`history` recent-images store (lib/ui1/history.svelte.ts)
  * so the two systems version independently and don't collide.
  *
- * Stores created here: `blobs` (uploaded image Blobs keyed by content
+ * Stores created here: `blobs` (imported image Blobs keyed by content
  * hash), `undo` (per-tententoon snapshot log — empty in V1, populated
  * in V5), `thumbs` (gallery thumbnails — empty in V1, populated in V5).
  */

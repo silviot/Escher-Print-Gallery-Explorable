@@ -1,6 +1,6 @@
 /**
- * Content-hashed Blob storage. Uploads with identical bytes share one
- * stored Blob — relevant when the user re-uploads the same image into
+ * Content-hashed Blob storage. Imports with identical bytes share one
+ * stored Blob — relevant when the user reimports the same image into
  * a new tententoon, or when V5's orphan GC reference-counts blobs.
  *
  * Hash = SHA-256 hex of the file bytes via `crypto.subtle`. Fine for
@@ -22,10 +22,10 @@ export async function hashBlob(blob: Blob): Promise<string> {
 /** Put a Blob keyed by its content hash. Returns the hash. */
 export async function putBlob(blob: Blob): Promise<string> {
   const hash = await hashBlob(blob);
-  if (!dbAvailable()) return hash;
+  if (!dbAvailable()) throw new Error('Image storage is unavailable in this browser.');
   const db = await openTtDb();
   try {
-    const tx = db.transaction(BLOBS_STORE, 'readwrite');
+    const tx = db.transaction(BLOBS_STORE, 'readwrite', { durability: 'strict' });
     tx.objectStore(BLOBS_STORE).put(blob, hash);
     await txDone(tx);
     return hash;
