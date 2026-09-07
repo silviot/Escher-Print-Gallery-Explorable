@@ -1,6 +1,6 @@
 import './essay.css';
 import { SpiralView } from './view';
-import { buildScene, drawDrosteZoom, loadDemoScene, loadImageEl, publicAssetUrl, DEMO_IMAGE_PLAIN, type Scene } from '../experiments/kit';
+import { drawDrosteZoom, loadDemoScene, DEMO_NEST, type Scene } from '../experiments/kit';
 
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 const heroOriginal = $<HTMLCanvasElement>('hero-original');
@@ -17,7 +17,6 @@ const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 const heroView = new SpiralView(heroCanvas);
 const wrapView = new SpiralView(wrapCanvas);
 let scene: Scene | null = null;
-let plainScene: Scene | null = null;
 let heroPhase = 0;
 let wrapPhase = 0;
 let heroPlaying = false;
@@ -49,9 +48,9 @@ function paintHero(): void {
 }
 
 function paintCopies(): void {
-  if (!plainScene) return;
+  if (!scene) return;
   const n = Number(copyCount.value);
-  const { img, crop, nest } = plainScene;
+  const { img, crop, nest } = scene;
   const ctx = copyCanvas.getContext('2d');
   if (!ctx) return;
   const ratio = nest.w / crop.w;
@@ -62,19 +61,27 @@ function paintCopies(): void {
   ctx.imageSmoothingQuality = 'high';
   let x = 0, y = 0, scale = 1;
   for (let i = 0; i <= n; i++) {
+    const ellipse = i > 0 && scene.geom.ctx.shapeMorph === 0;
+    if (ellipse) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.ellipse(x + crop.w * scale / 2, y + crop.h * scale / 2, crop.w * scale / 2, crop.h * scale / 2, 0, 0, 2 * Math.PI);
+      ctx.clip();
+    }
     ctx.drawImage(img, crop.x, crop.y, crop.w, crop.h, x, y, crop.w * scale, crop.h * scale);
+    if (ellipse) ctx.restore();
     x += offsetX * scale;
     y += offsetY * scale;
     scale *= ratio;
   }
   ctx.setTransform(1, 0, 0, 1, 0, 0);
-  $('copies-output').textContent = n === 0 ? 'Empty frame' : `${n} ${n === 1 ? 'copy' : 'copies'}`;
+  $('copies-output').textContent = n === 0 ? 'Original scene' : `${n} ${n === 1 ? 'copy' : 'copies'}`;
   progress(copyCount);
 }
 
 function paintRuler(): void {
   const p = Number(rulerChange.value) / 100;
-  const ratio = scene ? 1 / scene.geom.S : 0.46;
+  const ratio = scene ? 1 / scene.geom.S : 0.25;
   const left = 68, right = 650, width = right - left;
   const nMax = 4;
   const labelSize = window.innerWidth <= 520 ? 20 : 13;
@@ -114,7 +121,7 @@ function paintWrap(): void {
 
 function updateWrap(): void {
   const p = Number(transformation.value) / 100;
-  const beta = scene ? Math.atan2(scene.geom.ctx.logS, 2 * Math.PI) * 180 / Math.PI : 7;
+  const beta = scene ? Math.atan2(scene.geom.ctx.logS, 2 * Math.PI) * 180 / Math.PI : 0;
   const active = p === 0 ? 0 : p <= .3 ? 30 : 100;
   document.querySelectorAll<HTMLButtonElement>('[data-stage]').forEach(button => {
     const selected = Number(button.dataset.stage) === active;
@@ -123,12 +130,12 @@ function updateWrap(): void {
   });
   $('wrap-output').textContent = p === 0 ? 'Flat picture' : p <= .3 ? `Tilt ${(beta * p / .3).toFixed(1)}°` : p === 1 ? 'A continuous spiral' : `Wrapped ${Math.round((p - .3) / .7 * 100)}%`;
   $('wrap-caption').textContent = p === 0
-    ? 'The photograph becomes a repeating map of distance and angle. Take the slider slowly to the right.'
+    ? 'The picture becomes a repeating map of distance and angle. Take the slider slowly to the right.'
     : p <= .3
       ? `A tilt of ${beta.toFixed(1)}° couples a full turn around the center to one repeat across the picture.`
       : p < 1
-        ? 'The map curls back around the center. Follow a single frame as it bends.'
-        : 'The frames now join a spiral. Press “Let it move” and follow one inward.';
+        ? 'The map curls back around the center. Follow a single doorway as it bends.'
+        : 'The doorways now join a spiral. Press “Let it move” and follow one inward.';
   progress(transformation);
   paintWrap();
 }
@@ -194,8 +201,9 @@ reducedMotion.addEventListener('change', () => {
 });
 
 function resize(): void {
-  size2d(heroOriginal, scene ? scene.crop.w / scene.crop.h : 1.28);
-  size2d(copyCanvas);
+  const aspect = scene ? scene.crop.w / scene.crop.h : DEMO_NEST.w / DEMO_NEST.h;
+  size2d(heroOriginal, aspect);
+  size2d(copyCanvas, aspect);
   heroView.autosize(1.5);
   wrapView.autosize(1.5);
   paintHero(); paintCopies(); paintWrap(); paintRuler();
@@ -209,12 +217,10 @@ paintRuler();
 progress(copyCount);
 progress(transformation);
 
-void Promise.all([
-  loadDemoScene(),
-  loadImageEl(publicAssetUrl(DEMO_IMAGE_PLAIN))
-]).then(([demo, plain]) => {
+void loadDemoScene().then(demo => {
   scene = demo;
-  plainScene = buildScene(plain, { x: 339, y: 329, w: 591, h: 462 });
+  // Every illustration shares the plain source and the same doorway geometry.
+  document.documentElement.style.setProperty('--photo-aspect', String(demo.crop.w / demo.crop.h));
   heroView.setScene(demo);
   wrapView.setScene(demo);
   const beta = Math.atan2(demo.geom.ctx.logS, 2 * Math.PI) * 180 / Math.PI;
@@ -223,8 +229,8 @@ void Promise.all([
   $('load-status').textContent = '';
   resize(); paintRuler(); updateWrap(); schedule();
 }).catch(error => {
-  console.error('The essay photographs could not be loaded.', error);
-  $('load-status').textContent = 'The photographs could not load. Reload the page to try again; the ruler below still works.';
+  console.error('The essay image could not be loaded.', error);
+  $('load-status').textContent = 'The pictures could not load. Reload the page to try again; the ruler below still works.';
 });
 
 window.addEventListener('pagehide', event => {

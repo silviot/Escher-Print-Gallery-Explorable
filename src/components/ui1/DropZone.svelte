@@ -1,11 +1,12 @@
 <script lang="ts">
   import Icon from './Icon.svelte';
-  import { ui, doc, setImage, commitNewRect } from '../../lib/ui1/state.svelte';
+  import { ui, doc, setImage, commitNewRect, snapShapeMorph } from '../../lib/ui1/state.svelte';
   import { loadFile, loadUrl } from '../../lib/ui1/file';
   import { addToHistory } from '../../lib/ui1/history.svelte';
   import { markSourceLoaded } from '../../lib/ui1/tententoon.svelte';
   import { putBlob, requestPersistentStorage } from '../../lib/ui1/persistence';
   import { publicAssetUrl } from '../../lib/asset-url';
+  import demoImage from '../../lib/demo-image.json';
   import { makeTestPattern, patternNest, type PatternKind } from '../../lib/ui1/test-patterns';
 
   let dragOver = $state(false);
@@ -41,14 +42,13 @@
   }
 
   async function trySample() {
-    const url = publicAssetUrl('Droste_1260359-nevit.jpg');
+    const url = publicAssetUrl(demoImage.plainImage);
     const r = await loadUrl(url);
     if (r.ok) {
-      setImage(r.image, r.name);
-      // Tuned rect for the bundled Droste sample — lands near the
-      // photograph's natural focal point so the spiral preview has a
-      // sensible starting frame instead of a 0×0 rect.
-      commitNewRect({ x: 340, y: 327, w: 595, h: 478 });
+      setImage(r.image, demoImage.name);
+      doc.shape = demoImage.shape === 'ellipse' ? 'ellipse' : 'rect';
+      snapShapeMorph();
+      commitNewRect({ ...demoImage.nest });
       markSourceLoaded({ kind: 'url', url });
     } else {
       errorMsg = r.reason;

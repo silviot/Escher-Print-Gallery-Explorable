@@ -10,6 +10,8 @@ const repeat = get<HTMLCanvasElement>('repeat');
 const amount = get<HTMLInputElement>('amount');
 const motion = get<HTMLButtonElement>('motion');
 const source = get<HTMLButtonElement>('source');
+const originalButton = get<HTMLButtonElement>('original-toggle');
+const original = get<HTMLImageElement>('original');
 const loadState = get<HTMLDivElement>('load-state');
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 const stepButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-step]'));
@@ -51,7 +53,8 @@ let lastFrame = 0;
 let scene: Scene | null = null;
 let galleryScene: Scene | null = null;
 let photoScene: Scene | null = null;
-let photograph = false;
+let photograph = true;
+let showingOriginal = false;
 let view: SpiralView;
 
 function setMotionUi(): void {
@@ -76,7 +79,9 @@ function updateStep(): void {
   get('note-number').textContent = note.number;
   get('note-label').textContent = note.label;
   get('note-title').textContent = note.title;
-  get('note-copy').textContent = note.copy;
+  get('note-copy').textContent = photograph && step === 'repeat'
+    ? 'An observatory lives inside a pear. Put a smaller copy of its whole world inside the round doorway, then repeat. Zoom in: the same telescope and stairways appear again, one level deeper.'
+    : note.copy;
   get('figure-label').textContent = note.figure;
   document.querySelector('.figure-index')!.textContent = `FIG. ${note.number}`;
   get('amount-label').textContent = note.slider;
@@ -84,10 +89,13 @@ function updateStep(): void {
   get('range-end').textContent = note.end;
   get('slider-hint').textContent = note.hint;
   for (const button of stepButtons) button.setAttribute('aria-pressed', String(button.dataset.step === step));
-  spiral.hidden = step === 'repeat';
-  repeat.hidden = step !== 'repeat';
-  spiral.setAttribute('aria-label', `${photograph ? 'A photograph' : 'An illustrated gallery'} ${step === 'unroll' ? 'unwrapping into a repeating strip' : step === 'tilt' ? 'repeating along a tilted strip' : 'repeating in a continuous spiral'}`);
-  repeat.setAttribute('aria-label', `${photograph ? 'A photograph' : 'An illustrated gallery'} repeated inside smaller copies of itself`);
+  spiral.hidden = showingOriginal || step === 'repeat';
+  repeat.hidden = showingOriginal || step !== 'repeat';
+  original.hidden = !showingOriginal;
+  originalButton.textContent = showingOriginal ? 'Back to the effect' : 'See the original';
+  originalButton.setAttribute('aria-pressed', String(showingOriginal));
+  spiral.setAttribute('aria-label', `${photograph ? 'A pear observatory' : 'An illustrated gallery'} ${step === 'unroll' ? 'unwrapping into a repeating strip' : step === 'tilt' ? 'repeating along a tilted strip' : 'repeating in a continuous spiral'}`);
+  repeat.setAttribute('aria-label', `${photograph ? 'A pear observatory' : 'An illustrated gallery'} repeated inside smaller copies of itself`);
   updateAmount();
 }
 
@@ -135,8 +143,15 @@ function resize(): void {
   if (!view || !scene) return;
   const bounds = picture.getBoundingClientRect();
   const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-  repeat.width = Math.max(1, Math.round(bounds.width * dpr));
-  repeat.height = Math.max(1, Math.round(bounds.height * dpr));
+  const aspect = scene.crop.w / scene.crop.h;
+  const width = Math.min(bounds.width, bounds.height * aspect);
+  const height = width / aspect;
+  repeat.style.width = `${width}px`;
+  repeat.style.height = `${height}px`;
+  repeat.style.left = `${(bounds.width - width) / 2}px`;
+  repeat.style.top = `${(bounds.height - height) / 2}px`;
+  repeat.width = Math.max(1, Math.round(width * dpr));
+  repeat.height = Math.max(1, Math.round(height * dpr));
   // The spiral canvas can be hidden when Repeat is active; size it before
   // hiding so that the next step never starts with a zero-size renderer.
   const hidden = spiral.hidden;
@@ -149,6 +164,13 @@ function resize(): void {
 function setScene(next: Scene): void {
   scene = next;
   view.setScene(next);
+  if (next.img instanceof HTMLImageElement) original.src = next.img.src;
+  original.alt = photograph ? 'A mossy observatory, copper telescope and impossible stairways inside a yellow pear. AI-generated image.' : 'The original illustrated gallery before repetition.';
+  source.setAttribute('aria-pressed', String(photograph));
+  source.innerHTML = photograph ? 'Try the gallery <span aria-hidden="true">↗</span>' : 'Back to the pear <span aria-hidden="true">↗</span>';
+  get('source-credit').textContent = photograph
+    ? 'The pear observatory: an AI-generated world. The repetitions are made here.'
+    : 'An imaginary gallery. One picture. Infinitely many visits.';
   get('angle-explanation').textContent = `${(angle() * 180 / Math.PI).toFixed(1)}°`;
   picture.setAttribute('aria-busy', 'false');
   loadState.hidden = true;
@@ -160,6 +182,7 @@ function setScene(next: Scene): void {
 for (const button of stepButtons) {
   button.addEventListener('click', () => {
     pause();
+    showingOriginal = false;
     step = button.dataset.step as Step;
     progress = step === 'repeat' ? 0 : 1;
     phase = 0;
@@ -171,6 +194,7 @@ for (const button of stepButtons) {
 
 amount.addEventListener('input', () => {
   pause();
+  if (showingOriginal) { showingOriginal = false; updateStep(); }
   progress = Number(amount.value) / 1000;
   if (step === 'repeat') phase = progress;
   updateAmount();
@@ -178,6 +202,7 @@ amount.addEventListener('input', () => {
 });
 
 motion.addEventListener('click', () => {
+  if (showingOriginal) { showingOriginal = false; updateStep(); resize(); }
   if (playing) pause();
   else { playing = true; setMotionUi(); schedule(); }
 });
@@ -186,19 +211,20 @@ source.addEventListener('click', async () => {
   source.disabled = true;
   try {
     const nextPhoto = !photograph;
-    const next = nextPhoto ? (photoScene ??= await loadDemoScene()) : galleryScene;
+    const next = nextPhoto ? (photoScene ??= await loadDemoScene()) : (galleryScene ??= await createGalleryScene());
     if (!next) return;
     photograph = nextPhoto;
-    source.setAttribute('aria-pressed', String(photograph));
-    source.innerHTML = photograph ? 'Back to the gallery <span aria-hidden="true">↗</span>' : 'Try a photograph <span aria-hidden="true">↗</span>';
-    const credit = get('source-credit');
-    if (photograph) {
-      credit.innerHTML = 'Photograph: <a href="https://commons.wikimedia.org/wiki/File:Droste_1260359-nevit.jpg" target="_blank" rel="noreferrer">Nevit Dilmen</a> · <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noreferrer">CC BY-SA 3.0</a> · transformed here';
-    } else credit.textContent = 'An imaginary gallery. One picture. Infinitely many visits.';
     setScene(next);
   } catch {
-    get('source-credit').textContent = 'The photograph could not load. The illustrated gallery is still ready to explore.';
+    get('source-credit').textContent = 'That picture could not load. You can keep exploring the current picture.';
   } finally { source.disabled = false; }
+});
+
+originalButton.addEventListener('click', () => {
+  pause();
+  showingOriginal = !showingOriginal;
+  updateStep();
+  resize();
 });
 
 const observer = new IntersectionObserver(([entry]) => {
@@ -235,7 +261,7 @@ setMotionUi();
 updateStep();
 try {
   view = new SpiralView(spiral);
-  void createGalleryScene().then((next) => { galleryScene = next; setScene(next); }).catch(() => {
+  void loadDemoScene().then((next) => { photoScene = next; setScene(next); }).catch(() => {
     loadState.textContent = 'The picture could not load. Please reload to try again.';
     picture.setAttribute('aria-busy', 'false');
   });

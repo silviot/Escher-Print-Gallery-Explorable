@@ -32,6 +32,7 @@ import type { DrosteCtx } from '../lib/math/transforms';
 import { PipelinePanelGLRenderer, type PanelMode } from '../lib/render/pipeline-gl';
 import { panelPxPerUnit, panelURef } from '../lib/ui1/pipeline-panels';
 import { publicAssetUrl } from '../lib/asset-url';
+import demoImage from '../lib/demo-image.json';
 
 export type { Rect };
 export { publicAssetUrl };
@@ -40,12 +41,12 @@ const TWO_PI = 2 * Math.PI;
 /** Longest texture edge uploaded to the GPU. */
 const MAX_TEX = 1280;
 
-/** The bundled demo photo (public/) and its known-good nest rectangle —
- *  same values the explainer page uses. S ≈ 2.16, β ≈ 7°. */
-export const DEMO_IMAGE = 'Droste_1260359-nevit.jpg';
-export const DEMO_NEST: Rect = { x: 343.2, y: 334.7, w: 583.5, h: 454.9 };
+/** Bundled demo assets and the selection shared with the editor/explainer. */
+export const DEMO_CONFIG = demoImage;
+export const DEMO_IMAGE = demoImage.image;
+export const DEMO_NEST: Rect = demoImage.nest;
 /** Alternative demo assets available in public/. */
-export const DEMO_IMAGE_PLAIN = 'pre-droste-nevit.jpg';
+export const DEMO_IMAGE_PLAIN = demoImage.plainImage;
 export const DEMO_IMAGE_ESCHER = '3b1b-print-gallery.jpg';
 
 export type Geometry = { ctx: DrosteCtx; R0: number; S: number };
@@ -119,14 +120,19 @@ export function buildScene(
     H: crop.h,
     cropX: crop.x,
     cropY: crop.y,
-    sampleScale
+    sampleScale,
+    shapeMorph: reuse?.geom.ctx.shapeMorph ?? 1
   };
   return { img, pixels, nest: n, crop, geom: { ctx, R0: g.rMax / Math.sqrt(g.S), S: g.S } };
 }
 
 export async function loadDemoScene(): Promise<Scene> {
-  const img = await loadImageEl(publicAssetUrl(DEMO_IMAGE));
-  return buildScene(img, DEMO_NEST);
+  // Render the recurrence from the unmodified source so the opening's circular
+  // boundary stays identical in the nested, logarithmic, and spiral views.
+  const img = await loadImageEl(publicAssetUrl(DEMO_IMAGE_PLAIN));
+  const scene = buildScene(img, DEMO_NEST);
+  scene.geom.ctx.shapeMorph = demoImage.shape === 'ellipse' ? 0 : 1;
+  return scene;
 }
 
 /* ── GPU view ──────────────────────────────────────────────────────── */
@@ -255,6 +261,7 @@ export function drawDrosteZoom(
   if (!(sx > 0 && sx < 1 && sy > 0 && sy < 1)) return;
   const Rx = nest.x - crop.x;
   const Ry = nest.y - crop.y;
+  const ellipse = scene.geom.ctx.shapeMorph === 0;
   const effT = opts.camera === false ? 0 : ((t % 1) + 1) % 1;
 
   const scaleX = Math.pow(sx, effT);
@@ -285,15 +292,42 @@ export function drawDrosteZoom(
   const nMaxFromSy = Math.floor(effT + Math.log(minWidthPx / th) / Math.log(sy));
   const nMax = Math.min(Math.max(nMaxFromSx, nMaxFromSy) + 1, 60);
 
-  let pxw = 1;
-  let pyw = 1;
-  let xn = 0;
-  let yn = 0;
-  for (let n = 0; n <= nMax; n++) {
+  // An elliptical plane has copies beyond the original rectangle too.
+  // Include enough surrounding levels to fill the camera's corners; without
+  // them those corners would jump when the zoom loops back to its start.
+  // Static illustrations retain the entire outer photograph instead.
+  let firstLevel = 0;
+  if (ellipse && opts.camera !== false) {
+    for (; firstLevel > -60; firstLevel--) {
+      const pw = Math.pow(sx, firstLevel);
+      const ph = Math.pow(sy, firstLevel);
+      const x = Rx * (1 - pw) / (1 - sx);
+      const y = Ry * (1 - ph) / (1 - sy);
+      const rx = W * pw / 2;
+      const ry = H * ph / 2;
+      const farX = Math.max(Math.abs(camX - x - rx), Math.abs(camX + camW - x - rx));
+      const farY = Math.max(Math.abs(camY - y - ry), Math.abs(camY + camH - y - ry));
+      if ((farX / rx) ** 2 + (farY / ry) ** 2 <= 1) break;
+    }
+  }
+
+  let pxw = Math.pow(sx, firstLevel);
+  let pyw = Math.pow(sy, firstLevel);
+  let xn = Rx * (1 - pxw) / (1 - sx);
+  let yn = Ry * (1 - pyw) / (1 - sy);
+  for (let n = firstLevel; n <= nMax; n++) {
     const rw = W * pxw;
     const rh = H * pyw;
     if (xn + rw >= camX && xn <= camX + camW && yn + rh >= camY && yn <= camY + camH) {
+      const clip = ellipse && (n !== 0 || opts.camera !== false);
+      if (clip) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.ellipse(xn + rw / 2, yn + rh / 2, rw / 2, rh / 2, 0, 0, TWO_PI);
+        ctx.clip();
+      }
       ctx.drawImage(img, crop.x, crop.y, crop.w, crop.h, xn, yn, rw, rh);
+      if (clip) ctx.restore();
     }
     xn += Rx * pxw;
     yn += Ry * pyw;

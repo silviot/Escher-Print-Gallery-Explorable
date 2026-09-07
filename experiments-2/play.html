@@ -20,7 +20,7 @@
         <div class="opening">
           <p class="eyebrow"><span class="red-dot" aria-hidden="true"></span> The picture is the explanation.</p>
           <h1 id="title">One<span class="headline-space"> </span><br class="headline-first-break" />small<br /><span>twist.</span></h1>
-          <p class="intro">A picture inside itself goes on forever. Give that repetition a little tilt, and forever takes a turn.</p>
+          <p class="intro">A pear. An observatory. A doorway that holds the whole world again. Give that repetition a little tilt, and forever takes a turn.</p>
           <a href="#instrument" class="try-link">Take it apart <span aria-hidden="true">↘</span></a>
 
           <div class="step-note" aria-live="polite" aria-atomic="true">
@@ -33,11 +33,13 @@
         <div class="instrument" id="instrument" tabindex="-1">
           <div class="figure-heading">
             <span id="figure-label">A picture with no last picture</span>
+            <button type="button" id="original-toggle" aria-pressed="false">See the original</button>
             <span class="figure-index" aria-hidden="true">FIG. 04</span>
           </div>
           <div class="picture" id="picture" aria-busy="true">
-            <canvas id="spiral" role="img" aria-label="An illustrated gallery repeating in a continuous spiral"></canvas>
-            <canvas id="repeat" role="img" aria-label="The same illustrated gallery repeated inside smaller copies of itself" hidden></canvas>
+            <canvas id="spiral" role="img" aria-label="A pear observatory repeating in a continuous spiral"></canvas>
+            <canvas id="repeat" role="img" aria-label="The same pear observatory repeated inside its round doorway" hidden></canvas>
+            <img id="original" alt="The original pear observatory image before repetition" hidden />
             <div class="load-state" id="load-state" role="status"><span aria-hidden="true">↻</span> Getting the picture…</div>
             <span class="picture-signature" aria-hidden="true">LOOK CLOSER. THEN CLOSER.</span>
           </div>
@@ -57,11 +59,11 @@
             <div class="slider-footer"><span id="range-start">Flat strip</span><span id="range-end">Endless spiral</span></div>
             <div class="transport">
               <button type="button" id="motion" aria-pressed="true"><span class="motion-icon" aria-hidden="true">Ⅱ</span><span class="motion-label">Pause the journey</span></button>
-              <button type="button" id="source" aria-pressed="false">Try a photograph <span aria-hidden="true">↗</span></button>
+              <button type="button" id="source" aria-pressed="true">Try the gallery <span aria-hidden="true">↗</span></button>
             </div>
             <p class="slider-hint" id="slider-hint">Drag the handle backwards to see where the spiral came from.</p>
           </div>
-          <p class="source-credit" id="source-credit">An imaginary gallery. One picture. Infinitely many visits.</p>
+          <p class="source-credit" id="source-credit">The pear observatory: an AI-generated world. The repetitions are made here.</p>
         </div>
       </section>
 

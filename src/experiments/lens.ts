@@ -120,10 +120,17 @@ function paintPhoto(): void {
   const rw = n.w * f.scale;
   const rh = n.h * f.scale;
 
+  const ellipseNest = scene.geom.ctx.shapeMorph === 0;
+  const traceNest = () => {
+    if (ellipseNest) {
+      ctx.moveTo(rx + rw, ry + rh / 2);
+      ctx.ellipse(rx + rw / 2, ry + rh / 2, rw / 2, rh / 2, 0, 0, Math.PI * 2);
+    } else ctx.rect(rx, ry, rw, rh);
+  };
   // dim everything outside the nest
   ctx.beginPath();
   ctx.rect(f.offX, f.offY, f.w, f.h);
-  ctx.rect(rx, ry, rw, rh);
+  traceNest();
   ctx.fillStyle = 'rgba(8,8,11,0.52)';
   ctx.fill('evenodd');
 
@@ -133,7 +140,9 @@ function paintPhoto(): void {
   ctx.shadowBlur = 12;
   ctx.strokeStyle = ACCENT;
   ctx.lineWidth = 2;
-  ctx.strokeRect(rx, ry, rw, rh);
+  ctx.beginPath();
+  traceNest();
+  ctx.stroke();
   ctx.restore();
 
   // corner handles

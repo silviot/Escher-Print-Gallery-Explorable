@@ -2,7 +2,7 @@
 /**
  * Headless GIF export quality benchmark and test harness.
  * 
- * Decodes the project's default Nevit Droste JPEG, polyfills ImageData,
+ * Decodes the project's bundled demo JPEG, polyfills ImageData,
  * and uses the CPU renderer ('CpuEscherZoomRenderer') to render a 20-frame
  * seamless zoom animation loop. It then exports the frames into 5 comparison GIFs:
  *   1. no-dither.gif (low quality, rgb444, local palette - original behavior)
@@ -19,8 +19,9 @@ import path from 'path';
 import jpeg from 'jpeg-js';
 import { GIFEncoder, quantize, applyPalette } from 'gifenc';
 import { CpuEscherZoomRenderer } from '../src/lib/render/escher-zoom/cpu';
-import { drosteGeometry } from '../src/lib/math/droste';
+import { drosteGeometry, fitCropToNest } from '../src/lib/math/droste';
 import { applyPaletteWithDither } from '../src/lib/ui1/exports/dither';
+import demoImage from '../src/lib/demo-image.json';
 
 // --- Polyfills ---
 class ImageDataPolyfill {
@@ -62,8 +63,8 @@ if (!fs.existsSync(OUT_DIR)) {
 
 // --- Main execution ---
 async function main() {
-  console.log('🚀 Loading Nevit Droste JPEG test image...');
-  const jpegPath = path.join(import.meta.dirname, '../public/Droste_1260359-nevit.jpg');
+  console.log(`🚀 Loading ${demoImage.name} JPEG test image...`);
+  const jpegPath = path.join(import.meta.dirname, '../public', demoImage.plainImage);
   const jpegData = fs.readFileSync(jpegPath);
   const decoded = jpeg.decode(jpegData);
   
@@ -74,15 +75,10 @@ async function main() {
     new Uint8ClampedArray(decoded.data)
   );
 
-  // Default starting selection for example image (1280×960) from App.svelte
+  // Use the same source geometry as the editor and interactive explainers.
   const EXAMPLE_DEFAULT = {
-    nest: {
-      x: 343.20995532865345,
-      y: 334.7223994894703,
-      w: 583.5417996171027,
-      h: 454.86917677089986
-    },
-    crop: { x: 24.21841241336756, y: 0, w: 1231.5631751732649, h: 960 }
+    nest: demoImage.nest,
+    crop: fitCropToNest(decoded, demoImage.nest)
   };
 
   const nestInCrop = {
@@ -108,7 +104,8 @@ async function main() {
     H: EXAMPLE_DEFAULT.crop.h,
     cropX: EXAMPLE_DEFAULT.crop.x,
     cropY: EXAMPLE_DEFAULT.crop.y,
-    sampleScale: 1
+    sampleScale: 1,
+    shapeMorph: demoImage.shape === 'ellipse' ? 0 : 1
   };
 
   // Dimensions of rendering frame (ANIMATED_MAX_W = 360)

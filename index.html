@@ -228,7 +228,7 @@
     overflow: hidden;
   }
   .panel-cell canvas { display: block; width: 100%; height: 100%; }
-  .ar-img { aspect-ratio: var(--cell-ar, 4 / 3); }
+  .ar-img { aspect-ratio: var(--cell-ar, 1 / 1); }
   .ar-wide { aspect-ratio: 18 / 7; }
 
   .solo-panel { margin: 2em auto; max-width: 520px; }
@@ -724,36 +724,35 @@
     </div>
   </header>
 
-  <h2>Start with an ordinary photo</h2>
+  <h2>Start with a picture</h2>
   <p>
-    Here is one: someone on a couch, holding an empty frame.
+    An observatory inside a pear. A round doorway with room for another world.
   </p>
 
   <figure class="fig-droste">
     <div class="frame">
-      <img src="/pre-droste-nevit.jpg" alt="A photograph of a person sitting on a couch, holding up an empty rectangular picture frame." loading="lazy" />
+      <img src="/pear-observatory.jpg" alt="An AI-generated world: a mossy observatory, copper telescope and impossible stairways inside a yellow pear." loading="lazy" />
     </div>
-    <figcaption>Nothing unusual yet: a person, a couch, an empty frame.</figcaption>
+    <figcaption>The pear observatory, before the first copy. An AI-generated scene.</figcaption>
   </figure>
 
   <p>
-    Now do one thing to it. Take the whole photo &mdash; couch, smile, frame and
-    all &mdash; shrink it, and slot it into that empty frame. The frame isn't empty
-    now; it holds the photo. But the copy you just dropped in has a frame of its
-    own, and <em>that</em> one is empty. So fill it the same way. And the copy
-    inside it. There is no last step.
+    Now do one thing to it. Take the whole picture &mdash; pear, telescope, stairways and
+    all &mdash; shrink it, and place a circular view of it inside the doorway. The
+    smaller picture has a doorway of its own. Fill that one the same way. And the
+    copy inside it. There is no last step.
   </p>
 
   <figure class="fig-droste">
     <div class="frame">
-      <img src="/Droste_1260359-nevit.jpg" alt="The same photograph, but now the frame holds a smaller copy of the whole photo, which holds a smaller copy again, repeating inward." loading="lazy" />
+      <img src="/pear-observatory-droste.jpg" alt="The pear observatory with smaller copies of its world nested inside the round doorway, repeating inward." loading="lazy" />
     </div>
-    <figcaption>The same photo, dropped into its own frame, again and again.</figcaption>
+    <figcaption>The same world inside the same doorway, again and again.</figcaption>
   </figure>
 
   <p>
     That is the <strong>Droste&nbsp;effect</strong>, after the 1904 cocoa tin that
-    used it. Each copy sits squarely inside the last, the same shape a fixed
+    used it. Each copy sits inside the last, the same shape a fixed
     fraction smaller, and the picture falls straight toward its own centre &mdash;
     with no bottom to reach.
   </p>
@@ -778,7 +777,7 @@
   <p>
     So if <em>z</em> is one point on the picture, <em>f</em>(<em>z</em>) tells us
     where that point goes. Now do it for <em>every</em> point at once. The grid
-    moves. The rings move. The photo moves. That is all a warp is: one function,
+    moves. The rings move. The picture moves. That is all a warp is: one function,
     evaluated everywhere.
   </p>
   <p>
@@ -812,7 +811,7 @@
         <div class="pg-layers">
           <button type="button" data-layer="grid">grid</button>
           <button type="button" data-layer="rings">rings</button>
-          <button type="button" data-layer="image">photo</button>
+          <button type="button" data-layer="image">picture</button>
         </div>
       </div>
       <div class="pg-tee">
@@ -875,7 +874,7 @@
   <figure class="pipeline live-panels" aria-label="The original picture, then three connected transforms: the flat log strip, the strip leaned over, and the strip rolled back up into a spiral.">
     <div class="stage">
       <div class="stagehead"><span class="step in">in</span> the original</div>
-      <div class="stagemath">shrink&nbsp;<em>S</em> = <b class="mv" id="m-s">2.1</b></div>
+      <div class="stagemath">shrink&nbsp;<em>S</em> = <b class="mv" id="m-s">…</b></div>
       <div class="panel-cell ar-img">
         <span class="plabel">source</span>
         <canvas id="exp-orig"></canvas>
@@ -884,14 +883,14 @@
         <span class="seg" role="group" aria-label="what to feed in">
           <button type="button" data-source="polar">ring</button>
           <button type="button" data-source="grid">grid</button>
-          <button type="button" data-source="picture">photo</button>
+          <button type="button" data-source="picture">picture</button>
           <button type="button" data-source="overlay" class="on">overlay</button>
         </span>
       </div>
     </div>
     <div class="stage">
       <div class="stagehead"><span class="step">1</span> we log it</div>
-      <div class="stagemath"><em>&zeta;</em> = log(<em>z</em>&nbsp;&minus;&nbsp;<em>c</em>) &nbsp;&middot;&nbsp; log&nbsp;<em>S</em> = <b class="mv" id="m-logs">0.75</b></div>
+      <div class="stagemath"><em>&zeta;</em> = log(<em>z</em>&nbsp;&minus;&nbsp;<em>c</em>) &nbsp;&middot;&nbsp; log&nbsp;<em>S</em> = <b class="mv" id="m-logs">…</b></div>
       <div class="panel-cell ar-img">
         <span class="plabel">flat strip <span class="pchip">drag me</span></span>
         <canvas id="exp-log"></canvas>
@@ -901,14 +900,14 @@
         <span class="seg" role="group" aria-label="what to feed in">
           <button type="button" data-source="polar">ring</button>
           <button type="button" data-source="grid">grid</button>
-          <button type="button" data-source="picture">photo</button>
+          <button type="button" data-source="picture">picture</button>
           <button type="button" data-source="overlay" class="on">overlay</button>
         </span>
       </div>
     </div>
     <div class="stage">
       <div class="stagehead"><span class="step">2</span> we bend it</div>
-      <div class="stagemath"><em>&zeta;</em> &rarr; <em>&alpha;&zeta;</em>,&nbsp; <em>&alpha;</em> = 1 &minus; <b class="mv" id="m-k">0.12</b>&#8202;<em>i</em></div>
+      <div class="stagemath"><em>&zeta;</em> &rarr; <em>&alpha;&zeta;</em>,&nbsp; <em>&alpha;</em> = 1 &minus; <b class="mv" id="m-k">…</b>&#8202;<em>i</em></div>
       <div class="panel-cell ar-img is-closed">
         <span class="plabel">leaned over</span>
         <canvas id="exp-bend"></canvas>
@@ -922,7 +921,7 @@
         <span class="seg" role="group" aria-label="what to feed in">
           <button type="button" data-source="polar">ring</button>
           <button type="button" data-source="grid">grid</button>
-          <button type="button" data-source="picture">photo</button>
+          <button type="button" data-source="picture">picture</button>
           <button type="button" data-source="overlay" class="on">overlay</button>
         </span>
       </div>
@@ -941,7 +940,7 @@
         <span class="seg" role="group" aria-label="what to feed in">
           <button type="button" data-source="polar">ring</button>
           <button type="button" data-source="grid">grid</button>
-          <button type="button" data-source="picture">photo</button>
+          <button type="button" data-source="picture">picture</button>
           <button type="button" data-source="overlay" class="on">overlay</button>
         </span>
       </div>
@@ -957,7 +956,7 @@
     still line up, and roll it back up &mdash; the lean becomes the spiral.
   </p>
   <p class="aside">
-    The <em>photo</em>'s own nesting is gentle, so it closes at only about&nbsp;7&deg;.
+    The <em>picture</em>'s closing angle comes from the size of its doorway.
     The <em>ring</em> and <em>grid</em> patterns repeat at every scale, so they
     close at the full ~25&deg; &mdash; almost exactly the 26&deg; Escher used. The
     source choice under each panel is shared across all three.
@@ -1011,7 +1010,7 @@
   </figure>
 
   <p>
-    Going inward usually breaks the spell &mdash; zoom toward the middle of a photo
+    Going inward usually breaks the spell &mdash; zoom toward the middle of a picture
     and you meet new detail forever, never the same view twice. The Droste is the
     exception, and we built it on purpose: one frame inward is an exact copy of the
     whole, so inward repeats as well. Flatten both directions and the picture turns
@@ -1075,7 +1074,7 @@
     shear. So the whole plane can twist violently around itself while the little
     squares stay square. Turn the grid back on and watch one tile through the
     bend: it moves and turns and shrinks, but it keeps its shape. That is why this
-    family of functions is the right tool for warping a photograph, and it is the
+    family of functions is the right tool for warping a picture, and it is the
     quiet reason the spiral still reads as Escher's gallery rather than a smear.
   </p>
 
@@ -1124,7 +1123,7 @@
 
   <h2>Now make one</h2>
   <p>
-    This tool does the bending for you. Drop in any photo, draw the rectangle where
+    This tool does the bending for you. Drop in any picture, draw the rectangle where
     the next copy should sit, and flip between the two infinities: the straight
     Droste fall, or the tententoon spiral. Export the loop as a PNG, a GIF, or a
     video. It all runs in your browser: no upload, no account, no server.
@@ -1147,9 +1146,8 @@
       See also <a href="https://en.wikipedia.org/wiki/Print_Gallery_(M._C._Escher)" target="_blank" rel="noopener noreferrer">Wikipedia: Print Gallery</a>.
     </p>
     <p>
-      Demonstration photograph: &ldquo;Droste effect&rdquo; by
-      <a href="https://commons.wikimedia.org/wiki/File:Droste_1260359-nevit.jpg" target="_blank" rel="noopener noreferrer">Nevit&nbsp;Dilmen</a>,
-      <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener noreferrer">CC&nbsp;BY-SA&nbsp;3.0</a>.
+      Demonstration image: &ldquo;The pear observatory,&rdquo; an AI-generated world
+      made for tententoon. The nested copies and spiral are rendered from that image.
     </p>
   </footer>
 

@@ -132,12 +132,22 @@ function paintViewfinder(): void {
   // bright window: redraw the photo clipped to the nest rect
   g.save();
   g.beginPath();
-  g.rect(rx, ry, rw, rh);
+  if (scene.geom.ctx.shapeMorph === 0) g.ellipse(rx + rw / 2, ry + rh / 2, rw / 2, rh / 2, 0, 0, Math.PI * 2);
+  else g.rect(rx, ry, rw, rh);
   g.clip();
   g.drawImage(img, fit.offX, fit.offY, fit.w, fit.h);
   g.restore();
 
-  // rule-of-thirds lines, inside the rect only
+  // Mark the actual opening as well as its editable bounding box.
+  if (scene.geom.ctx.shapeMorph === 0) {
+    g.beginPath();
+    g.ellipse(rx + rw / 2, ry + rh / 2, rw / 2, rh / 2, 0, 0, Math.PI * 2);
+    g.strokeStyle = '#f5f5f7';
+    g.lineWidth = 2;
+    g.stroke();
+  }
+
+  // Rule-of-thirds guides in the selection bounds.
   g.strokeStyle = 'rgba(255, 255, 255, 0.28)';
   g.lineWidth = 1;
   g.beginPath();

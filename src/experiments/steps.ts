@@ -103,16 +103,25 @@ function paintStage(): void {
   const ny = v.offY + n.y * v.scale;
   const nw = n.w * v.scale;
   const nh = n.h * v.scale;
+  const ellipseNest = s.geom.ctx.shapeMorph === 0;
+  const traceNest = () => {
+    if (ellipseNest) {
+      ctx.moveTo(nx + nw, ny + nh / 2);
+      ctx.ellipse(nx + nw / 2, ny + nh / 2, nw / 2, nh / 2, 0, 0, Math.PI * 2);
+    } else ctx.rect(nx, ny, nw, nh);
+  };
   ctx.beginPath();
   ctx.rect(v.offX, v.offY, pw, ph);
-  ctx.rect(nx, ny, nw, nh);
+  traceNest();
   ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
   ctx.fill('evenodd');
 
   // accent border + corner handles
   ctx.strokeStyle = ACCENT;
   ctx.lineWidth = 2;
-  ctx.strokeRect(nx, ny, nw, nh);
+  ctx.beginPath();
+  traceNest();
+  ctx.stroke();
   const corners: Array<[number, number]> = [
     [nx, ny], [nx + nw, ny], [nx, ny + nh], [nx + nw, ny + nh]
   ];

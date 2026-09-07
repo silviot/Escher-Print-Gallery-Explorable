@@ -1,6 +1,30 @@
-Default example image
----------------------
-File:    Droste_1260359-nevit.jpg
+Current demonstration image
+---------------------------
+Title:   The pear observatory
+Files:   pear-observatory.jpg (source scene)
+         pear-observatory-droste.jpg (rendered circular copies)
+         tententoon-demo.gif (rendered spiral animation)
+Source:  AI-generated world made for tententoon: a mossy observatory,
+         copper telescope and impossible stairways inside a yellow pear.
+         Nested copies and the spiral are rendered from the source image
+         by tententoon.
+
+Previous generated study
+------------------------
+Title:   Summer in Berlin
+Files:   berlin-summer-park.jpg (source scene)
+         berlin-summer-park-droste.jpg (rendered circular copies)
+Source:  AI-generated summer park scene made for tententoon.
+         The people and scene are synthetic.
+Use:     Retained as an earlier study; no longer the live demonstration.
+
+Historical photograph and adaptations
+-------------------------------------
+Files:   Droste_1260359-nevit.jpg
+         pre-droste-nevit.jpg (adapted to remove the nested copies)
+         docs/screenshots/explorable.png (historical interface screenshot)
 Author:  Nevit Dilmen
 Source:  https://commons.wikimedia.org/wiki/File:Droste_1260359-nevit.jpg
 License: CC BY-SA 3.0 — https://creativecommons.org/licenses/by-sa/3.0/
+Use:     Retained for pixel regression tests and historical documentation.
+         These images are no longer used by the live demonstrations.

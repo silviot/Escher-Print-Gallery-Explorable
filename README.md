@@ -14,11 +14,11 @@ A browser tool for making the same move with your own images.
 
 <table>
 <tr>
-<td align="center" width="50%"><img src="public/Droste_1260359-nevit.jpg" width="360" alt="A photograph of a person holding a frame; inside the frame is the same person holding the same frame, repeating into the distance."></td>
-<td align="center" width="50%"><img src="public/tententoon-demo.gif" width="360" alt="The same photograph, with the nested copies rotating as they shrink, winding the whole image into a smooth spiral."></td>
+<td align="center" width="50%"><img src="public/pear-observatory-droste.jpg" width="360" alt="An AI-generated observatory inside a yellow pear, with smaller copies of its world nested in a round doorway."></td>
+<td align="center" width="50%"><img src="public/tententoon-demo.gif" width="360" alt="The same pear observatory, with the nested copies winding into a continuous spiral."></td>
 </tr>
 <tr>
-<td align="center"><strong>Droste</strong> — a picture inside itself, dropping <em>straight down</em> forever.<br><sub>(this one is a real photograph)</sub></td>
+<td align="center"><strong>Droste</strong> — a picture inside itself, dropping <em>straight down</em> forever.<br><sub>AI-generated source; rendered circular copies.</sub></td>
 <td align="center"><strong>tententoon</strong> — the same recursion, <em>bent into a spiral</em> that still closes seamlessly.</td>
 </tr>
 </table>
@@ -27,7 +27,7 @@ A browser tool for making the same move with your own images.
 
 ## The idea
 
-Nest a picture inside itself and you get the **Droste effect**: each copy sits squarely inside the last, shrinking by the same step, forever.
+Nest a picture inside itself and you get the **Droste effect**: each copy sits inside the last, shrinking by the same step, forever.
 
 A **tententoon** asks one stranger question — *what if each copy also turns as it shrinks?* The nested frames then wind into a spiral. Straight lines bow into curves, the whole picture twists, and yet nothing tears: follow any line inward and it meets itself exactly.
 
@@ -41,7 +41,7 @@ Escher drew *Print Gallery* by hand in 1956 and left a white blot at its centre 
 
 ## Make one
 
-Drop in any photo, draw the rectangle where the next copy should sit, and flip between the two infinities — the straight Droste fall or the tententoon spiral. Export the loop as a PNG, GIF, or video. Everything runs in your browser. Your photos stay on your device; no account or server is needed.
+Drop in any picture, draw the rectangle where the next copy should sit, and flip between the two infinities — the straight Droste fall or the tententoon spiral. Export the loop as a PNG, GIF, or video. Everything runs in your browser. Your pictures stay on your device; no account or server is needed.
 
 **Live:** [tententoon.codemyriad.io/tool](https://tententoon.codemyriad.io/tool)
 
@@ -65,11 +65,12 @@ Svelte 5 (runes) + Vite. Rendering is WebGL via [twgl.js](https://twgljs.org/) w
 
 [Experiments 2](https://silvio-tententoon.pgs.sh/experiments-2/) offers three alternative introductions: a quiet illustrated [essay](https://silvio-tententoon.pgs.sh/experiments-2/essay.html), a [scroll journey](https://silvio-tententoon.pgs.sh/experiments-2/inside.html), and a hands-on [instrument](https://silvio-tententoon.pgs.sh/experiments-2/play.html). Each works independently of the video and links to the generator.
 
-Sources live in `experiments-2/` and `src/experiments-2/`. They use the existing transform pipeline, a local canvas-drawn gallery, and a CPU fallback when WebGL is unavailable. `npm run build` includes every entry point. To deploy the built site to the preview host: `rsync -r dist/ pgs.sh:/tententoon/`.
+Sources live in `experiments-2/` and `src/experiments-2/`. They use the existing transform pipeline, the generated pear observatory, a local canvas-drawn gallery, and a CPU fallback when WebGL is unavailable. The demo image and doorway selection are shared through `src/lib/demo-image.json`. `npm run build` includes every entry point. To deploy the built site to the preview host: `rsync -r dist/ pgs.sh:/tententoon/`.
 
 ## Credits & licence
 
 - **Print Gallery** / *Prentententoonstelling* — M. C. Escher, 1956. Escher's works are © The M. C. Escher Company; referenced here by description and link, not reproduced.
 - **The mathematical completion** — Bart de Smit & Hendrik Lenstra, *The Mathematical Structure of Escher's Print Gallery*, [Notices of the AMS, 2003](https://www.ams.org/notices/200304/fea-escher.pdf).
-- **Demo image** — *Droste effect* by [Nevit Dilmen](https://commons.wikimedia.org/wiki/File:Droste_1260359-nevit.jpg), [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/) (see `public/ATTRIBUTION.txt`).
-- **Code** — [AGPLv3 or later](LICENSE) (the sample image keeps its own CC BY-SA 3.0 licence).
+- **Demo image** — *The pear observatory*, an AI-generated world made for tententoon. Nested copies and the spiral are rendered from the source image.
+- **Historical regression fixture** — *Droste effect* by [Nevit Dilmen](https://commons.wikimedia.org/wiki/File:Droste_1260359-nevit.jpg), [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Retained for existing pixel tests and historical assets; no longer the live demo. See `public/ATTRIBUTION.txt`.
+- **Code** — [AGPLv3 or later](LICENSE). The historical Nevit image and its adaptations retain their CC BY-SA 3.0 licence.

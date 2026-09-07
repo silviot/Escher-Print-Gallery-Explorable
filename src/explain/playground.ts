@@ -23,6 +23,9 @@
  * shown, is forward-warped through a small triangle mesh.
  */
 
+import { publicAssetUrl } from '../lib/asset-url';
+import demoImage from '../lib/demo-image.json';
+
 type C = { re: number; im: number };
 
 type FnKey = 'id' | 'double' | 'rot' | 'square' | 'exp' | 'log';
@@ -64,7 +67,7 @@ const FNS: Fn[] = [
   }
 ];
 
-const PHOTO = '/Droste_1260359-nevit.jpg';
+const PHOTO = publicAssetUrl(demoImage.plainImage);
 const GRID_STEP = Math.PI / 8; // ≈0.393; divides D = π evenly, no edge sliver
 const NEIGH = 0.17; // half-side of the little square drawn around the dragged point
 const LINE_SAMPLES = 100;

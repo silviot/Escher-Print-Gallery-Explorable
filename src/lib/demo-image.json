@@ -1,0 +1,8 @@
+{
+  "image": "pear-observatory-droste.jpg",
+  "plainImage": "pear-observatory.jpg",
+  "name": "The pear observatory",
+  "shape": "ellipse",
+  "nest": { "x": 420, "y": 494, "w": 476, "h": 474 },
+  "credit": "AI-generated impossible observatory inside a pear."
+}

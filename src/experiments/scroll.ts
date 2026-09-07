@@ -134,11 +134,18 @@ function draw2d(p: number): void {
   const y = (nest.y - crop.y) * ky;
   const w = nest.w * kx;
   const h = nest.h * ky;
+  const ellipseNest = scene.geom.ctx.shapeMorph === 0;
+  const traceNest = () => {
+    if (ellipseNest) {
+      ctx.moveTo(x + w, y + h / 2);
+      ctx.ellipse(x + w / 2, y + h / 2, w / 2, h / 2, 0, 0, Math.PI * 2);
+    } else ctx.rect(x, y, w, h);
+  };
   ctx.save();
   ctx.globalAlpha = a * 0.45;
   ctx.beginPath();
   ctx.rect(0, 0, flat.width, flat.height);
-  ctx.rect(x, y, w, h);
+  traceNest();
   ctx.fillStyle = '#faf7f0';
   ctx.fill('evenodd');
   ctx.globalAlpha = a;
@@ -146,7 +153,9 @@ function draw2d(p: number): void {
   ctx.shadowBlur = flat.width / 160;
   ctx.strokeStyle = '#d94f2c';
   ctx.lineWidth = Math.max(3, flat.width / 280);
-  ctx.strokeRect(x, y, w, h);
+  ctx.beginPath();
+  traceNest();
+  ctx.stroke();
   ctx.restore();
 }
 

@@ -6,7 +6,7 @@ async function boot() {
   const plain = document.querySelector<HTMLCanvasElement>('#essay-preview')!;
   const spiral = new SpiralView(document.querySelector<HTMLCanvasElement>('#inside-preview')!);
   const strip = new SpiralView(document.querySelector<HTMLCanvasElement>('#play-preview')!);
-  spiral.setScene(gallery); strip.setScene(gallery);
+  spiral.setScene(gallery); strip.setScene(photo);
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   let active = '', phase = .2, raf = 0, last = 0;
   function paint() {

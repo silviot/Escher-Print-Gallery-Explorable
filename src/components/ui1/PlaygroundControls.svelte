@@ -8,7 +8,7 @@
    * preset in presets.ts wires its sliders automatically.
    */
 
-  import { doc, setImage } from '../../lib/ui1/state.svelte';
+  import { doc, setImage, commitNewRect, snapShapeMorph } from '../../lib/ui1/state.svelte';
   import {
     playground,
     selectPreset,
@@ -19,6 +19,7 @@
   import { makeTestPattern, type PatternKind } from '../../lib/ui1/test-patterns';
   import { loadUrl } from '../../lib/ui1/file';
   import { publicAssetUrl } from '../../lib/asset-url';
+  import demoImage from '../../lib/demo-image.json';
 
   const preset = $derived(PRESET_BY_ID[playground.presetId]);
   const FILLS: FillMode[] = ['tile', 'clamp', 'mirror'];
@@ -32,8 +33,13 @@
   }
 
   async function loadSample() {
-    const r = await loadUrl(publicAssetUrl('Droste_1260359-nevit.jpg'));
-    if (r.ok) setImage(r.image, r.name);
+    const r = await loadUrl(publicAssetUrl(demoImage.plainImage));
+    if (r.ok) {
+      setImage(r.image, demoImage.name);
+      doc.shape = demoImage.shape === 'ellipse' ? 'ellipse' : 'rect';
+      snapShapeMorph();
+      commitNewRect({ ...demoImage.nest });
+    }
   }
   async function loadPattern(kind: PatternKind) {
     const bmp = await makeTestPattern(kind);

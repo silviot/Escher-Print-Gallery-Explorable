@@ -15,7 +15,7 @@
  * spiral (roll 1), so you can watch the exponential happen.
  *
  * Two geometries feed the panels so the bend is both honest and dramatic:
- *   • the PHOTO at its own gentle nesting (S ≈ 2.1, β ≈ 6.8°) — "photo"/"overlay";
+ *   • the PHOTO at its own opening size and circular nesting — "photo"/"overlay";
  *   • a BOLD synthetic geometry (S = 20, β ≈ 25.5°, near Escher's 26°) for the
  *     scale-invariant "ring"/"grid" patterns, which stay seamless at any scale.
  * Switching source switches geometry; the bend slider's β and the "closed" mark
@@ -33,9 +33,11 @@ import { PipelinePanelGLRenderer } from '../lib/render/pipeline-gl';
 import type { DrosteCtx } from '../lib/math/transforms';
 import { makeSource, type SourceMode } from './patterns';
 import { initPlayground } from './playground';
+import { publicAssetUrl } from '../lib/asset-url';
+import demoImage from '../lib/demo-image.json';
 
-const SOURCE = '/Droste_1260359-nevit.jpg';
-const PHOTO_NEST: Rect | null = { x: 343.2, y: 334.7, w: 583.5, h: 454.9 };
+const SOURCE = publicAssetUrl(demoImage.plainImage);
+const PHOTO_NEST: Rect | null = demoImage.nest;
 const BOLD_S = 20; // β = atan(ln 20 / 2π) ≈ 25.5°, a hair under Escher's 26°
 
 const TWO_PI = 2 * Math.PI;
@@ -112,10 +114,10 @@ async function main(): Promise<void> {
   const Wimg = photo.naturalWidth;
   const Himg = photo.naturalHeight;
 
-  // ── Photo geometry (faithful, gentle) ──────────────────────────────────────
+  // ── Photo geometry (the same opening selection as the editor) ─────────────────
   const nest = PHOTO_NEST ?? centeredNest(Wimg, Himg);
   const crop = fitCropToNest({ width: Wimg, height: Himg }, nest, null);
-  const gPhoto = buildPanelGeometry(nest, crop);
+  const gPhoto = buildPanelGeometry(nest, crop, demoImage.shape === 'ellipse' ? 0 : 1);
   if (!gPhoto) {
     showFallback('That nest is degenerate. Pick a smaller rectangle.');
     return;

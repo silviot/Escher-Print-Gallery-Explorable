@@ -11,6 +11,8 @@
  *        Set SMOKE_URL to point elsewhere.
  */
 
+import { readFile } from 'node:fs/promises';
+
 const BASE = process.env.SMOKE_URL ?? 'http://localhost:5173';
 
 let failures = 0;
@@ -35,9 +37,11 @@ async function head(path) {
 
 async function main() {
   console.log(`smoke @ ${BASE}`);
+  const demo = JSON.parse(await readFile(new URL('../src/lib/demo-image.json', import.meta.url), 'utf8'));
+  const samplePath = '/' + demo.plainImage;
 
   // 1. The committed example must be served as a real image.
-  const example = await head('/Droste_1260359-nevit.jpg');
+  const example = await head(samplePath);
   check(
     'example image is image/*',
     example.status === 200 && example.contentType.startsWith('image/'),
@@ -47,7 +51,7 @@ async function main() {
   // 2. Decode the bytes. A 200 with image/jpeg content-type but corrupted bytes
   //    would still break the app — check the JPEG SOI marker (FF D8).
   try {
-    const res = await fetch(BASE + '/Droste_1260359-nevit.jpg');
+    const res = await fetch(BASE + samplePath);
     const buf = new Uint8Array(await res.arrayBuffer());
     check(
       'example bytes start with JPEG SOI marker',
