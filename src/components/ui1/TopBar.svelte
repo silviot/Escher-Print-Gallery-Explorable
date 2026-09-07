@@ -122,15 +122,14 @@
       <button class="btn choose" onclick={() => input.click()} title="Choose a picture from your device">
         <Icon name="image" size={16} /><span>Choose picture</span>
       </button>
-      <MobileMenu label="Choose picture" description="Choose a picture source" start accent>
+      <MobileMenu label="Choose picture" description="Choose a picture source" icon="image" start accent>
         {#snippet children(close)}
           <button class="menu-action" onclick={() => { close(); input.click(); }}><Icon name="image" />From your device</button>
-          <button class="menu-action" onclick={() => { close(); galleryOpen = true; }}><Icon name="gallery" />Gallery</button>
           <RecentMenu expandedLabel onPick={close} />
         {/snippet}
       </MobileMenu>
     </div>
-    <button class="btn gallery-btn" onclick={() => (galleryOpen = true)} title="Open your saved tententoons">
+    <button class="btn gallery-btn" onclick={() => (galleryOpen = true)} title="Open previous pictures and saved tententoons" aria-haspopup="dialog">
       <Icon name="gallery" size={16} /><span>Gallery</span>
     </button>
     <div class="mobile-actions">
@@ -312,23 +311,24 @@
   }
   @media (max-width: 720px) {
     .top { gap: 0; padding: 4px 8px; }
-    .brand, .div, .file, .utilities, .gallery-btn, .choose { display: none; }
+    .brand, .div, .file, .utilities, .choose { display: none; }
     .actions { width: 100%; gap: 8px; }
-    .picture-picker { display: block; margin-right: auto; }
+    .picture-picker { display: block; }
+    .gallery-btn { margin-right: auto; }
+    .gallery-btn, .exp-wrap > .btn { flex-direction: column; gap: 2px; min-width: 50px; padding: 4px 6px; font-size: 10px; line-height: 1.2; }
     .mobile-actions { display: flex; gap: 2px; }
     .mobile-actions .btn { width: 32px; background: transparent; border-color: transparent; }
     .mobile-actions span { display: none; }
     .btn { min-height: 40px; }
     .caret { display: none; }
   }
-  @media (min-width: 480px) and (max-width: 720px) {
+  @media (min-width: 560px) and (max-width: 720px) {
     .mobile-actions .btn { width: auto; padding-inline: 8px; gap: 5px; }
     .mobile-actions span { display: inline; }
   }
   @media (max-width: 360px) {
     .top { padding-inline: 8px; }
     .actions { gap: 4px; }
-    .actions .btn { padding-inline: 8px; gap: 5px; }
     .mobile-actions .btn { width: 30px; padding: 0; }
   }
 </style>
