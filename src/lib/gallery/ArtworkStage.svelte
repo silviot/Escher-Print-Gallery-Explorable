@@ -42,15 +42,6 @@
     w: item.nest.w / crop.w,
     h: item.nest.h / crop.h
   });
-  const spiralReveal = $derived(smooth(visual - 1));
-  // Droste lives inside its aperture. Only the spiral opens the rest of
-  // the scene, so the original photograph keeps its unbroken outer edges.
-  const apertureMask = $derived(item.shape === 'ellipse' && visual < 2
-    ? `radial-gradient(ellipse ${frameRect.w * 50 * (1 - spiralReveal) + 145 * spiralReveal}% ${frameRect.h * 50 * (1 - spiralReveal) + 145 * spiralReveal}% at ${(frameRect.x + frameRect.w / 2) * 100}% ${(frameRect.y + frameRect.h / 2) * 100}%, #000 96%, transparent 100%)`
-    : 'none');
-  const apertureClip = $derived(item.shape === 'rect' && visual < 2
-    ? `inset(${frameRect.y * 100 * (1 - spiralReveal)}% ${(1 - frameRect.x - frameRect.w) * 100 * (1 - spiralReveal)}% ${(1 - frameRect.y - frameRect.h) * 100 * (1 - spiralReveal)}% ${frameRect.x * 100 * (1 - spiralReveal)}%)`
-    : 'none');
   let scene: GalleryScene | null = null;
   let renderer: GalleryRenderer;
   let current = 0, phase = 0, lastPaint = 0, dirty = true;
@@ -130,7 +121,8 @@
   {#key `${item.src}:${retry}`}
     <img class="source" src={item.src} alt={item.alt} decoding="async" style:left={`${-crop.x / crop.w * 100}%`} style:top={`${-crop.y / crop.h * 100}%`} style:width={`${100 / crop.w}%`} style:height={`${100 / crop.h}%`} />
   {/key}
-  <div class="transformed" style:opacity={ready ? smooth(visual) : 0} style:mask-image={apertureMask} style:clip-path={apertureClip}>
+  <!-- The same full-frame renderer carries the zoom from Droste into the spiral. -->
+  <div class="transformed" style:opacity={ready ? smooth(visual) : 0}>
     <canvas bind:this={gpuCanvas} class:hidden={cpu} aria-hidden="true"></canvas>
     <canvas bind:this={cpuCanvas} class:hidden={!cpu} aria-hidden="true"></canvas>
   </div>
@@ -150,7 +142,7 @@
   .viewport { position: absolute; overflow: hidden; }
   .source, .transformed, canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
   .source { max-width: none; max-height: none; }
-  .transformed { will-change: clip-path; }
+  .transformed { will-change: opacity; }
   canvas.hidden { display: none; }
   .frame { position: absolute; border: 1.5px solid #fff4bc; box-shadow: 0 0 0 1px #0003, 0 0 26px #f5f1c52a; pointer-events: none; }
   .loading { position: absolute; bottom: 18px; left: 18px; padding: 9px 13px; background: #161714c9; border-radius: 30px; color: #fff; font: 11px/1.2 system-ui; letter-spacing: .03em; display:flex; gap:10px; align-items:center; }

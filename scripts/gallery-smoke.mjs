@@ -31,6 +31,28 @@ try {
   assert.notEqual(droste, spiral, 'tententoon must change image pixels');
   const tiles = page.locator('.filmstrip button');
   assert.equal(await tiles.count(), 16);
+  // Inspect the composited page, including any CSS masks over the renderer.
+  // This strip lies outside both selected openings and clear of the controls.
+  const periphery = async () => {
+    const box = await page.locator('.artwork-stage .viewport').boundingBox();
+    return hash(await page.screenshot({ clip: {
+      x: Math.ceil(box.x + box.width * .03), y: Math.ceil(box.y + box.height * .2),
+      width: Math.floor(box.width * .1), height: Math.floor(box.height * .55)
+    } }));
+  };
+  for (const id of ['photo-coffee', 'photo-greenhouse']) {
+    await page.locator(`[data-image="${id}"]`).click();
+    await ready(); await stage.scrollIntoViewIfNeeded(); await phase(1);
+    await page.waitForTimeout(550);
+    const edge = await periphery();
+    await page.waitForTimeout(350);
+    assert.equal(await periphery(), edge, `${id}: paused Droste periphery must stay still`);
+    await page.getByRole('button', { name: 'Resume tour', exact: true }).click();
+    await page.waitForTimeout(1000);
+    assert.notEqual(await periphery(), edge, `${id}: moving Droste must zoom the periphery too`);
+    await page.getByRole('button', { name: 'Pause tour', exact: true }).click();
+  }
+  console.log('✓ Elliptical and rectangular Droste zoom the whole image; pause holds the periphery still');
   for (let index = 0; index < await tiles.count(); index++) {
     await tiles.nth(index).click();
     await ready();
