@@ -1,0 +1,85 @@
+{
+  "generationMode": "built-in image_gen",
+  "useCase": "photorealistic-natural",
+  "instructions": "Ordinary photographic sources only. Recursion is created later by the application's image pipeline; no generated source includes a Droste effect.",
+  "assets": [
+    {
+      "filename": "greenhouse.png",
+      "title": "The allotment",
+      "alt": "A weathered glass greenhouse surrounded by overgrown garden plants, with a small open doorway into its ordinary dim interior.",
+      "generatedOriginal": "/home/silvio/.codex/generated_images/01a07b4f-ed78-7a32-8add-3aa30f5a8b6e/exec-cf6840f9-6789-4a97-9184-4e091570b6a1.png",
+      "prompt": "Use case: photorealistic-natural.\nCreate one square ordinary documentary photograph, not an illustration or a surreal image.\nA single small weathered Victorian-style garden greenhouse stands amid an overgrown allotment on a damp late-summer morning. Photograph its entire front elevation straight-on from several metres away, level camera. The greenhouse occupies the central 55 percent of image width and extends from about y=20% to y=73%. Broad rich garden context surrounds it: weeds and tomato plants to the sides, a slightly crooked brick path, a tipped terracotta pot and a dull yellow watering can in foreground. Cloudy natural daylight, grubby glass, flaking muted green paint, believable imperfections.\nAt image center is ONE open doorway, a small clean rectangular opening only about 15 percent of the full photograph width and 23 percent of the full photograph height, centered near x=50%, y=52%. The doorway has NO door leaf across it and contains an ordinary dim greenhouse interior: dark earth, indistinct foliage, a back wall. A single simple uninterrupted rectangular metal rim bounds this opening. Keep the complete outer roof and peak visible, physically connected to the outer structure.\nThis is a completely normal photograph of ONE greenhouse. No nested greenhouse, no structure within a structure, no repeated doors, no little copy of the exterior inside the doorway, no portals, no Droste, no collage, no impossible architecture, no people, no text, no watermark. Nothing inside the small doorway should look like another doorway or roof. Natural lens perspective and restrained color, not glossy CGI.",
+      "nest": {
+        "x": 0.44,
+        "y": 0.408,
+        "w": 0.109,
+        "h": 0.194
+      },
+      "shape": "rect",
+      "qa": [
+        "Single ordinary greenhouse; no nested roofs, doorframes, or miniature scene.",
+        "Entire connected roof is visible; dark doorway contains soil, foliage, and the back wall.",
+        "Small front-facing opening, roughly 11% image width; over 40% horizontal source margin.",
+        "Portrait opening may need working-aspect crop review in gallery; estimates should be calibrated to inner rim in browser."
+      ]
+    },
+    {
+      "filename": "boat.png",
+      "title": "Harbor glass",
+      "alt": "A worn teal fishing boat tied to a quiet wooden harbor pier, with one small brass porthole containing dark ordinary glass.",
+      "generatedOriginal": "/home/silvio/.codex/generated_images/01a07b4f-ed78-7a32-8add-3aa30f5a8b6e/exec-ee01482e-d861-4df0-9ec0-76ee90c7756e.png",
+      "prompt": "Use case: photorealistic-natural.\nCreate one square, ordinary candid documentary photograph of a small old teal-painted fishing boat moored alongside a quiet wooden harbor pier on an overcast summer morning. No people. We see the side of the little boat's short white cabin perfectly straight-on, so its ONE round brass-rimmed porthole faces the camera as a true circle. The boat occupies the middle part of the photo with the cabin amidship; deck, coiled hemp ropes, peeling teal hull, a tire fender, timber pier, calm gray-green seawater and a soft distant coastline all provide broad lived-in context. The porthole is centered at approximately x=50%, y=48%; its dark ordinary smoky glass opening has diameter just 17 percent of the full photograph width. A weathered brass annulus bounds the glass; no spokes or divisions in it. The cabin wall around it has ample space, and nothing obscures the circle.\nThe opening contains only ordinary dark tinted window glass with faint muted reflections of cloudy sky. It is NOT a picture frame, NOT a hole to another world, NOT a view of another boat, NOT a miniature scene. One boat, one porthole only, no nested circles, no concentric portals, no repeated coastlines, no Droste effect. Modest natural detail, salt stains and scratches; subtle imperfect photography, realistic camera perspective and exposure. Not glossy product photography, no hyperreal rendering, no text, no watermark.",
+      "nest": {
+        "x": 0.439,
+        "y": 0.347,
+        "w": 0.103,
+        "h": 0.104
+      },
+      "shape": "ellipse",
+      "qa": [
+        "Single ordinary boat cabin; porthole is dark glass with faint reflection, no nested boat or coastal scene.",
+        "Complete brass rim is unobstructed; opening faces camera nearly straight-on.",
+        "Opening is approximately 10% of image width with large margins on all sides.",
+        "Dark glass should be replaced only by tool-generated recursion."
+      ]
+    },
+    {
+      "filename": "cabin.png",
+      "title": "A room in the forest",
+      "alt": "A small worn timber cabin among tall trees and ferns, with one square closed window reflecting dark foliage.",
+      "generatedOriginal": "/home/silvio/.codex/generated_images/01a07b4f-ed78-7a32-8add-3aa30f5a8b6e/exec-dffdbc5d-5f4f-438c-9ebf-44a26109e255.png",
+      "prompt": "Use case: photorealistic-natural.\nCreate one square ordinary photograph of a tiny weathered wooden forest cabin, front elevation seen straight-on in soft early-morning woodland light. The cabin is centered and fully visible, occupying roughly 60 percent of the image width. Tall pine trunks, ferns, moss, fallen branches and leaf litter surround the structure with a broad margin of forest on every side. Silvery brown horizontal wood siding, a modest rusty corrugated roof, irregular stones beneath the cabin, restrained natural colors. Casual documentary photograph, plausible real place, rich but imperfect textures, no people.\nThe front wall has just ONE small square wooden-framed window at the exact image center, approximately x=50%, y=50%. This is a plain single pane with no bars or cross mullions. The square of dark ordinary window glass is about 18 percent of the full image width. It is shut and shows only dark empty interior and subtle reflection of nearby foliage. Simple weathered wooden rim around its four unobstructed straight edges. This is the side of the cabin without a door; the entrance is around the side out of view.\nNo cabin inside the window, no woodland scene framed within it, no repeated small window, no miniature world, no picture-in-picture, no Droste or surreal elements. A completely ordinary glass window in one cabin. No text, no watermark, no illustration, no polished CGI, no excessive cinematic effects.",
+      "nest": {
+        "x": 0.435,
+        "y": 0.407,
+        "w": 0.131,
+        "h": 0.131
+      },
+      "shape": "rect",
+      "qa": [
+        "Single cabin; window shows ordinary dark foliage reflection, not another cabin or window.",
+        "Clear unbroken wooden square rim, no crossbars or foreground occlusion.",
+        "Small square opening approximately 13% image width, over 40% source margin horizontally."
+      ]
+    },
+    {
+      "filename": "garden-window.png",
+      "title": "Behind the garden wall",
+      "alt": "A weathered brick potting-shed wall with ivy, roses, terracotta pots, and one small stone-rimmed circular window of dark glass.",
+      "generatedOriginal": "/home/silvio/.codex/generated_images/01a07b4f-ed78-7a32-8add-3aa30f5a8b6e/exec-feff4f49-9178-4d97-862c-b10219ff3c3b.png",
+      "prompt": "Use case: photorealistic-natural.\nCreate one square, life-like ordinary documentary photograph of the weathered red brick wall of a small old garden potting shed on a hazy summer afternoon. Straight-on front view, level camera. The wall fills the central two thirds of the photograph with plenty of garden context: trailing green ivy at the upper corners, a rambling rose at the left, a few stacked aged terracotta pots and a dented galvanized bucket below, cobbled ground, patches of lichen and uneven lime mortar. Beautiful through observed real details, not polished or styled. Muted warm natural color and soft uneven daylight, believable camera texture.\nIn the wall is one small round window at about x=50%, y=49%. The circular glass opening is only 18 percent of the whole image width. Around it is a simple thick worn stone circular rim, uninterrupted all the way around and unobstructed by plants. Glass is very dark plain old window glass, showing only the shadowy unlit shed interior with a vague brown indistinct texture, no recognizable scene. No crossbars, no spokes, no object or plant crossing the glass. Plenty of solid wall surrounds this small circle.\nThis is a normal window in ONE garden shed. No little circular window inside it, no wall within a wall, no tiny image copy, no repeated frames, no Droste, no recursive world, no passage to another scene, no optical illusion. No people, no text, no watermark, no illustration, no CGI.",
+      "nest": {
+        "x": 0.422,
+        "y": 0.334,
+        "w": 0.154,
+        "h": 0.153
+      },
+      "shape": "ellipse",
+      "qa": [
+        "Single ordinary circular window; dark interior texture and ordinary glass, no repeated scene.",
+        "Stone and inner metal rims are physical construction, not nested windows.",
+        "Small unobstructed round opening approximately 15% image width with broad wall and garden context."
+      ]
+    }
+  ]
+}

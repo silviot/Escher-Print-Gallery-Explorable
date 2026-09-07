@@ -1,0 +1,74 @@
+{
+  "generator": "built-in image_gen",
+  "useCase": "photorealistic-natural",
+  "constraint": "Ordinary single scenes, no generated recursion. The gallery renderer alone creates repetition.",
+  "created": "2026-09-07",
+  "items": [
+    {
+      "id": "guitar",
+      "title": "Quiet strings",
+      "alt": "Generated natural-looking photograph of a worn amber acoustic guitar hanging above a workbench, with an ordinary dark sound hole and six strings.",
+      "savedPath": "assets/examples/natural-sources/guitar.png",
+      "originalGeneratedPath": "/home/silvio/.codex/generated_images/01a07b49-42c2-7d51-a00a-9fce432f1235/exec-60db3e63-a102-4562-9371-4d6951bdbd24.png",
+      "prompt": "Edit this documentary workshop photograph with one targeted change: move the camera closer to the hanging guitar while retaining the same natural proportions, real textures, ordinary instruments, wall and light. The guitar's amber wooden BODY should occupy about 45–50% of the full square image width and its normal sound hole should occupy about 12–14% of the full square image width. It is perfectly fine and desirable for the top half of the neck and headstock to extend out above the photo; do NOT shrink the guitar to fit its full height. Keep the entire guitar body visible, with margin at left, right and bottom, and show some ordinary workbench below. The center of the sound hole should be around x=50%, y=48%. Preserve the perpendicular front-on camera, normal dark empty guitar interior, six strings, realistic guitar geometry, quiet natural daylight, paint cracks and imperfect workshop atmosphere. Absolutely no recursion, scenes or tiny copies inside the sound hole; it stays ordinary dark interior with strings. No people, surrealism, invented decorations, labels or watermark. This should look like a normal closer photographic framing of the exact same guitar and room.",
+      "initialPrompt": "Use case: photorealistic-natural. Create one square documentary photograph, not a diagram or illustration. An ordinary worn acoustic guitar hanging straight upright, front-on, on the pale cracked plaster wall of a quiet instrument repair workshop. Include the full guitar with generous margins, a real workbench along the bottom and a few ordinary tools, cloth and wood scraps. Aged amber spruce soundboard with honest pick wear, dark fingerboard, six physically normal strings and a SMALL normal circular sound hole with dark wooden interior. Composition: the guitar body is about half the width of the entire photo, the sound hole is only 12–14% of the entire square image width, centered at about x=50%, y=53%. Lens axis perpendicular to guitar so the small sound hole is round. The guitar is a normal object in a normal room, photographed in soft side window light, muted natural colours, dusty textures, small imperfections, believable optics and depth. Absolutely NO image or miniature scene inside the sound hole. NO recursive images, repeated guitars, nested objects, surreal worlds, tunnels, portals, people, brands, text, watermarks, polished CGI or dramatic advertising lighting. The inside of the sound hole is just ordinary dark guitar interior behind its six thin strings.",
+      "initialGeneratedPath": "/home/silvio/.codex/generated_images/01a07b49-42c2-7d51-a00a-9fce432f1235/exec-66c2ffea-eafa-45e9-accd-1b8d54b486b4.png",
+      "estimatedAperture": {
+        "x": 0.45,
+        "y": 0.347,
+        "w": 0.12,
+        "h": 0.12
+      },
+      "shape": "ellipse",
+      "qaNotes": "Approved targeted closer view: natural guitar body remains complete, upper neck extends beyond image. Dark sound hole about 12% image width; no scene inside. Ordinary thin strings cross aperture. First full-guitar composition rejected because aperture was only about 8%."
+    },
+    {
+      "id": "laundry",
+      "title": "Laundry day",
+      "alt": "Generated natural-looking photograph of one ordinary white washing machine in a pale blue laundry room, beside a canvas basket and folded towels.",
+      "savedPath": "assets/examples/natural-sources/laundry.png",
+      "originalGeneratedPath": "/home/silvio/.codex/generated_images/01a07b49-42c2-7d51-a00a-9fce432f1235/exec-12ec8cd4-648a-4bb3-9e52-06acb4b4eda5.png",
+      "prompt": "Use case: photorealistic-natural. A square natural documentary photograph of ONE ordinary white front-loading washing machine in a small lived-in European laundry room. The whole washing machine is visible with space around it, a real canvas laundry basket low at one side, folded faded towels on a shelf, plain pale blue wall, tiled floor and a little ordinary plumbing. Front-on camera, level straight geometry. The washer door is shut: circular dark grey tinted glass showing a vague ordinary dark drum, no detailed scene inside. The round GLASS region inside the white plastic door ring must be only about 18–20% of the entire square photo width, its center near x=51%, y=55%; machine itself roughly 48% of photo width. Important: generous surrounding room, not a close-up of the door. Natural soft window light, real plastic scuffs, slightly worn enamel, realistic fabric, restrained imperfect everyday photo. No people, text, logos, logos on controls, watermarks, advertising sheen or CGI. This is an entirely normal unaltered laundry room: no recursion, no miniature washing machines, no pictures in the door, no concentric scenes, no surreal world, no tunnel. Only one washing machine.",
+      "estimatedAperture": {
+        "x": 0.445,
+        "y": 0.482,
+        "w": 0.13,
+        "h": 0.13
+      },
+      "shape": "ellipse",
+      "qaNotes": "Ordinary dark shut door glass, no nested machine or scene. Clear aperture about 13% image width, generous quiet room context. White door handle partly borders the glass at right."
+    },
+    {
+      "id": "frame",
+      "title": "The empty frame",
+      "alt": "Generated natural-looking photograph of a small square wooden frame with plain dark backing on an artist’s paint-stained workbench.",
+      "savedPath": "assets/examples/natural-sources/frame.png",
+      "originalGeneratedPath": "/home/silvio/.codex/generated_images/01a07b49-42c2-7d51-a00a-9fce432f1235/exec-8036afaa-a766-4bbf-b9b9-dcf97fbf48f2.png",
+      "prompt": "Use case: photorealistic-natural. Make one square documentary photograph of a real artist's untidy workbench in a modest daylight studio. A SINGLE plain small square dark wooden picture frame sits upright on the back of the table, leaning only slightly against a faded warm-grey wall, photographed almost perfectly straight-on so its opening is square. The frame is empty of artwork: inside is ordinary flat dark charcoal backing board, no reflection and no image. The INNER SQUARE OPENING measures about 19% of the width AND height of the ENTIRE square photograph, centered at x=50%, y=48%. The outer wooden frame is about 25% of the whole photo width. Show generous context on all sides: much of the scarred worktable, an ordinary jar of used brushes to one side, a palette with dry paint, a folded cloth, a few paints, quiet wall. Real worn wood grain, paint traces and soft window light, gentle imperfect natural colour, believable photographic detail, not staged advertising. No people, no letters or watermark. No other picture frames. Nothing depicted inside the dark square backing. ABSOLUTELY NO recursion, little versions of the studio, repeated images, miniature rooms, portals, tunnels, nested frames or surrealism. This is an ordinary scene before any effect is applied.",
+      "estimatedAperture": {
+        "x": 0.425,
+        "y": 0.414,
+        "w": 0.161,
+        "h": 0.153
+      },
+      "shape": "rect",
+      "qaNotes": "A single small real wooden frame. Flat dark backing has no artwork or recursion. Aperture roughly 16% image width; very slight perspective makes height a little shorter than width. Recheck final nest against actual renderer."
+    },
+    {
+      "id": "record",
+      "title": "A side of silence",
+      "alt": "Generated natural-looking overhead photograph of one black vinyl record with a blank cream label on a worn turntable beside a window.",
+      "savedPath": "assets/examples/natural-sources/record.png",
+      "originalGeneratedPath": "/home/silvio/.codex/generated_images/01a07b49-42c2-7d51-a00a-9fce432f1235/exec-fbaf684b-587e-4dd0-8d0e-468aee1a9fb9.png",
+      "prompt": "Use case: photorealistic-natural. One square, ordinary natural documentary photograph looking straight down onto a real vintage turntable on a wooden desk beside a window. A SINGLE ordinary black 12-inch vinyl record lies flat on the platter. Its small plain warm-cream PAPER LABEL at the center is blank apart from the tiny spindle pin/hole, and measures about 15–17% of the ENTIRE square photo width. The black vinyl disk is about 48–52% of the total photo width; show the whole turntable with its normal tonearm to the right and generous context: worn wood desk, a sleeve edge, a small cable, soft daylight. The label's center lies near x=48%, y=50%. Camera perpendicular above so the label is circular, no tilted ellipse. Real black vinyl grooves and subtle fingerprint smudges, lightly worn matte paper, authentic material textures, understated muted colours, believable optical detail. No people, brand names, text or watermark. This is a completely ordinary record player, not an illustration or CGI. Absolutely no images printed on the record label, no miniature turntables, no repeated records within records, no recursion, portals, tunnels, nested scenes or surrealism. The cream label is simply blank paper on a normal black record.",
+      "estimatedAperture": {
+        "x": 0.369,
+        "y": 0.428,
+        "w": 0.17,
+        "h": 0.17
+      },
+      "shape": "ellipse",
+      "qaNotes": "Only one ordinary record; blank cream paper label contains a normal tiny metal spindle, no picture or nested record. Round label about 17% image width. Full turntable and desk context visible."
+    }
+  ]
+}

@@ -16,7 +16,7 @@ for (const [target, min, max] of [[1,0,0],[7,.2,.6],[11,1,1],[25,1,1.2],[32,2,2]
  console.log('tour',target,'progress',progress);
  if(process.env.GALLERY_SHOT_DIR && [1,11,32].includes(target))await page.screenshot({path:`${process.env.GALLERY_SHOT_DIR}/autotour-${target}.png`});
 }
-await page.waitForFunction(()=>document.querySelector('.filmstrip button.selected').dataset.image==='photo-courtyard',null,{timeout:15000});
+await page.waitForFunction(()=>document.querySelector('.filmstrip button.selected').dataset.image==='photo-coffee',null,{timeout:15000});
 await page.locator('.artwork-stage[data-ready="true"]').waitFor();
 await page.waitForTimeout(1800);
 assert.equal(await page.locator('.artwork-stage').getAttribute('data-progress'),'0.00');

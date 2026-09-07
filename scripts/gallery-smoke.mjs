@@ -30,7 +30,7 @@ try {
   assert.notEqual(original, droste, 'Droste must change image pixels');
   assert.notEqual(droste, spiral, 'tententoon must change image pixels');
   const tiles = page.locator('.filmstrip button');
-  assert.equal(await tiles.count(), 16);
+  assert.equal(await tiles.count(), 12);
   // Inspect the composited page, including any CSS masks over the renderer.
   // This strip lies outside both selected openings and clear of the controls.
   const periphery = async () => {
@@ -63,12 +63,12 @@ try {
   await page.getByRole('button', { name: 'Resume tour' }).click();
   await page.waitForTimeout(180);
   assert(Number(await page.locator('.cinema input[type=range]').inputValue()) >= 1.5, 'Resuming must not rewind the transition');
-  console.log('✓ All 16 sources render; three distinct stages; resume preserves progress');
+  console.log('✓ All 12 sources render; three distinct stages; resume preserves progress');
 
   await page.goto(new URL('cabinet.html', base).href, { waitUntil: 'networkidle' });
-  assert.equal(await page.locator('.specimen').count(), 16);
-  await page.getByRole('button', { name: /^Photographic/ }).click();
-  assert.equal(await page.locator('.specimen').count(), 5);
+  assert.equal(await page.locator('.specimen').count(), 12);
+  await page.getByRole('button', { name: /^Objects/ }).click();
+  assert.equal(await page.locator('.specimen').count(), 4);
   const tile = page.locator('.specimen').first();
   await tile.click(); await ready();
   await page.getByRole('button', { name: 'Next image', exact: true }).click();

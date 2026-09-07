@@ -1,0 +1,458 @@
+[
+  {
+    "id": "photo-camera",
+    "renderer": "webgl",
+    "canvas": [
+      251,
+      256
+    ],
+    "sourceMarginMinimum": 0.368,
+    "effectiveNest": [
+      0.151,
+      0.151
+    ],
+    "peripheryChangedPercent": 96.15,
+    "peripheryMeanRGBDifference": 53.79,
+    "opacities": [
+      {
+        "twist": 0,
+        "phase": 0,
+        "transparent": 0,
+        "partial": 0,
+        "minAlpha": 255
+      },
+      {
+        "twist": 0,
+        "phase": 0.15,
+        "transparent": 0,
+        "partial": 0,
+        "minAlpha": 255
+      },
+      {
+        "twist": 1,
+        "phase": 0.15,
+        "transparent": 0,
+        "partial": 0,
+        "minAlpha": 255
+      }
+    ]
+  },
+  {
+    "id": "photo-coffee",
+    "renderer": "webgl",
+    "canvas": [
+      256,
+      252
+    ],
+    "sourceMarginMinimum": 0.403,
+    "effectiveNest": [
+      0.187,
+      0.187
+    ],
+    "peripheryChangedPercent": 98.61,
+    "peripheryMeanRGBDifference": 70.88,
+    "opacities": [
+      {
+        "twist": 0,
+        "phase": 0,
+        "transparent": 0,
+        "partial": 0,
+        "minAlpha": 255
+      },
+      {
+        "twist": 0,
+        "phase": 0.15,
+        "transparent": 0,
+        "partial": 0,
+        "minAlpha": 255
+      },
+      {
+        "twist": 1,
+        "phase": 0.15,
+        "transparent": 0,
+        "partial": 0,
+        "minAlpha": 255
+      }
+    ]
+  },
+  {
+    "id": "photo-boat",
+    "renderer": "webgl",
+    "canvas": [
+      254,
+      256
+    ],
+    "sourceMarginMinimum": 0.347,
+    "effectiveNest": [
+      0.104,
+      0.104
+    ],
+    "peripheryChangedPercent": 96.46,
+    "peripheryMeanRGBDifference": 60.77,
+    "opacities": [
+      {
+        "twist": 0,
+        "phase": 0,
+        "transparent": 0,
+        "partial": 0,
+        "minAlpha": 255
+      },
+      {
+        "twist": 0,
+        "phase": 0.15,
+        "transparent": 0,
+        "partial": 0,
+        "minAlpha": 255
+      },
+      {
+        "twist": 1,
+        "phase": 0.15,
+        "transparent": 0,
+        "partial": 0,
+        "minAlpha": 255
+      }
+    ]
+  },
+  {
+    "id": "photo-cabin",
+    "renderer": "webgl",
+    "canvas": [
+      256,
+      256
+    ],
+    "sourceMarginMinimum": 0.407,
+    "effectiveNest": [
+      0.131,
+      0.131
+    ],
+    "peripheryChangedPercent": 98.63,
+    "peripheryMeanRGBDifference": 41.27,
+    "opacities": [
+      {
+        "twist": 0,
+        "phase": 0,
+        "transparent": 0,
+        "partial": 0,
+        "minAlpha": 255
+      },
+      {
+        "twist": 0,
+        "phase": 0.15,
+        "transparent": 0,
+        "partial": 0,
+        "minAlpha": 255
+      },
+      {
+        "twist": 1,
+        "phase": 0.15,
+        "transparent": 0,
+        "partial": 0,
+        "minAlpha": 255
+      }
+    ]
+  },
+  {
+    "id": "photo-greenhouse",
+    "renderer": "webgl",
+    "canvas": [
+      144,
+      256
+    ],
+    "sourceMarginMinimum": 0.398,
+    "effectiveNest": [
+      0.194,
+      0.194
+    ],
+    "peripheryChangedPercent": 94.4,
+    "peripheryMeanRGBDifference": 35.42,
+    "opacities": [
+      {
+        "twist": 0,
+        "phase": 0,
+        "transparent": 0,
+        "partial": 0,
+        "minAlpha": 255
+      },
+      {
+        "twist": 0,
+        "phase": 0.15,
+        "transparent": 0,
+        "partial": 0,
+        "minAlpha": 255
+      },
+      {
+        "twist": 1,
+        "phase": 0.15,
+        "transparent": 0,
+        "partial": 0,
+        "minAlpha": 255
+      }
+    ]
+  },
+  {
+    "id": "photo-radio",
+    "renderer": "webgl",
+    "canvas": [
+      252,
+      256
+    ],
+    "sourceMarginMinimum": 0.3,
+    "effectiveNest": [
+      0.181,
+      0.181
+    ],
+    "peripheryChangedPercent": 88.54,
+    "peripheryMeanRGBDifference": 27.95,
+    "opacities": [
+      {
+        "twist": 0,
+        "phase": 0,
+        "transparent": 0,
+        "partial": 0,
+        "minAlpha": 255
+      },
+      {
+        "twist": 0,
+        "phase": 0.15,
+        "transparent": 0,
+        "partial": 0,
+        "minAlpha": 255
+      },
+      {
+        "twist": 1,
+        "phase": 0.15,
+        "transparent": 0,
+        "partial": 0,
+        "minAlpha": 255
+      }
+    ]
+  },
+  {
+    "id": "photo-frame",
+    "renderer": "webgl",
+    "canvas": [
+      256,
+      243
+    ],
+    "sourceMarginMinimum": 0.414,
+    "effectiveNest": [
+      0.161,
+      0.161
+    ],
+    "peripheryChangedPercent": 90.07,
+    "peripheryMeanRGBDifference": 28.16,
+    "opacities": [
+      {
+        "twist": 0,
+        "phase": 0,
+        "transparent": 0,
+        "partial": 0,
+        "minAlpha": 255
+      },
+      {
+        "twist": 0,
+        "phase": 0.15,
+        "transparent": 0,
+        "partial": 0,
+        "minAlpha": 255
+      },
+      {
+        "twist": 1,
+        "phase": 0.15,
+        "transparent": 0,
+        "partial": 0,
+        "minAlpha": 255
+      }
+    ]
+  },
+  {
+    "id": "photo-garden-window",
+    "renderer": "webgl",
+    "canvas": [
+      256,
+      254
+    ],
+    "sourceMarginMinimum": 0.334,
+    "effectiveNest": [
+      0.154,
+      0.154
+    ],
+    "peripheryChangedPercent": 98.76,
+    "peripheryMeanRGBDifference": 42.18,
+    "opacities": [
+      {
+        "twist": 0,
+        "phase": 0,
+        "transparent": 0,
+        "partial": 0,
+        "minAlpha": 255
+      },
+      {
+        "twist": 0,
+        "phase": 0.15,
+        "transparent": 0,
+        "partial": 0,
+        "minAlpha": 255
+      },
+      {
+        "twist": 1,
+        "phase": 0.15,
+        "transparent": 0,
+        "partial": 0,
+        "minAlpha": 255
+      }
+    ]
+  },
+  {
+    "id": "photo-record",
+    "renderer": "webgl",
+    "canvas": [
+      256,
+      256
+    ],
+    "sourceMarginMinimum": 0.369,
+    "effectiveNest": [
+      0.17,
+      0.17
+    ],
+    "peripheryChangedPercent": 98.5,
+    "peripheryMeanRGBDifference": 43.71,
+    "opacities": [
+      {
+        "twist": 0,
+        "phase": 0,
+        "transparent": 0,
+        "partial": 0,
+        "minAlpha": 255
+      },
+      {
+        "twist": 0,
+        "phase": 0.15,
+        "transparent": 0,
+        "partial": 0,
+        "minAlpha": 255
+      },
+      {
+        "twist": 1,
+        "phase": 0.15,
+        "transparent": 0,
+        "partial": 0,
+        "minAlpha": 255
+      }
+    ]
+  },
+  {
+    "id": "photo-guitar",
+    "renderer": "webgl",
+    "canvas": [
+      256,
+      256
+    ],
+    "sourceMarginMinimum": 0.347,
+    "effectiveNest": [
+      0.12,
+      0.12
+    ],
+    "peripheryChangedPercent": 93.15,
+    "peripheryMeanRGBDifference": 56.1,
+    "opacities": [
+      {
+        "twist": 0,
+        "phase": 0,
+        "transparent": 0,
+        "partial": 0,
+        "minAlpha": 255
+      },
+      {
+        "twist": 0,
+        "phase": 0.15,
+        "transparent": 0,
+        "partial": 0,
+        "minAlpha": 255
+      },
+      {
+        "twist": 1,
+        "phase": 0.15,
+        "transparent": 0,
+        "partial": 0,
+        "minAlpha": 255
+      }
+    ]
+  },
+  {
+    "id": "photo-watch",
+    "renderer": "webgl",
+    "canvas": [
+      240,
+      256
+    ],
+    "sourceMarginMinimum": 0.424,
+    "effectiveNest": [
+      0.132,
+      0.132
+    ],
+    "peripheryChangedPercent": 94.2,
+    "peripheryMeanRGBDifference": 32.8,
+    "opacities": [
+      {
+        "twist": 0,
+        "phase": 0,
+        "transparent": 0,
+        "partial": 0,
+        "minAlpha": 255
+      },
+      {
+        "twist": 0,
+        "phase": 0.15,
+        "transparent": 0,
+        "partial": 0,
+        "minAlpha": 255
+      },
+      {
+        "twist": 1,
+        "phase": 0.15,
+        "transparent": 0,
+        "partial": 0,
+        "minAlpha": 255
+      }
+    ]
+  },
+  {
+    "id": "photo-laundry",
+    "renderer": "webgl",
+    "canvas": [
+      256,
+      256
+    ],
+    "sourceMarginMinimum": 0.388,
+    "effectiveNest": [
+      0.13,
+      0.13
+    ],
+    "peripheryChangedPercent": 96.83,
+    "peripheryMeanRGBDifference": 41.88,
+    "opacities": [
+      {
+        "twist": 0,
+        "phase": 0,
+        "transparent": 0,
+        "partial": 0,
+        "minAlpha": 255
+      },
+      {
+        "twist": 0,
+        "phase": 0.15,
+        "transparent": 0,
+        "partial": 0,
+        "minAlpha": 255
+      },
+      {
+        "twist": 1,
+        "phase": 0.15,
+        "transparent": 0,
+        "partial": 0,
+        "minAlpha": 255
+      }
+    ]
+  }
+]

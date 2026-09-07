@@ -253,7 +253,7 @@
   {/if}
   <div class="screening" inert={immersive && collectionOpen}>
     <div class="introduction">
-      <p class="eyebrow"><span></span> A collection of impossible pictures</p>
+      <p class="eyebrow"><span></span> Ordinary pictures. Look again.</p>
       <h1>A picture.<br /> A way <em>in.</em></h1>
       <p class="invitation">Look a little longer.<br />There’s another world in this one.</p>
       <div class="art-caption" aria-live="polite">

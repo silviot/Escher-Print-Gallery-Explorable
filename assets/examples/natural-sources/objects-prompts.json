@@ -1,0 +1,104 @@
+{
+  "generator": "Built-in image_gen.imagegen; one generation per asset, no references, no CLI.",
+  "generatedOn": "2026-09-07",
+  "useCase": "photorealistic-natural",
+  "measurement": "Nest estimates are normalized against uncropped original; calibrate inside object rim using app renderer.",
+  "images": [
+    {
+      "key": "camera",
+      "title": "Before the shutter",
+      "alt": "An ordinary vintage black and silver camera with a dark glass lens and red strap on a worn wooden table.",
+      "file": "exec-ec3b4628-dbd4-47e0-9c45-e6c82321c444.png",
+      "nest": {
+        "x": 0.443,
+        "y": 0.481,
+        "w": 0.148,
+        "h": 0.151
+      },
+      "notes": "Single ordinary camera. No recursive image or miniature scene inside lens. Lens is near-black coated glass; choose the inner dark disk and preserve silver rim. Approximate aperture 15% width; over 33% margin to every source edge. Center slightly below middle. Broad table/strap environment stays useful during full-frame zoom.",
+      "generatedPath": "/home/silvio/.codex/generated_images/01a07b4f-9ffd-7350-9ba4-5c3eeefb4c4b/exec-ec3b4628-dbd4-47e0-9c45-e6c82321c444.png",
+      "sourceFilename": "assets/examples/natural-sources/camera.png",
+      "shape": "ellipse",
+      "prompt": "Use case: photorealistic-natural. Create one square candid editorial photograph, beautifully ordinary and physically real. On a scratched honey-colored wooden kitchen table sits a single old black-and-silver 35mm camera facing the viewer straight on, photographed from camera-lens height. A worn faded red fabric camera strap curls loosely across the table; an open plain notebook, pencil and soft afternoon window shadow make the scene lived-in. The camera body occupies roughly 42 percent of image width. Its one circular front lens is centered at about x50%, y51%, and the dark glass disk inside the metal lens ring is only 18 percent of the total image width. Show a NORMAL camera lens: near-black optical glass with subtle natural blue-green coating reflections, no image inside, no scene reflected inside, no miniature objects. The circular lens faces precisely front-on, not oval. Include generous surrounding room and table, camera entirely in frame. Natural slightly imperfect photographic textures, honest daylight, moderate depth of field so camera and surrounding table remain readable, no artificial product advertising gloss. Avoid people, text overlays, logos, surrealism, recursion, nested copies, duplicated cameras, tunnels, concentric repeating scenes, montage, CGI. This is an everyday photograph of a real camera with an ordinary lens. Square format.",
+      "qa": {
+        "ordinarySource": true,
+        "noBakedRecursion": true,
+        "apertureWellInsideSource": true,
+        "visualInspection": "Generated output and view_image inspected. Final renderer Droste and spiral QA is required after integration.",
+        "notes": "Single ordinary camera. No recursive image or miniature scene inside lens. Lens is near-black coated glass; choose the inner dark disk and preserve silver rim. Approximate aperture 15% width; over 33% margin to every source edge. Center slightly below middle. Broad table/strap environment stays useful during full-frame zoom."
+      }
+    },
+    {
+      "key": "coffee",
+      "title": "One quiet coffee",
+      "alt": "A single cup of plain black coffee seen from above on a worn table with blue linen, bread and a teaspoon.",
+      "file": "exec-5a52b2c4-00c4-4f00-94f6-22a2c8070c8b.png",
+      "nest": {
+        "x": 0.407,
+        "y": 0.403,
+        "w": 0.187,
+        "h": 0.184
+      },
+      "notes": "Single ordinary cup with plain coffee, no latte art or nested pictures. Very clean circular coffee surface. Aperture about 19% width with roughly 40% margin around it; keep ceramic rim intact. Straight overhead geometry. This is the strongest/easiest aperture of these four.",
+      "generatedPath": "/home/silvio/.codex/generated_images/01a07b4f-9ffd-7350-9ba4-5c3eeefb4c4b/exec-5a52b2c4-00c4-4f00-94f6-22a2c8070c8b.png",
+      "sourceFilename": "assets/examples/natural-sources/coffee.png",
+      "shape": "ellipse",
+      "prompt": "Use case: photorealistic-natural. Create one square candid overhead photograph of an ordinary quiet breakfast table in natural morning window light. Exact top-down view, camera sensor parallel to table. A single small off-white handmade ceramic cup contains plain black filter coffee, with a clean round dark brown coffee surface. The cup sits near the center of the photograph, coffee disk centered x50%, y50%, disk diameter only 20 percent of the entire image width. One modest thin cup rim and a normal handle. Ample worn warm walnut tabletop surrounds it: rumpled pale blue striped linen at one side, a small silver teaspoon, a few bread crumbs, part of one torn piece of crusty bread on a small plate off to one side, soft diagonal sunlight. These surroundings give texture and a real everyday atmosphere, slightly untidy, not a studio product ad. Coffee is just coffee: simple dark liquid, faint natural highlight, no latte art, no reflection of another cup or scene, no objects or pictures inside. A true square photo, not a collage. No people, text, logos, surrealism, recursive imagery, duplicate cups, nested worlds or concentric repeated pictures. The entire cup must remain comfortably distant from all image borders. Natural photographic material detail and believable scale.",
+      "qa": {
+        "ordinarySource": true,
+        "noBakedRecursion": true,
+        "apertureWellInsideSource": true,
+        "visualInspection": "Generated output and view_image inspected. Final renderer Droste and spiral QA is required after integration.",
+        "notes": "Single ordinary cup with plain coffee, no latte art or nested pictures. Very clean circular coffee surface. Aperture about 19% width with roughly 40% margin around it; keep ceramic rim intact. Straight overhead geometry. This is the strongest/easiest aperture of these four."
+      }
+    },
+    {
+      "key": "radio",
+      "title": "Afternoon radio",
+      "alt": "A walnut tabletop radio with a single round woven speaker grille on an old sideboard against a teal wall.",
+      "file": "exec-5040b4ae-7460-4ed6-a0f1-13ac04b6e25c.png",
+      "nest": {
+        "x": 0.3,
+        "y": 0.438,
+        "w": 0.178,
+        "h": 0.181
+      },
+      "notes": "Single ordinary radio and opaque grille cloth, no recursive contents. Speaker aperture about 18% width. Center is left of image center (~39%), but left margin remains 30%, all others at least 38%; tune crop with renderer as needed. Preserve narrow dark/brass grille rim.",
+      "generatedPath": "/home/silvio/.codex/generated_images/01a07b4f-9ffd-7350-9ba4-5c3eeefb4c4b/exec-5040b4ae-7460-4ed6-a0f1-13ac04b6e25c.png",
+      "sourceFilename": "assets/examples/natural-sources/radio.png",
+      "shape": "ellipse",
+      "prompt": "Use case: photorealistic-natural. One square real-life editorial photograph of a small vintage wooden tabletop radio in an ordinary sunlit apartment, taken exactly straight on at radio height. Single warm walnut radio body, simple rectangular 1960s shape occupying only about 45 percent of full photo width. It has ONE round dark brown woven speaker grille on its left half, clearly circular and front-facing, with its center close to the image center (x46%, y51%). This ordinary speaker disk should be only 18 percent of total photo width. Radio's other half has a modest horizontal tuning scale and two small ivory knobs, physically plausible, no large readable branding. Ample environment surrounds the whole radio: a mellow teal painted wall, a scratched sideboard, a houseplant partly entering one side, loosely stacked thin record sleeves on the surface and a soft patch of afternoon light. Natural slight wear and dust, authentic wood and woven fabric textures, rich but quiet color, warm candid photography with moderate depth of field. The speaker is just ordinary opaque woven grille cloth, a flat cloth disk, NOT a window, hole, image, scene or tunnel. No people, no recursive imagery, no nested objects, no duplicated radios, no miniatures, no impossible architecture, no glossy CGI, no surrealism, no text overlays. Entire radio comfortably distant from image boundaries. Square photograph.",
+      "qa": {
+        "ordinarySource": true,
+        "noBakedRecursion": true,
+        "apertureWellInsideSource": true,
+        "visualInspection": "Generated output and view_image inspected. Final renderer Droste and spiral QA is required after integration.",
+        "notes": "Single ordinary radio and opaque grille cloth, no recursive contents. Speaker aperture about 18% width. Center is left of image center (~39%), but left margin remains 30%, all others at least 38%; tune crop with renderer as needed. Preserve narrow dark/brass grille rim."
+      }
+    },
+    {
+      "key": "watch",
+      "title": "A little time",
+      "alt": "A single brass pocket watch with an ordinary cream clock face and chain resting on rumpled indigo cloth.",
+      "file": "exec-ff557045-b3f5-4faa-8855-751504496f1c.png",
+      "nest": {
+        "x": 0.438,
+        "y": 0.444,
+        "w": 0.124,
+        "h": 0.132
+      },
+      "notes": "Single standard clock face with conventional marks and hands, no miniature clocks or worlds. Aperture is about 13% width, smaller than requested 18% but promising given user's explicit preference for smaller Droste. More than 42% margin to all image edges. Slightly taller than wide face; preserve full brass rim and crown.",
+      "generatedPath": "/home/silvio/.codex/generated_images/01a07b4f-9ffd-7350-9ba4-5c3eeefb4c4b/exec-ff557045-b3f5-4faa-8855-751504496f1c.png",
+      "sourceFilename": "assets/examples/natural-sources/watch.png",
+      "shape": "ellipse",
+      "prompt": "Use case: photorealistic-natural. Create a square natural editorial photograph, true straight top-down view of one ordinary antique brass pocket watch lying face up on a rumpled dark indigo linen cloth partly covering a scratched oak table. The single pocket watch is quite small in this wide still life: its circular cream clock face has diameter only 18 percent of the entire photograph width, centered at x50%, y50%, facing exactly parallel to the camera with no ellipse perspective. It is a normal working watch showing a single conventional clock face with twelve ordinary hour positions, two slender dark hands, a metal rim, crown and chain. No inset complications or tiny faces. The brass chain makes one loose meandering curve across the cloth; simple folded eyeglasses and an old plain closed notebook occupy distant corners without crowding the watch. The visible watch face is one flat off-white enamel disk with ordinary clock markings; it contains no landscape, no objects, no reflection of the scene, no nested clocks. Natural cloudy window daylight creates readable soft shadow and subtle brass highlights. Believable worn material, fine fabric weave, beautiful but unstyled everyday atmosphere, everything at realistic physical scale. Keep the whole watch comfortably distant from image borders with generous surrounding fabric. No people, no branding, no overlay text, no recursion, no repeated miniature worlds, no surrealism, no tunnels, no duplicated watches, no glossy CGI. Square photograph.",
+      "qa": {
+        "ordinarySource": true,
+        "noBakedRecursion": true,
+        "apertureWellInsideSource": true,
+        "visualInspection": "Generated output and view_image inspected. Final renderer Droste and spiral QA is required after integration.",
+        "notes": "Single standard clock face with conventional marks and hands, no miniature clocks or worlds. Aperture is about 13% width, smaller than requested 18% but promising given user's explicit preference for smaller Droste. More than 42% margin to all image edges. Slightly taller than wide face; preserve full brass rim and crown."
+      }
+    }
+  ]
+}
