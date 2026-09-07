@@ -1,6 +1,6 @@
 <script lang="ts">
   import Icon from './Icon.svelte';
-  import { ui, doc, playback } from '../../lib/ui1/state.svelte';
+  import { ui, doc, playback, isDrosteView } from '../../lib/ui1/state.svelte';
   import { exportPng } from '../../lib/ui1/exports/png';
   import { exportVideo } from '../../lib/ui1/exports/mp4';
   import { exportGif } from '../../lib/ui1/exports/gif';
@@ -13,12 +13,13 @@
   // The renderFrame reflects the active view (spiral or droste), so the
   // PNG and video paths both honour what the user is looking at. The
   // spiral CPU pipeline only runs when ui.view is one of the tententoon
-  // modes; on droste view PNG export forwards renderFrame to png.ts.
+  // modes; Create and Droste forward renderFrame to png.ts.
   type Props = {
     canvas: HTMLCanvasElement | null;
     renderFrame: (off: HTMLCanvasElement, t: number) => Promise<void> | void;
   };
   let { renderFrame }: Props = $props();
+  const useDroste = $derived(isDrosteView(ui.view));
 
   let busy = $state(false);
   // One progress channel for all export kinds — same modal, different labels.
@@ -35,7 +36,6 @@
     progress = { kind: 'image', fraction: 0 };
     cancelFlag = { cancelled: false };
     playback.exporting = true;
-    const useDroste = ui.view === 'droste';
     try {
       await exportPng(doc.image, doc.rect, doc.crop, {
         filename: basename('.png'),
@@ -131,7 +131,7 @@
     // saved) rather than the source image. Keeps PNG/MP4 from inheriting
     // the original photograph's filename, which was misleading once the
     // output is a derived artefact, and self-labels the view.
-    const stem = ui.view === 'droste' ? 'droste' : 'tententoon';
+    const stem = useDroste ? 'droste' : 'tententoon';
     return stem + ext;
   }
 
@@ -159,7 +159,7 @@
       <span class="ic"><Icon name="image" size={14} /></span>
       <span class="text">
         <span class="t">Image</span>
-        <span class="s">A tententoon of your picture · {doc.image?.width ?? 0}×{doc.image?.height ?? 0}</span>
+        <span class="s">A {useDroste ? 'Droste' : 'tententoon'} of your picture · {doc.image?.width ?? 0}×{doc.image?.height ?? 0}</span>
       </span>
       <span class="dl"><Icon name="download" size={14} /></span>
     </button>
@@ -167,7 +167,7 @@
       <span class="ic"><Icon name="film" size={14} /></span>
       <span class="text">
         <span class="t">Video</span>
-        <span class="s">A looping zoom of a tententoon of your picture · {playback.loopLength.toFixed(0)}s</span>
+        <span class="s">A looping zoom of a {useDroste ? 'Droste' : 'tententoon'} of your picture · {playback.loopLength.toFixed(0)}s</span>
       </span>
       <span class="dl"><Icon name="download" size={14} /></span>
     </button>

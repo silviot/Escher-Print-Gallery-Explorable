@@ -12,7 +12,7 @@
    */
 
   import Icon from './Icon.svelte';
-  import { ui, doc, playback } from '../../lib/ui1/state.svelte';
+  import { ui, doc, playback, isDrosteView } from '../../lib/ui1/state.svelte';
   import { exportPng } from '../../lib/ui1/exports/png';
   import { exportVideo } from '../../lib/ui1/exports/mp4';
   import { exportGif } from '../../lib/ui1/exports/gif';
@@ -22,6 +22,7 @@
     renderFrame: (off: HTMLCanvasElement, t: number) => Promise<void> | void;
   };
   let { renderFrame }: Props = $props();
+  const useDroste = $derived(isDrosteView(ui.view));
 
   // Compute capability once on mount — navigator.canShare is sync so
   // a constant here is fine and avoids per-render probes.
@@ -54,7 +55,7 @@
 
   function basename(ext: string): string {
     // See ExportMenu: name the file after the view, not the source image.
-    const stem = ui.view === 'droste' ? 'droste' : 'tententoon';
+    const stem = useDroste ? 'droste' : 'tententoon';
     return stem + ext;
   }
 
@@ -69,7 +70,6 @@
     progress = { kind: 'image', fraction: 0 };
     cancelFlag = { cancelled: false };
     playback.exporting = true;
-    const useDroste = ui.view === 'droste';
     const filename = basename('.png');
     try {
       const blob = await exportPng(doc.image, doc.rect, doc.crop, {
@@ -235,7 +235,7 @@
             <span class="ic"><Icon name="image" size={14} /></span>
             <span class="text">
               <span class="t">Image</span>
-              <span class="s">A tententoon of your picture</span>
+              <span class="s">A {useDroste ? 'Droste' : 'tententoon'} of your picture</span>
             </span>
           </button>
         {/if}

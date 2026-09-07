@@ -8,7 +8,7 @@
    *                     dimension badge. Pure visual; the container owns
    *                     pointer events.
    *
-   * The spiral output lives in PreviewStage (a separate pane). That way
+   * The Droste output lives in DrosteStage (a separate pane). That way
    * dragging the rect doesn't repaint the same area the user is trying to
    * grab — you see the live result side by side instead.
    *

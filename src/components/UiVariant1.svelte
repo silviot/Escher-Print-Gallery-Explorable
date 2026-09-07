@@ -28,7 +28,7 @@
   import DropZone from './ui1/DropZone.svelte';
   import {
     ui, doc, playback, commitTranslate,
-    applyTheme, readThemeOverride
+    applyTheme, readThemeOverride, isDrosteView
   } from '../lib/ui1/state.svelte';
   import { loadHistory } from '../lib/ui1/history.svelte';
   import { phase } from '../lib/ui1/render';
@@ -48,7 +48,7 @@
     async () => {};
   let previewRenderFrame = $state<(off: HTMLCanvasElement, t: number) => Promise<void>>(noopRender);
   let drosteRenderFrame = $state<(off: HTMLCanvasElement, t: number) => Promise<void>>(noopRender);
-  const renderFrame = $derived(ui.view === 'droste' ? drosteRenderFrame : previewRenderFrame);
+  const renderFrame = $derived(isDrosteView(ui.view) ? drosteRenderFrame : previewRenderFrame);
 
   // Keyboard shortcuts (HANDOFF §8): Space, [, ], ⌘E, Esc, arrows.
   function onKey(e: KeyboardEvent) {
@@ -123,12 +123,9 @@
     {:else}
       <div class="canvas-col">
         <!--
-          Both stages stay mounted in every view mode — PreviewStage
-          owns the renderFrame binding the export menu relies on, so
-          unmounting it on `source` would break export-from-source.
-          The `view-*` class hides the inactive stage with display:none,
-          which also short-circuits PreviewStage's render effect via
-          its 0×0 ResizeObserver readout.
+          Both previews stay mounted so their export/share bindings survive
+          view switches. The `view-*` class hides inactive stages, which
+          also stops their live rendering via 0×0 ResizeObserver readouts.
         -->
         <div class="stages view-{ui.view}">
           <CanvasStage />
@@ -216,7 +213,7 @@
   /* View-mode visibility. CanvasStage renders as <section class="stage">,
      PreviewStage as <section class="preview">, DrosteStage as
      <section class="droste"> — hide the inactive ones by tag-class.
-     `split` keeps the editor canvas + spiral; `preview` is spiral-only;
+     `split` keeps the editor canvas + Droste; `preview` is spiral-only;
      `droste` is regular-Droste-only. */
   .stages :global(.droste) { display: none; }
   /* Pipeline's three derived panels are hidden in every non-pipeline view. */
@@ -224,8 +221,10 @@
   /* The complex playground stage is hidden in every non-playground view. */
   .stages :global(.playground-stage) { display: none; }
   .stages.view-preview :global(.stage) { display: none; }
+  .stages.view-split :global(.preview),
   .stages.view-droste :global(.stage),
   .stages.view-droste :global(.preview) { display: none; }
+  .stages.view-split :global(.droste),
   .stages.view-droste :global(.droste) { display: flex; }
   /* Pipeline: 2×2 grid. CanvasStage (.stage) is the top-left rect editor;
      the three .ppanel cells (log · rotated-log · tententoon) follow in DOM

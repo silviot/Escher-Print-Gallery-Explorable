@@ -21,10 +21,10 @@
     class:active={ui.view === 'split'}
     aria-pressed={ui.view === 'split'}
     disabled={!doc.image}
-    title="Create a tententoon · picture and preview side by side"
+    title="Create · picture and Droste preview side by side"
     onclick={() => setView('split')}
   >
-    <Icon name="viewSplit" />
+    <Icon name="viewSplit" size={18} />
     <span>Create</span>
   </button>
   <button
@@ -35,7 +35,7 @@
     title="Droste · nested copies"
     onclick={() => setView('droste')}
   >
-    <Icon name="viewDroste" />
+    <Icon name="viewDroste" size={18} />
     <span>Droste</span>
   </button>
   <button
@@ -46,7 +46,7 @@
     title="Tententoon · spiraling copies"
     onclick={() => setView('preview')}
   >
-    <Icon name="viewPreview" />
+    <Icon name="viewPreview" size={18} />
     <span>Tententoon</span>
   </button>
   <button
@@ -57,7 +57,7 @@
     title="Pipeline · see how the spiral is made"
     onclick={() => setView('pipeline')}
   >
-    <Icon name="viewPipeline" />
+    <Icon name="viewPipeline" size={18} />
     <span>Pipeline</span>
   </button>
   <button
@@ -68,7 +68,7 @@
     title="Complex playground · explore image transforms"
     onclick={() => setView('playground')}
   >
-    <Icon name="viewPlayground" />
+    <Icon name="viewPlayground" size={18} />
     <span>Playground</span>
   </button>
   <div class="spacer"></div>
@@ -107,6 +107,7 @@
     padding: 0;
   }
   .tool:disabled { opacity: 0.4; cursor: not-allowed; }
+  .tool :global(svg) { flex-shrink: 0; }
   .tool:hover:not(:disabled) { background: var(--panel-2); }
   .tool.active {
     background: var(--accent);
@@ -116,7 +117,7 @@
   .spacer { flex: 1; }
   @media (max-height: 520px) and (min-width: 721px) {
     .rail { width: 108px; padding: 4px; gap: 2px; }
-    .tool { width: 98px; min-height: 36px; flex-direction: row; gap: 6px; justify-content: flex-start; padding-inline: 8px; }
+    .tool { width: 98px; min-height: 36px; flex-direction: row; gap: 6px; justify-content: flex-start; padding-inline: 4px; }
   }
   @media (max-width: 720px) {
     .rail {
@@ -129,8 +130,7 @@
       justify-content: center;
       gap: 2px;
     }
-    .tool { flex: 1 0 auto; min-width: 0; width: auto; min-height: 40px; font-size: 11px; gap: 0; }
-    .tool :global(svg) { display: none; }
+    .tool { flex: 1 0 auto; min-width: 0; width: auto; min-height: 40px; font-size: 11px; gap: 4px; }
     .tool.active { background: var(--accent-soft); color: var(--accent); border-color: transparent; }
     .spacer { display: none; }
   }

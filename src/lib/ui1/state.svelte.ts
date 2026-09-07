@@ -19,12 +19,11 @@ export type Direction = 'in' | 'out';
 export type Theme = 'light-neutral' | 'light-warm' | 'dark-warm';
 /**
  * Which stage(s) are visible.
- *   split   — image+rect side-by-side with the spiral preview (default).
- *   source  — only the source image with the rect overlay.
+ *   split   — Create: image+rect beside the Droste preview (default).
  *   preview — only the live tententoon spiral.
  *   droste  — the regular nested-rectangle Droste effect with a smooth
- *             self-similar zoom. While this mode is active, exports
- *             and shares capture this animation instead of the spiral.
+ *             self-similar zoom. Both split and droste export/share this
+ *             animation; preview exports/shares the tententoon spiral.
  *   pipeline— the 4-panel explorable: rect editor (top-left) + the log,
  *             rotated-log, and tententoon-still derived panels. A static
  *             view of the math; playback/exports are irrelevant here.
@@ -37,6 +36,11 @@ export type Theme = 'light-neutral' | 'light-warm' | 'dark-warm';
  * ResizeObserver readouts.
  */
 export type ViewMode = 'split' | 'preview' | 'droste' | 'pipeline' | 'playground';
+
+/** Keep exports and shares aligned with the preview shown in Create and Droste. */
+export function isDrosteView(view: ViewMode): boolean {
+  return view === 'split' || view === 'droste';
+}
 
 export type Rect = { x: number; y: number; w: number; h: number };
 
