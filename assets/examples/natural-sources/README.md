@@ -2,6 +2,8 @@
 
 Twelve photographic images generated with the built-in `image_gen` tool on 2026-09-07. These are generated scenes, not documentary photographs of actual places. Every source is deliberately ordinary and contains no recursive imagery. The gallery renderer creates all Droste repetitions and spirals.
 
+For new candidates, use the [selection and generation guide](../../../docs/IMAGE-CANDIDATES.md). It consolidates the composition rules, size heuristics, reusable prompts, failed approaches and browser acceptance process behind this collection.
+
 The sources replace the earlier recursive concepts in the current gallery. The original PNGs are preserved here; browser derivatives are `public/gallery-images/natural-*.webp`. Run `python3 scripts/prepare-gallery-images.py` from the repository root to rebuild the display images and thumbnails.
 
 Exact final prompts, original generated file paths, and source inspection notes:

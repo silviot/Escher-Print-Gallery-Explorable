@@ -45,6 +45,8 @@ Drop in any picture, draw the rectangle where the next copy should sit, and flip
 
 **Live:** [tententoon.codemyriad.io/tool](https://tententoon.codemyriad.io/tool)
 
+**Choosing or generating a source image:** [What makes a good tententoon candidate](docs/IMAGE-CANDIDATES.md) covers composition, small openings, reusable generation prompts, and review in the actual renderer. Start with an ordinary image; let the tool create the recursion.
+
 ---
 
 <details>

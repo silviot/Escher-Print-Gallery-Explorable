@@ -2,19 +2,21 @@
 
 A reusable Svelte 5 gallery over the app's actual Droste / log-polar rendering pipeline. The standalone exhibition lives at `/gallery/`, `/gallery/passage.html`, and `/gallery/cabinet.html`.
 
+Read [Choosing and generating images for tententoon](../../../docs/IMAGE-CANDIDATES.md) before adding sources. It includes reusable prompts, composition and crop guidance, and the browser review checklist.
+
 ```svelte
 <script lang="ts">
   import { TententoonGallery, type GalleryItem } from './lib/gallery';
   const items: GalleryItem[] = [{
     id: 'my-picture',
-    title: 'A world inside',
-    description: 'Follow the opening into the same scene again.',
-    src: '/pictures/world.webp',
-    thumbnail: '/pictures/world-small.webp',
-    alt: 'A courtyard with a smaller courtyard inside a doorway.',
+    title: 'Before the shutter',
+    description: 'Follow an ordinary lens into a smaller copy of the room.',
+    src: '/gallery-images/natural-camera.webp',
+    thumbnail: '/gallery-images/natural-camera-thumb.webp',
+    alt: 'A camera with a normal dark glass lens and red strap on a wooden table.',
     category: 'My collection',
-    nest: { x: .3, y: .3, w: .4, h: .4 },
-    shape: 'rect'
+    nest: { x: .443, y: .481, w: .148, h: .151 },
+    shape: 'ellipse'
   }];
 </script>
 
