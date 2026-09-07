@@ -263,7 +263,7 @@
     {:else if !doc.image}
       <div class="hint mono">Load an image first.</div>
     {:else}
-      <div class="hint mono">Draw a frame in Edit to see nested copies.</div>
+      <div class="hint mono">Draw a frame in Create to see nested copies.</div>
     {/if}
   </div>
 </section>

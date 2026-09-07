@@ -221,7 +221,7 @@
       onclick={toggle}
       disabled={busy || !doc.image || !doc.crop}
     >
-      <Icon name="share" />
+      <Icon name="share" size={18} />
       <span class="tool-label">Share</span>
     </button>
     {#if open}
@@ -326,7 +326,6 @@
   .tool-label { font-size: 11px; line-height: 1.2; }
   @media (max-width: 720px) {
     .tool { width: 46px; min-height: 40px; }
-    .tool :global(svg) { display: none; }
     .tool-label { font-size: 10px; }
   }
 

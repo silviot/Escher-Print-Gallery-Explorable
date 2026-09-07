@@ -21,22 +21,11 @@
     class:active={ui.view === 'split'}
     aria-pressed={ui.view === 'split'}
     disabled={!doc.image}
-    title="Edit frame · picture and spiral side by side"
+    title="Create a tententoon · picture and preview side by side"
     onclick={() => setView('split')}
   >
     <Icon name="viewSplit" />
-    <span>Edit</span>
-  </button>
-  <button
-    class="tool"
-    class:active={ui.view === 'preview'}
-    aria-pressed={ui.view === 'preview'}
-    disabled={!doc.image}
-    title="Tententoon · spiraling copies"
-    onclick={() => setView('preview')}
-  >
-    <Icon name="viewPreview" />
-    <span>Spiral</span>
+    <span>Create</span>
   </button>
   <button
     class="tool"
@@ -48,6 +37,17 @@
   >
     <Icon name="viewDroste" />
     <span>Droste</span>
+  </button>
+  <button
+    class="tool"
+    class:active={ui.view === 'preview'}
+    aria-pressed={ui.view === 'preview'}
+    disabled={!doc.image}
+    title="Tententoon · spiraling copies"
+    onclick={() => setView('preview')}
+  >
+    <Icon name="viewPreview" />
+    <span>Tententoon</span>
   </button>
   <button
     class="tool"
@@ -129,7 +129,7 @@
       justify-content: center;
       gap: 2px;
     }
-    .tool { flex: 1; min-width: 0; width: auto; min-height: 40px; font-size: 11px; gap: 0; }
+    .tool { flex: 1 0 auto; min-width: 0; width: auto; min-height: 40px; font-size: 11px; gap: 0; }
     .tool :global(svg) { display: none; }
     .tool.active { background: var(--accent-soft); color: var(--accent); border-color: transparent; }
     .spacer { display: none; }

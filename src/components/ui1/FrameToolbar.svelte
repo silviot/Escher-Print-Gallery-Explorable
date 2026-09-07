@@ -34,7 +34,7 @@
         </button>
       </div>
     </div>
-    <span class="hint">{ui.view !== 'split' && ui.view !== 'pipeline' ? 'Choose Edit to adjust the frame on your picture.' : hasFrame ? 'Drag the frame to move it; drag its handles to resize.' : 'Drag on the picture to place the next copy.'}</span>
+    <span class="hint">{ui.view !== 'split' && ui.view !== 'pipeline' ? 'Choose Create to adjust the frame on your picture.' : hasFrame ? 'Drag the frame to move it; drag its handles to resize.' : 'Drag on the picture to place the next copy.'}</span>
   {:else}
     <span class="label">Complex playground</span>
   {/if}
