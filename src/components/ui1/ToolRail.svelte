@@ -1,7 +1,7 @@
 <script lang="ts">
   import Icon from './Icon.svelte';
   import ShareMenu from './ShareMenu.svelte';
-  import { ui, type ViewMode } from '../../lib/ui1/state.svelte';
+  import { ui, doc, type ViewMode } from '../../lib/ui1/state.svelte';
   import { markGestureEnd } from '../../lib/ui1/tententoon.svelte';
 
   type Props = {
@@ -19,47 +19,57 @@
   <button
     class="tool"
     class:active={ui.view === 'split'}
-    title="Side-by-side view"
-    aria-label="Side-by-side view"
+    aria-pressed={ui.view === 'split'}
+    disabled={!doc.image}
+    title="Edit frame · picture and spiral side by side"
     onclick={() => setView('split')}
   >
     <Icon name="viewSplit" />
+    <span>Edit</span>
   </button>
   <button
     class="tool"
     class:active={ui.view === 'preview'}
-    title="tententoon"
-    aria-label="tententoon"
+    aria-pressed={ui.view === 'preview'}
+    disabled={!doc.image}
+    title="Tententoon · spiraling copies"
     onclick={() => setView('preview')}
   >
     <Icon name="viewPreview" />
+    <span>Spiral</span>
   </button>
   <button
     class="tool"
     class:active={ui.view === 'droste'}
-    title="droste"
-    aria-label="droste"
+    aria-pressed={ui.view === 'droste'}
+    disabled={!doc.image}
+    title="Droste · nested copies"
     onclick={() => setView('droste')}
   >
     <Icon name="viewDroste" />
+    <span>Droste</span>
   </button>
   <button
     class="tool"
     class:active={ui.view === 'pipeline'}
-    title="Pipeline (log · rotated log · tententoon)"
-    aria-label="Pipeline view"
+    aria-pressed={ui.view === 'pipeline'}
+    disabled={!doc.image}
+    title="Pipeline · see how the spiral is made"
     onclick={() => setView('pipeline')}
   >
     <Icon name="viewPipeline" />
+    <span>Pipeline</span>
   </button>
   <button
     class="tool"
     class:active={ui.view === 'playground'}
-    title="Complex playground (f(z) explorer)"
-    aria-label="Complex playground"
+    aria-pressed={ui.view === 'playground'}
+    disabled={!doc.image}
+    title="Complex playground · explore image transforms"
     onclick={() => setView('playground')}
   >
     <Icon name="viewPlayground" />
+    <span>Playground</span>
   </button>
   <div class="spacer"></div>
   <!-- Self-hides on browsers without navigator.canShare for files. -->
@@ -68,7 +78,7 @@
 
 <style>
   .rail {
-    width: 48px;
+    width: 88px;
     background: var(--panel);
     border-right: 1px solid var(--border);
     padding: 8px;
@@ -79,8 +89,13 @@
     flex-shrink: 0;
   }
   .tool {
-    width: 36px;
-    height: 36px;
+    width: 72px;
+    min-height: 58px;
+    flex-direction: column;
+    gap: 5px;
+    font: inherit;
+    font-size: 11px;
+    line-height: 1.2;
     border-radius: 8px;
     background: transparent;
     color: var(--ink-2);
@@ -91,34 +106,32 @@
     cursor: pointer;
     padding: 0;
   }
-  .tool:hover { background: var(--panel-2); }
+  .tool:disabled { opacity: 0.4; cursor: not-allowed; }
+  .tool:hover:not(:disabled) { background: var(--panel-2); }
   .tool.active {
     background: var(--accent);
     color: #fff;
     border-color: var(--accent);
   }
   .spacer { flex: 1; }
-  /* Touch viewports: bump the hit target to 40 px and widen the rail
-     to match. 36 px is too small for thumbs and Apple HIG asks for
-     more anyway. */
-  @media (pointer: coarse) {
-    .rail { width: 56px; padding: 8px 6px; }
-    .tool { width: 44px; height: 44px; }
+  @media (max-height: 520px) and (min-width: 721px) {
+    .rail { width: 108px; padding: 4px; gap: 2px; }
+    .tool { width: 98px; min-height: 36px; flex-direction: row; gap: 6px; justify-content: flex-start; padding-inline: 8px; }
   }
-  /* Narrow viewports: flip the rail to a horizontal bar below the canvas.
-     Recovers ~48-56 px of canvas width — big win on 360 px phones.
-     UiVariant1's .body flips to column to match. */
   @media (max-width: 720px) {
     .rail {
       width: 100%;
       flex-direction: row;
       border-right: none;
       border-top: 1px solid var(--border);
-      padding: 6px 8px;
+      padding: 2px 6px;
+      padding-bottom: max(2px, env(safe-area-inset-bottom));
       justify-content: center;
-      gap: 6px;
+      gap: 2px;
     }
-    .tool { width: 40px; height: 40px; }
+    .tool { flex: 1; min-width: 0; width: auto; min-height: 40px; font-size: 11px; gap: 0; }
+    .tool :global(svg) { display: none; }
+    .tool.active { background: var(--accent-soft); color: var(--accent); border-color: transparent; }
     .spacer { display: none; }
   }
 </style>

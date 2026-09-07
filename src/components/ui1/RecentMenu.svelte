@@ -18,6 +18,7 @@
   import { putBlob, requestPersistentStorage } from '../../lib/ui1/persistence';
 
   let open = $state(false);
+  let { expandedLabel = false, onPick }: { expandedLabel?: boolean; onPick?: () => void } = $props();
   let loading = $state<string | null>(null);
 
   const entries = $derived(historyState.entries);
@@ -40,9 +41,11 @@
           throw error;
         }
         setImage(r.image, r.name);
+        ui.view = 'split';
         markCreate({ kind: 'blob', hash });
       }
       open = false;
+      onPick?.();
     } catch {
       ui.exportToast = 'Could not open and save this photo in your browser. Please try again.';
     } finally {
@@ -67,13 +70,13 @@
 </script>
 
 {#if entries.length > 0}
-  <div class="wrap">
+  <div class="wrap" class:expanded-label={expandedLabel}>
     <button
       class="btn ghost compactable"
       class:active={open}
       onclick={toggle}
-      title="Recent tententoons"
-      aria-label="Recent tententoons"
+      title="Recent pictures"
+      aria-label="Recent pictures"
       aria-expanded={open}
     >
       <Icon name="history" size={14} /><span class="lbl">Recent</span>
@@ -121,7 +124,8 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 5px 10px;
+    min-height: 36px;
+    padding: 7px 10px;
     font-size: 12px;
     font-weight: 500;
     font-family: inherit;
@@ -134,13 +138,14 @@
   .btn.ghost { background: transparent; border-color: transparent; }
   .btn.ghost:hover { background: var(--panel-2); }
   .btn.active { background: var(--panel-2); }
+  .expanded-label { display: flex; width: 100%; }
+  .expanded-label .btn { width: 100%; min-height: 40px; padding: 8px 10px; gap: 10px; font-size: 13px; }
+  .expanded-label .lbl { display: inline; }
   @media (max-width: 720px) {
-    .compactable .lbl { display: none; }
-    .compactable { padding: 5px 7px; gap: 0; }
+    .wrap:not(.expanded-label) .compactable .lbl { display: none; }
+    .compactable { padding: 7px; min-height: 40px; gap: 0; }
   }
-  @media (pointer: coarse) {
-    .btn { padding: 8px 12px; }
-  }
+
   /* Click-outside closer. */
   .backdrop {
     position: fixed;

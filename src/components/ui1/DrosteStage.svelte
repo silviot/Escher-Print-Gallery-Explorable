@@ -249,7 +249,8 @@
   });
 </script>
 
-<section class="droste">
+<section class="droste" aria-label="Droste preview">
+  <div class="stage-label">Droste preview</div>
   <div class="viewport" bind:this={viewport}>
     {#if doc.image && params}
       <canvas
@@ -262,7 +263,7 @@
     {:else if !doc.image}
       <div class="hint mono">Load an image first.</div>
     {:else}
-      <div class="hint mono">Draw a rectangle to see the Droste effect.</div>
+      <div class="hint mono">Draw a frame in Edit to see nested copies.</div>
     {/if}
   </div>
 </section>

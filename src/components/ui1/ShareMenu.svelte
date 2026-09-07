@@ -217,10 +217,12 @@
       class:active={open}
       title="Share…"
       aria-label="Share"
+      aria-expanded={open}
       onclick={toggle}
       disabled={busy || !doc.image || !doc.crop}
     >
       <Icon name="share" />
+      <span class="tool-label">Share</span>
     </button>
     {#if open}
       <!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -300,8 +302,10 @@
   /* Match the .tool styling from ToolRail so the button reads as a
      sibling of the view buttons. */
   .tool {
-    width: 36px;
-    height: 36px;
+    width: 72px;
+    min-height: 50px;
+    flex-direction: column;
+    gap: 4px;
     border-radius: 8px;
     background: transparent;
     color: var(--ink-2);
@@ -319,8 +323,11 @@
     border-color: var(--accent);
   }
   .tool:disabled { opacity: 0.4; cursor: not-allowed; }
-  @media (pointer: coarse) {
-    .tool { width: 44px; height: 44px; }
+  .tool-label { font-size: 11px; line-height: 1.2; }
+  @media (max-width: 720px) {
+    .tool { width: 46px; min-height: 40px; }
+    .tool :global(svg) { display: none; }
+    .tool-label { font-size: 10px; }
   }
 
   /* Menu pops up to the RIGHT of the rail (rail is on the left edge

@@ -5,8 +5,9 @@
   import InfoModal from './InfoModal.svelte';
   import Gallery from './Gallery.svelte';
   import RenameModal from './RenameModal.svelte';
+  import MobileMenu from './MobileMenu.svelte';
   import {
-    ui, doc, setImage, commitNewRect, animateShapeMorph,
+    ui, doc, setImage,
     setThemeOverride, readThemeOverride, systemTheme
   } from '../../lib/ui1/state.svelte';
   import { loadFile } from '../../lib/ui1/file';
@@ -14,12 +15,8 @@
   import {
     markCreate,
     currentTententoon,
-    renameTententoon,
-    performUndo,
-    performRedo,
-    markGestureEnd
+    renameTententoon
   } from '../../lib/ui1/tententoon.svelte';
-  import { undoState } from '../../lib/ui1/undo.svelte';
   import { putBlob, requestPersistentStorage } from '../../lib/ui1/persistence';
 
   type Props = {
@@ -33,33 +30,9 @@
   let galleryOpen = $state(false);
   let renameOpen = $state(false);
 
-  // Reactive — read undoState deps so the buttons re-render on stack changes.
-  const undoOk = $derived(undoState.pointer > 0);
-  const redoOk = $derived(undoState.pointer >= 0 && undoState.pointer < undoState.stack.length - 1);
-
   function saveCurrentName(name: string) {
     if (currentTententoon.id) renameTententoon(currentTententoon.id, name);
     renameOpen = false;
-  }
-
-  function reset() {
-    // Zero rect → commitNewRect also nulls doc.crop so the working
-    // frame returns to "none" alongside the rect.
-    commitNewRect({ x: 0, y: 0, w: 0, h: 0 });
-  }
-
-  // Toggle the frame shape between rectangle and inscribed ellipse. The
-  // drag box + handles are identical either way; only the mask/outline and
-  // the nested-Droste windows change. markGestureEnd persists + records an
-  // undo step (shape is part of the tententoon snapshot).
-  function toggleShape() {
-    doc.shape = doc.shape === 'rect' ? 'ellipse' : 'rect';
-    animateShapeMorph(); // ease the circle↔rectangle morph instead of jumping
-    markGestureEnd();
-  }
-
-  async function replace() {
-    input.click();
   }
 
   async function onFile(files: FileList | null) {
@@ -71,6 +44,7 @@
       try {
         const hash = await putBlob(file);
         setImage(r.image, r.name);
+        ui.view = 'split';
         markCreate({ kind: 'blob', hash });
         void addToHistory(file, r.image, r.name);
       } catch {
@@ -103,7 +77,7 @@
     }
   }
   function themeTitle(): string {
-    if (followsSystem) return `Theme: auto (${systemTheme()}) — click for light`;
+    if (followsSystem) return `Theme: auto (${systemTheme()}) — click for ${systemTheme() === 'dark' ? 'light' : 'dark'}`;
     return isDark ? 'Theme: dark — click for auto' : 'Theme: light — click for dark';
   }
 </script>
@@ -127,93 +101,70 @@
       title={currentTententoon.id ? 'Rename' : ''}
       aria-label="Rename tententoon"
     >
-      <Icon name="image" size={14} />
+      <Icon name="pencil" size={14} />
       <span class="fname">{currentTententoon.name || doc.imageName || 'image'}</span>
       <span class="dim mono">· {doc.image.width}×{doc.image.height}</span>
     </button>
   {:else}
     <span class="file empty">{currentTententoon.name || 'Untitled · no image'}</span>
   {/if}
-  <span class="grow"></span>
-  <button
-    class="btn ghost icon-only"
-    onclick={() => (infoOpen = true)}
-    title="About tententoon"
-    aria-label="About tententoon"
-  >
-    <Icon name="info" size={14} />
-  </button>
-  <button
-    class="btn ghost icon-only theme-toggle"
-    class:auto={followsSystem}
-    onclick={cycleTheme}
-    title={themeTitle()}
-    aria-label="Toggle theme"
-  >
-    <Icon name={isDark ? 'moon' : 'sun'} size={14} />
-  </button>
-  <button
-    class="btn ghost compactable"
-    onclick={() => (galleryOpen = true)}
-    title="Gallery"
-    aria-label="Gallery"
-  >
-    <Icon name="gallery" size={14} /><span class="lbl">Gallery</span>
-  </button>
-  <button
-    class="btn ghost icon-only"
-    onclick={performUndo}
-    disabled={!undoOk}
-    title="Undo (⌘Z)"
-    aria-label="Undo"
-  >
-    <Icon name="undo" size={14} />
-  </button>
-  <button
-    class="btn ghost icon-only"
-    onclick={performRedo}
-    disabled={!redoOk}
-    title="Redo (⇧⌘Z)"
-    aria-label="Redo"
-  >
-    <Icon name="redo" size={14} />
-  </button>
-  <button
-    class="btn ghost icon-only"
-    onclick={toggleShape}
-    disabled={!doc.image}
-    title={doc.shape === 'ellipse' ? 'Shape: ellipse — click for rectangle' : 'Shape: rectangle — click for ellipse'}
-    aria-label="Toggle selection shape"
-  >
-    <Icon name={doc.shape === 'ellipse' ? 'ellipse' : 'rect'} size={14} />
-  </button>
-  <button class="btn ghost compactable" onclick={reset} disabled={!doc.image} title="Reset rectangle" aria-label="Reset rectangle">
-    <Icon name="reset" size={14} /><span class="lbl">Reset</span>
-  </button>
-  <RecentMenu />
-  <button class="btn compactable" onclick={replace} title="Replace image" aria-label="Replace image">
-    <Icon name="upload" size={14} /><span class="lbl">Replace</span>
-  </button>
+  <div class="utilities">
+    <RecentMenu />
+    <button class="btn ghost icon-only" onclick={() => (infoOpen = true)} title="About tententoon" aria-label="About tententoon">
+      <Icon name="info" size={16} />
+    </button>
+    <button class="btn ghost icon-only theme-toggle" class:auto={followsSystem} onclick={cycleTheme} title={themeTitle()} aria-label={themeTitle()}>
+      <Icon name={isDark ? 'moon' : 'sun'} size={16} />
+    </button>
+  </div>
+  <div class="actions">
+    <div class="picture-picker">
+      <button class="btn choose" onclick={() => input.click()} title="Choose a picture from your device">
+        <Icon name="image" size={16} /><span>Choose picture</span>
+      </button>
+      <MobileMenu label="Choose picture" description="Choose a picture source" start accent>
+        {#snippet children(close)}
+          <button class="menu-action" onclick={() => { close(); input.click(); }}><Icon name="image" />From your device</button>
+          <button class="menu-action" onclick={() => { close(); galleryOpen = true; }}><Icon name="gallery" />Gallery</button>
+          <RecentMenu expandedLabel onPick={close} />
+        {/snippet}
+      </MobileMenu>
+    </div>
+    <button class="btn gallery-btn" onclick={() => (galleryOpen = true)} title="Open your saved tententoons">
+      <Icon name="gallery" size={16} /><span>Gallery</span>
+    </button>
+    <div class="mobile-actions">
+      <button class="btn icon-only" disabled={!currentTententoon.id} onclick={() => (renameOpen = true)} title="Rename picture" aria-label="Rename picture">
+        <Icon name="pencil" size={16} /><span>Rename</span>
+      </button>
+      <button class="btn icon-only theme-toggle" class:auto={followsSystem} onclick={cycleTheme} title={themeTitle()} aria-label={themeTitle()}>
+        <Icon name={isDark ? 'moon' : 'sun'} size={16} /><span>Theme</span>
+      </button>
+      <button class="btn icon-only" onclick={() => (infoOpen = true)} title="About tententoon" aria-label="About tententoon">
+        <Icon name="info" size={16} /><span>About</span>
+      </button>
+    </div>
+    <div class="exp-wrap">
+      <button
+        class="btn primary"
+        onclick={() => (ui.exportMenuOpen = !ui.exportMenuOpen)}
+        disabled={!doc.image || !doc.crop}
+        aria-expanded={ui.exportMenuOpen}
+        title={doc.crop ? 'Export an image, video, or GIF' : 'Draw a frame on the picture before exporting'}
+      >
+        <Icon name="download" size={16} /><span>Export</span>
+        <span class="caret"><Icon name="caret" size={12} /></span>
+      </button>
+      <ExportMenu {canvas} {renderFrame} />
+    </div>
+  </div>
   <input
     bind:this={input}
     type="file"
     accept="image/jpeg,image/png,image/webp"
     hidden
-    onchange={(e) => onFile((e.currentTarget as HTMLInputElement).files)}
+    onchange={(e) => { void onFile(e.currentTarget.files); e.currentTarget.value = ''; }}
   />
-  <div class="exp-wrap">
-    <button
-      class="btn primary compactable"
-      onclick={() => (ui.exportMenuOpen = !ui.exportMenuOpen)}
-      disabled={!doc.image}
-      aria-label="Export"
-      title="Export"
-    >
-      <Icon name="download" size={14} /><span class="lbl">Export</span>
-      <span class="caret"><Icon name="caret" size={12} /></span>
-    </button>
-    <ExportMenu {canvas} {renderFrame} />
-  </div>
 </header>
 
 <InfoModal open={infoOpen} onClose={() => (infoOpen = false)} />
@@ -230,7 +181,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 10px 14px;
+    padding: 10px 16px;
     background: var(--panel);
     border-bottom: 1px solid var(--border);
     position: relative;
@@ -269,6 +220,8 @@
   .name { font-size: 13px; font-weight: 600; }
   .div { width: 1px; height: 18px; background: var(--border); }
   .file {
+    flex: 1;
+    min-width: 0;
     display: inline-flex;
     align-items: center;
     gap: 6px;
@@ -297,12 +250,16 @@
   .fname { max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .dim { color: var(--muted); font-size: 11px; }
   .mono { font-family: var(--font-mono); }
-  .grow { flex: 1; }
+  .utilities, .actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .picture-picker { display: contents; }
+  .btn.choose { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
   .btn {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 5px 10px;
+    min-height: 36px;
+    white-space: nowrap;
+    padding: 7px 10px;
     font-size: 12px;
     font-weight: 500;
     font-family: inherit;
@@ -316,7 +273,7 @@
   .btn:disabled { opacity: 0.5; cursor: not-allowed; }
   .btn.ghost { background: transparent; border-color: transparent; }
   .btn.ghost:hover:not(:disabled) { background: var(--panel-2); }
-  .btn.icon-only { padding: 5px 7px; gap: 0; }
+  .btn.icon-only { width: 36px; padding: 0; justify-content: center; gap: 0; }
   .theme-toggle {
     position: relative;
     color: var(--ink-2);
@@ -346,45 +303,32 @@
   }
   .caret { opacity: 0.7; margin-left: 2px; display: inline-flex; }
   .exp-wrap { position: relative; }
+  .mobile-actions { display: none; }
 
-  /* Narrow viewports: collapse to icon-only buttons so the header
-     actions stop falling off the right edge. Export also collapses —
-     the download icon + caret reads as "export menu" once the row is
-     all icons. */
-  @media (max-width: 720px) {
-    .top { gap: 6px; padding: 8px 10px; }
-    .div { display: none; }
+  /* Group picture sources separately from name and appearance settings. */
+  @media (max-width: 1000px) {
     .dim { display: none; }
-    .fname { max-width: 140px; }
-    .compactable .lbl { display: none; }
-    .compactable { padding: 5px 7px; gap: 0; }
+    .fname { max-width: 160px; }
   }
-  /* Phone-portrait ≤ 420 px: drop the wordmark too — the logo alone
-     is enough chrome, and we need every pixel for the action row. */
-  @media (max-width: 420px) {
-    .name { display: none; }
-    .fname { max-width: 110px; }
+  @media (max-width: 720px) {
+    .top { gap: 0; padding: 4px 8px; }
+    .brand, .div, .file, .utilities, .gallery-btn, .choose { display: none; }
+    .actions { width: 100%; gap: 8px; }
+    .picture-picker { display: block; margin-right: auto; }
+    .mobile-actions { display: flex; gap: 2px; }
+    .mobile-actions .btn { width: 32px; background: transparent; border-color: transparent; }
+    .mobile-actions span { display: none; }
+    .btn { min-height: 40px; }
+    .caret { display: none; }
   }
-  /* Below ~390 px the four actions + the file chip can't co-exist on
-     one row even at minimum widths. Wrap to two rows: brand and file
-     on top, actions below, separated by a zero-height .grow as the
-     row break. Header grows ~36 px taller, all controls reachable. */
-  @media (max-width: 400px) {
-    .top {
-      flex-wrap: wrap;
-      align-items: center;
-      padding: 6px 8px;
-      overflow: visible;
-    }
-    .grow { flex-basis: 100%; height: 0; }
-    .fname { max-width: 200px; }
-    .file { display: none; }
+  @media (min-width: 480px) and (max-width: 720px) {
+    .mobile-actions .btn { width: auto; padding-inline: 8px; gap: 5px; }
+    .mobile-actions span { display: inline; }
   }
-  /* Bigger touch targets on coarse pointers (phones / tablets).
-     Apple HIG asks for 44; we land on 40 because the header bar is
-     finite and 44 forces a taller bar that eats into the canvas. */
-  @media (pointer: coarse) {
-    .btn { padding: 8px 12px; }
-    .btn.icon-only { padding: 8px 10px; }
+  @media (max-width: 360px) {
+    .top { padding-inline: 8px; }
+    .actions { gap: 4px; }
+    .actions .btn { padding-inline: 8px; gap: 5px; }
+    .mobile-actions .btn { width: 30px; padding: 0; }
   }
 </style>

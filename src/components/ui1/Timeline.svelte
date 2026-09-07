@@ -12,6 +12,7 @@
    * (= rect has area + image is loaded).
    */
   import Icon from './Icon.svelte';
+  import MobileMenu from './MobileMenu.svelte';
   import { playback, type Direction } from '../../lib/ui1/state.svelte';
   import { phase } from '../../lib/ui1/render';
   import { markGestureEnd } from '../../lib/ui1/tententoon.svelte';
@@ -62,34 +63,55 @@
   const elapsed = $derived(playback.t * playback.loopLength);
 </script>
 
-<div class="bbar">
-  <!-- ZOOM (playback direction) -->
-  <div class="bgroup">
-    <span class="micro mono">ZOOM</span>
-    <div class="segmented" role="radiogroup" aria-label="Zoom direction">
+{#snippet zoomControls()}
+    <span class="micro mono">Zoom</span>
+    <div class="segmented" role="group" aria-label="Zoom direction">
       <button
         class="seg"
         class:active={playback.direction === 'in'}
+        aria-pressed={playback.direction === 'in'}
         disabled={!enabled}
         onclick={() => setDirection('in')}
       >In</button>
       <button
         class="seg"
         class:active={playback.direction === 'out'}
+        aria-pressed={playback.direction === 'out'}
         disabled={!enabled}
         onclick={() => setDirection('out')}
       >Out</button>
     </div>
-  </div>
+{/snippet}
+
+{#snippet lengthControls()}
+    <span class="micro mono">Loop length</span>
+    <span class="slider-row">
+      <input
+        class="dslider"
+        type="range"
+        min="1"
+        max="6"
+        step="0.5"
+        bind:value={playback.loopLength}
+        disabled={!enabled}
+        aria-label="Loop length"
+      />
+      <span class="value mono">{playback.loopLength.toFixed(1)}s</span>
+    </span>
+{/snippet}
+
+<div class="bbar">
+  <div class="bgroup desktop-setting">{@render zoomControls()}</div>
 
   <!-- PLAY · time · scrubber -->
   <div class="bgroup grow play-group">
-    <button class="play" class:on={playback.playing} disabled={!enabled} onclick={toggle} title="Play / pause">
+    <button class="play" class:on={playback.playing} disabled={!enabled} onclick={toggle} title={playback.playing ? 'Pause animation (Space)' : 'Play animation (Space)'} aria-label={playback.playing ? 'Pause animation' : 'Play animation'}>
       {#if playback.playing}
         <Icon name="pause" size={14} />
       {:else}
         <Icon name="play" size={14} />
       {/if}
+      <span>{playback.playing ? 'Pause' : 'Play'}</span>
     </button>
     <span class="clock mono">{elapsed.toFixed(1)}s / {playback.loopLength.toFixed(1)}s</span>
     <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -112,23 +134,13 @@
     </div>
   </div>
 
-  <!-- LENGTH (loop duration) -->
-  <div class="bgroup">
-    <span class="micro mono">LENGTH</span>
-    <span class="slider-row">
-      <input
-        class="dslider"
-        type="range"
-        min="1"
-        max="6"
-        step="0.5"
-        bind:value={playback.loopLength}
-        disabled={!enabled}
-        aria-label="Loop length"
-      />
-      <span class="value mono">{playback.loopLength.toFixed(1)}s</span>
-    </span>
-  </div>
+  <div class="bgroup desktop-setting">{@render lengthControls()}</div>
+  <MobileMenu label={`Loop · ${playback.loopLength}s`} description="Animation settings" above>
+    {#snippet children()}
+      <div class="mobile-setting">{@render zoomControls()}</div>
+      <div class="mobile-setting">{@render lengthControls()}</div>
+    {/snippet}
+  </MobileMenu>
 
 </div>
 
@@ -143,7 +155,7 @@
     flex-wrap: wrap;
     row-gap: 4px;
     min-height: 56px;
-    overflow: hidden;
+    overflow: visible;
   }
   .bgroup {
     display: flex;
@@ -156,38 +168,10 @@
   .bgroup:first-child { border-left: 0; }
   .grow { flex: 1; min-width: 220px; }
 
-  /* Narrow viewports: drop the borders between wrapped groups and
-     hide the micro labels so the bar packs into two rows — play +
-     scrubber on top (full width), ZOOM / LENGTH / SPEED packed below.
-     The play row stays first because order: -1 on .grow pulls it
-     ahead of its siblings without changing markup. */
-  @media (max-width: 720px) {
-    .bgroup {
-      border-left: 0;
-      padding: 0 6px;
-      gap: 6px;
-      height: 36px;
-    }
-    .grow { flex-basis: 100%; min-width: 0; order: -1; height: 40px; }
-    .micro { display: none; }
-    .dslider { width: 72px; }
-    .seg { padding: 3px 8px; font-size: 11px; }
-    .clock { min-width: 78px; font-size: 10px; }
-    .play-group { gap: 8px; }
-  }
-  /* Extra-narrow: hide the duration readout and compress further. */
-  @media (max-width: 400px) {
-    .dslider { width: 56px; }
-    .value { display: none; }
-    .seg { padding: 3px 6px; font-size: 10px; }
-    .bgroup { padding: 0 4px; gap: 4px; }
-  }
   .micro {
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--muted);
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--ink-2);
     white-space: nowrap;
   }
   .mono { font-family: var(--font-mono); }
@@ -203,13 +187,14 @@
     gap: 2px;
   }
   .seg {
+    min-height: 32px;
     padding: 4px 10px;
     font-size: 12px;
     border-radius: 5px;
     background: transparent;
     border: 0;
     color: var(--muted);
-    font: inherit;
+    font-family: inherit;
     cursor: pointer;
   }
   .seg:hover:not(:disabled) { color: var(--ink); }
@@ -220,19 +205,15 @@
     box-shadow: var(--shadow);
   }
   .seg:disabled { opacity: 0.5; cursor: not-allowed; }
-  /* Coarse-pointer overrides only above the mobile breakpoint.
-     Below 720 px the compact sizes from the width query win. */
-  @media (pointer: coarse) and (min-width: 721px) {
-    .seg { padding: 8px 12px; font-size: 13px; }
-    .play { width: 40px; height: 40px; }
-  }
-
   /* Play button + clock + scrubber */
   .play-group { gap: 12px; }
   .play {
-    width: 32px;
-    height: 32px;
-    border-radius: 999px;
+    min-width: 72px;
+    height: 36px;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    border-radius: 7px;
     border: 1px solid var(--border-strong);
     background: var(--panel-2);
     color: var(--ink);
@@ -240,7 +221,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0;
+    padding: 0 10px;
     flex-shrink: 0;
   }
   .play.on {
@@ -317,7 +298,7 @@
     gap: 8px;
   }
   .dslider {
-    width: 120px;
+    width: 100px;
     accent-color: var(--accent);
   }
   .value {
@@ -326,5 +307,24 @@
     font-variant-numeric: tabular-nums;
     min-width: 38px;
     text-align: right;
+  }
+  @media (pointer: coarse) {
+    .seg { min-height: 36px; }
+    .play { height: 40px; }
+  }
+  .mobile-setting { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px; }
+  @media (max-width: 720px) {
+    .bbar { flex-wrap: nowrap; gap: 0; padding: 4px 0; min-height: 48px; }
+    .desktop-setting, .clock { display: none; }
+    .bgroup { border: 0; padding: 0 10px; height: 40px; }
+    .grow { min-width: 0; }
+    .play-group { gap: 12px; }
+    .play { min-width: 64px; }
+    .track { min-width: 40px; }
+    .bbar > :global(.mobile-menu) { margin-right: 8px; }
+    .mobile-setting .micro { font-size: 12px; }
+    .mobile-setting .dslider { width: 92px; margin: 0; }
+    .mobile-setting .value { min-width: 32px; }
+    .mobile-setting .slider-row { gap: 6px; }
   }
 </style>

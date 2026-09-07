@@ -170,7 +170,8 @@
   });
 </script>
 
-<section class="preview">
+<section class="preview" aria-label="Spiral preview">
+  <div class="stage-label">Spiral preview</div>
   <div class="viewport" bind:this={viewport}>
     {#if doc.image}
       <canvas
@@ -182,7 +183,7 @@
         style:height="{fit?.h ?? 0}px"
       ></canvas>
       {#if !hasRect}
-        <div class="hint mono">Draw a rectangle to see the spiral.</div>
+        <div class="hint mono">Draw a frame in Edit to see your spiral.</div>
       {/if}
     {:else}
       <div class="hint mono">Load an image first.</div>

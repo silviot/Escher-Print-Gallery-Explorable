@@ -15,6 +15,7 @@
 
   import './ui1/tokens.css';
   import TopBar from './ui1/TopBar.svelte';
+  import FrameToolbar from './ui1/FrameToolbar.svelte';
   import ToolRail from './ui1/ToolRail.svelte';
   import CanvasStage from './ui1/CanvasStage.svelte';
   import PreviewStage from './ui1/PreviewStage.svelte';
@@ -53,7 +54,12 @@
   function onKey(e: KeyboardEvent) {
     const tag = (e.target as HTMLElement | null)?.tagName;
     const inField = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
-    if (inField) return;
+    const target = e.target as HTMLElement | null;
+    if (inField || target?.isContentEditable) return;
+    // Let focused controls keep their native Space/arrow-key behaviour,
+    // and leave keyboard input inside dialogs to the dialog itself.
+    if (target?.closest('[role="dialog"]')) return;
+    if (target?.closest('button, a, summary, [role="slider"]') && !e.metaKey && !e.ctrlKey) return;
     if ((e.metaKey || e.ctrlKey) && (e.key === 'z' || e.key === 'Z')) {
       e.preventDefault();
       if (e.shiftKey) performRedo();
@@ -72,6 +78,7 @@
       playback.t = Math.min(1, playback.t + 0.02);
     } else if ((e.metaKey || e.ctrlKey) && (e.key === 'e' || e.key === 'E')) {
       e.preventDefault();
+      if (!doc.image || !doc.crop) return;
       ui.exportMenuOpen = !ui.exportMenuOpen;
     } else if (e.key === 'Escape') {
       ui.exportMenuOpen = false;
@@ -108,6 +115,7 @@
 
 <div class="ui1-root theme-{ui.theme}">
   <TopBar {canvas} {renderFrame} />
+  {#if doc.image}<FrameToolbar />{/if}
   <div class="body">
     <ToolRail {renderFrame} />
     {#if phase() === 'empty'}
@@ -198,6 +206,7 @@
     display: flex;
     flex-direction: column;
     min-width: 0;
+    min-height: 0;
   }
   .stages {
     flex: 1;

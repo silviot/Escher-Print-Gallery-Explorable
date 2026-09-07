@@ -21,6 +21,7 @@
       try {
         const hash = await putBlob(file);
         setImage(r.image, r.name);
+        ui.view = 'split';
         // Gallery "New" entries are filled in place.
         markSourceLoaded({ kind: 'blob', hash });
         void addToHistory(file, r.image, r.name);
@@ -45,6 +46,7 @@
     const r = await loadUrl(url);
     if (r.ok) {
       setImage(r.image, r.name);
+      ui.view = 'split';
       // Tuned rect for the bundled Droste sample — lands near the
       // photograph's natural focal point so the spiral preview has a
       // sensible starting frame instead of a 0×0 rect.
@@ -63,6 +65,7 @@
     // Ephemeral test input — load it as the working image without touching
     // the gallery/persistence source tracking (patterns aren't files).
     setImage(bmp, kind === 'polar' ? 'Polar grid' : 'Cartesian grid');
+    ui.view = 'split';
     commitNewRect(patternNest());
     errorMsg = null;
   }
@@ -99,11 +102,11 @@
   aria-label="Image drop zone"
 >
   <span class="bigicon"><Icon name="uploadBig" size={28} stroke={1.8} /></span>
-  <div class="h">Drop an image to start</div>
-  <div class="s">or paste from clipboard · click to choose · JPG, PNG, WebP up to 20 MB</div>
+  <div class="h">Choose a picture to start</div>
+  <div class="s">Drop a picture here, paste it, or choose one from your device.</div>
   <div class="actions">
     <button class="btn primary" onclick={() => input.click()}>
-      <Icon name="upload" size={14} />Choose photo
+      <Icon name="upload" size={14} />Choose picture
     </button>
     <button class="btn ghost" onclick={trySample}>Try with sample</button>
   </div>
@@ -112,7 +115,7 @@
     <button class="btn chip" onclick={() => tryPattern('polar')}>Polar grid</button>
     <button class="btn chip" onclick={() => tryPattern('grid')}>Cartesian grid</button>
   </div>
-  <span class="footnote mono">Your photos stay in this browser.</span>
+  <span class="footnote mono">JPG, PNG, WebP · up to 20 MB. Your photos stay in this browser.</span>
   {#if errorMsg}
     <span class="error mono">· {errorMsg}</span>
   {/if}

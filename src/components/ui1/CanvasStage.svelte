@@ -621,7 +621,8 @@
   const cropOutlineD = $derived(overlayCrop ? boxPath(overlayCrop, 0.5, shapeAnim.morph) : '');
 </script>
 
-<section class="stage" class:has-image={!!doc.image}>
+<section class="stage" class:has-image={!!doc.image} aria-label="Picture and repeating frame">
+  <div class="stage-label" class:needs-frame={!hasRect}>Picture <span>· {hasRect ? 'drag frame or handles to adjust' : 'drag to draw a frame'}</span></div>
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div
     class="viewport"
@@ -744,7 +745,8 @@
     font-family: var(--font-mono);
     pointer-events: none;
   }
-  .hud-tl { top: 8px; left: 12px; }
+  .hud-tl { bottom: 8px; left: 12px; }
   .hud-br { bottom: 8px; right: 12px; }
   .mono { font-family: var(--font-mono); }
+  @media (max-width: 720px) { .hud-tl, .hud-br { display: none; } }
 </style>
