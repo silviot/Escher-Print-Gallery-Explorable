@@ -10,7 +10,7 @@ const artwork = (id: string) => ({
  * Generated concept artwork, including photographic-looking studies.
  * These are not photographs of real places or people. Most source artworks
  * already imagine recursion; the gallery adds precisely repeating copies.
- * Nest regions are square, normalized to the complete uncropped source.
+ * Nest regions follow the actual openings, normalized to the uncropped source.
  */
 export const galleryItems: GalleryItem[] = [
   {
@@ -60,7 +60,7 @@ export const galleryItems: GalleryItem[] = [
     ...artwork('photo-greenhouse'),
     category: 'Photographic',
     alt: 'Generated photographic study of a weathered glass greenhouse with tomato plants, a terracotta pot and a yellow watering can repeating through its doorway.',
-    nest: { x: 0.38, y: 0.36, w: 0.3, h: 0.3 },
+    nest: { x: 0.38, y: 0.278, w: 0.307, h: 0.482 },
     shape: 'rect',
   },
   {
@@ -90,7 +90,7 @@ export const galleryItems: GalleryItem[] = [
     ...artwork('book-library'),
     category: 'Imagined',
     alt: 'Generated artwork of an open red book whose curved pages become library shelves and staircases, with the entire book repeating in a central frame.',
-    nest: { x: 0.331, y: 0.32, w: 0.334, h: 0.334 },
+    nest: { x: 0.328, y: 0.298, w: 0.337, h: 0.408 },
     shape: 'rect',
   },
   {
@@ -120,7 +120,7 @@ export const galleryItems: GalleryItem[] = [
     ...artwork('recursive-theatre'),
     category: 'Imagined',
     alt: 'Generated artwork of a miniature cutaway brick theatre with velvet curtains and empty seats, containing smaller copies of the entire theatre on its stage.',
-    nest: { x: 0.325, y: 0.355, w: 0.35, h: 0.35 },
+    nest: { x: 0.327, y: 0.346, w: 0.346, h: 0.38 },
     shape: 'rect',
   },
   {

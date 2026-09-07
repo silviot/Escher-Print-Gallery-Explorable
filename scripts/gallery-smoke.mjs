@@ -38,7 +38,7 @@ try {
     assert.equal(await page.locator('.load-state').count(), 0);
   }
   await phase(1.5);
-  await page.getByRole('button', { name: 'Enter the image' }).click();
+  await page.getByRole('button', { name: 'Resume tour' }).click();
   await page.waitForTimeout(180);
   assert(Number(await page.locator('.cinema input[type=range]').inputValue()) >= 1.5, 'Resuming must not rewind the transition');
   console.log('✓ All 16 sources render; three distinct stages; resume preserves progress');
