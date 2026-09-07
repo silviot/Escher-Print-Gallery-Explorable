@@ -38,6 +38,7 @@ uniform float u_uRef;         // log-radius anchored at the canvas centre
 // escher params
 uniform float u_scale;        // canvas-px per working-px
 uniform float u_lnR0;         // log of the orientation radius R0
+uniform vec2  u_viewOffset;   // centered-cover offset in working coordinates
 
 // experiment params (defaults keep canonical behaviour)
 uniform float u_rot;          // rotated-log rotation angle (canonical: atan(logS/2π))
@@ -60,7 +61,7 @@ void main() {
   if (u_mode == 2) {
     // --- tententoon still --- twist k and a log-space pan (zoom δu, rotate δv).
     float k = u_kTwist;
-    vec2 work = pxd / u_scale;
+    vec2 work = pxd / u_scale + u_viewOffset;
     vec2 d = work - u_c;
     float R2 = dot(d, d);
     if (R2 < 1e-12) { fragColor = vec4(0.0); return; }

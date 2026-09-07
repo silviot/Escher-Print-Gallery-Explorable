@@ -155,7 +155,10 @@ export default defineConfig({
         experiments_2: resolve(process.cwd(), 'experiments-2/index.html'),
         exp2_essay: resolve(process.cwd(), 'experiments-2/essay.html'),
         exp2_inside: resolve(process.cwd(), 'experiments-2/inside.html'),
-        exp2_play: resolve(process.cwd(), 'experiments-2/play.html')
+        exp2_play: resolve(process.cwd(), 'experiments-2/play.html'),
+        gallery: resolve(process.cwd(), 'gallery/index.html'),
+        gallery_passage: resolve(process.cwd(), 'gallery/passage.html'),
+        gallery_cabinet: resolve(process.cwd(), 'gallery/cabinet.html')
       }
     }
   },

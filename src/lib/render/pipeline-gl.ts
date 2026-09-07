@@ -37,6 +37,8 @@ export type PipelineGLInput = {
   /** escher: canvas px per working px, and log of the orientation radius. */
   scale?: number;
   lnR0?: number;
+  /** Working-coordinate offset for a centered cover viewport. Default [0, 0]. */
+  viewOffset?: [number, number];
   /** Experiment overrides (default to canonical when omitted):
    *  rot   — rotated-log rotation angle (canonical atan(logS/2π)).
    *  kTwist— tententoon twist k (canonical logS/2π).
@@ -111,6 +113,7 @@ export class PipelinePanelGLRenderer {
       u_uRef: input.uRef ?? 0,
       u_scale: input.scale ?? 1,
       u_lnR0: input.lnR0 ?? 0,
+      u_viewOffset: input.viewOffset ?? [0, 0],
       u_rot: input.rot ?? Math.atan2(droste.logS, 2 * Math.PI),
       u_kTwist: input.kTwist ?? droste.logS / (2 * Math.PI),
       u_pan: [input.panU ?? 0, input.panV ?? 0],
